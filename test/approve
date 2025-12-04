@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# Run this from the root directory
+
+cd ./test || exit
+source approvals.bash
+
+export REPLICATE_HOST=http://localhost:3000
+
+describe "help"
+  approve "repli"
+  approve "repli --help"
+
+describe "info"
+  approve "repli info"
+  approve "repli info google/nano-banana"
+  approve "repli info google/nano-banana --json"

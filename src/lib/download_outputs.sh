@@ -1,0 +1,39 @@
+# usage: download_outputs PREFIX json_file
+download_outputs() {
+  local prefix="$1"
+  local json_file="$2"
+
+  if [[ ! -f "$json_file" ]]; then
+    log error file not found: "$(blue "$json_file")"
+    return 1
+  fi
+
+  # Extract URLs (string → array, array → array)
+  readarray -t urls < <(
+    jq -r '
+      (.output | if type=="string" then [.] else . end)
+      | .[]
+    ' "$json_file"
+  )
+
+  if [[ ${#urls[@]} -eq 0 || "${urls[0]}" == "null" ]]; then
+    log warn no outputs found in "$(blue "$json_file")"
+    return
+  fi
+
+  for url in "${urls[@]}"; do
+    local filename="${prefix}_$(basename "$url")"
+
+    if [[ -f "$filename" ]]; then
+      log info "skipping download, file exists: $(blue "$filename")"
+      continue
+    fi
+
+    log debug "found url: $(underlined "$url")"
+    log info "downloading to $(blue "$filename")"
+
+    wget -q -O "$filename" "$url" \
+      || log error "failed to download: $(blue_underlined "$url")"
+
+  done
+}

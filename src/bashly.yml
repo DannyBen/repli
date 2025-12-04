@@ -1,0 +1,34 @@
+name: repli
+help: Replicate Workspace Tool
+version: 0.1.0
+
+environment_variables:
+- name: log_level
+  help: Log level
+  default: info
+  allowed: [debug, info, warn, error]
+
+commands:
+- name: get
+  alias: g
+  default: true
+  help: Call Replicate using a configuration file and save the result
+  dependencies: [yq, jq, curl, wget]
+
+  args:
+  - name: config
+    help: Path to configuration file
+    default: repli.yaml
+    validate: file_exists
+
+  flags:
+  - long: --prefix
+    short: -p
+    arg: string
+    help: Prefix for saved JSON file and output files
+
+  environment_variables:
+  - &api_key
+    name: replicate_api_token
+    help: Replicate API token
+    required: true

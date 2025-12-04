@@ -1,0 +1,6 @@
+model: black-forest-labs/flux-schnell
+input:
+  prompt: abstract art depicting boredom using a portrait
+  aspect_ratio: '1:1'
+  megapixels: '0.25'
+  output_format: png

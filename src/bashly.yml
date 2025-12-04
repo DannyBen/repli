@@ -10,7 +10,7 @@ environment_variables:
 
 commands:
 - name: new
-  alias: ['n', init, i]
+  alias: ['n', init]
   help: Create a new configuration file from a tmeplate
 
   environment_variables:
@@ -63,6 +63,7 @@ commands:
     Note that under normal conditions, there should be no reason for you to use this directly. Files will be uploaded automatically as needed.
 
   dependencies: [jq, curl]
+  environment_variables: [*api_key]
 
   args:
   - name: file
@@ -70,5 +71,29 @@ commands:
     validate: file_exists
     required: true
 
-  environment_variables:
-  - *api_key
+
+- name: info
+  alias: i
+  help: Get information on a model
+  dependencies: [jq, curl]
+  environment_variables: [*api_key]
+
+  args:
+  - name: model
+    help: Model name on replicate
+    required: true
+    validate: model_name
+
+  flags:
+  - long: --example
+    short: -e
+    help: Show the example only
+  - long: --schema
+    short: -s
+    help: Show the schema only
+  - long: --plain
+    short: -p
+    help: Disable output colors
+
+  examples:
+  - repli info google/nano-banana

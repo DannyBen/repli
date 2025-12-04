@@ -29,6 +29,7 @@ repli_usage() {
   printf "  %s   Create a new configuration file from a tmeplate\n" "new   "
   printf "  %s   Call Replicate using a configuration file and save the result\n" "get   "
   printf "  %s   Upload a file to Replicate\n" "upload"
+  printf "  %s   Get information on a model\n" "info  "
   echo
 
   # :command.long_usage
@@ -60,7 +61,7 @@ repli_usage() {
 # :command.usage
 repli_new_usage() {
   printf "repli new - Create a new configuration file from a tmeplate\n\n"
-  printf "Alias: n, init, i\n"
+  printf "Alias: n, init\n"
   echo
 
   printf "%s\n" "Usage:"
@@ -196,6 +197,67 @@ repli_upload_usage() {
     # :environment_variable.usage
     printf "  %s\n" "REPLICATE_API_TOKEN (required)"
     printf "    Replicate API token\n"
+    echo
+
+  fi
+}
+
+# :command.usage
+repli_info_usage() {
+  printf "repli info - Get information on a model\n\n"
+  printf "Alias: i\n"
+  echo
+
+  printf "%s\n" "Usage:"
+  printf "  repli info MODEL [OPTIONS]\n"
+  printf "  repli info --help | -h\n"
+  echo
+
+  # :command.long_usage
+  if [[ -n "$long_usage" ]]; then
+    # :command.usage_options
+    printf "%s\n" "Options:"
+
+    # :command.usage_flags
+    # :flag.usage
+    printf "  %s\n" "--example, -e"
+    printf "    Show the example only\n"
+    echo
+
+    # :flag.usage
+    printf "  %s\n" "--schema, -s"
+    printf "    Show the schema only\n"
+    echo
+
+    # :flag.usage
+    printf "  %s\n" "--plain, -p"
+    printf "    Disable output colors\n"
+    echo
+
+    # :command.usage_fixed_flags
+    printf "  %s\n" "--help, -h"
+    printf "    Show this help\n"
+    echo
+
+    # :command.usage_args
+    printf "%s\n" "Arguments:"
+
+    # :argument.usage
+    printf "  %s\n" "MODEL"
+    printf "    Model name on replicate\n"
+    echo
+
+    # :command.usage_environment_variables
+    printf "%s\n" "Environment Variables:"
+
+    # :environment_variable.usage
+    printf "  %s\n" "REPLICATE_API_TOKEN (required)"
+    printf "    Replicate API token\n"
+    echo
+
+    # :command.usage_examples
+    printf "%s\n" "Examples:"
+    printf "  repli info google/nano-banana\n"
     echo
 
   fi
@@ -382,6 +444,14 @@ get_file_url() {
   echo "$url"
 }
 
+# src/lib/get_model_info.sh
+get_model_info() {
+  model="$1"
+
+  curl -s -H "Authorization: Bearer $REPLICATE_API_TOKEN" \
+    "https://api.replicate.com/v1/models/$model"
+}
+
 # src/lib/log.sh
 log() {
   local level="$1"
@@ -479,6 +549,13 @@ validate_file_exists() {
 validate_integer() {
   if ! [[ "$1" =~ ^[0-9]+$ ]]; then
     echo "must be an integer"
+  fi
+}
+
+# src/lib/validations/validate_model_name.sh
+validate_model_name() {
+  if ! [[ "$1" =~ ^[^/]+/[^/]+$ ]]; then
+    echo "must be in the form of author/model"
   fi
 }
 
@@ -624,6 +701,26 @@ repli_upload_command() {
 
 }
 
+# :command.function
+repli_info_command() {
+
+  # src/info_command.sh
+  model="${args[model]}"
+  plain="${args[--plain]}"
+  example="${args[--example]}"
+  schema="${args[--schema]}"
+
+  node="."
+  [[ -n "$example" ]] && node=".default_example.input"
+  [[ -n "$schema" ]] && node=".latest_version.openapi_schema.components.schemas.Input"
+
+  jq_opts=()
+  [[ -n "$plain" ]] && jq_opts+=("-M")
+
+  get_model_info "$model" | jq "${jq_opts[@]}" "$node"
+
+}
+
 # :command.parse_requirements
 parse_requirements() {
   local key
@@ -666,7 +763,7 @@ parse_requirements() {
   case $action in
     -*) ;;
 
-    new | n | init | i)
+    new | n | init)
       action="new"
       shift
       repli_new_parse_requirements "$@"
@@ -684,6 +781,13 @@ parse_requirements() {
       action="upload"
       shift
       repli_upload_parse_requirements "$@"
+      shift $#
+      ;;
+
+    info | i)
+      action="info"
+      shift
+      repli_info_parse_requirements "$@"
       shift $#
       ;;
 
@@ -1033,6 +1137,129 @@ repli_upload_parse_requirements() {
 
 }
 
+# :command.parse_requirements
+repli_info_parse_requirements() {
+  local key
+
+  # :command.fixed_flags_filter
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case "$key" in
+      --help | -h)
+        long_usage=yes
+        repli_info_usage
+        exit
+        ;;
+
+      *)
+        break
+        ;;
+
+    esac
+  done
+
+  # :command.environment_variables_filter
+
+  env_var_names+=("REPLICATE_API_TOKEN")
+  if [[ -z "${REPLICATE_API_TOKEN:-}" ]]; then
+    printf "missing required environment variable: REPLICATE_API_TOKEN\n" >&2
+    exit 1
+  fi
+
+  # :command.dependencies_filter
+  missing_deps=
+  # :dependency.filter
+  if ! command -v jq >/dev/null 2>&1; then
+    printf "missing dependency: jq\n" >&2
+    missing_deps=1
+  else
+    deps['jq']="$(command -v jq | head -n1)"
+  fi
+
+  # :dependency.filter
+  if ! command -v curl >/dev/null 2>&1; then
+    printf "missing dependency: curl\n" >&2
+    missing_deps=1
+  else
+    deps['curl']="$(command -v curl | head -n1)"
+  fi
+
+  if [[ -n $missing_deps ]]; then
+    exit 1
+  fi
+
+  # :command.command_filter
+  action="info"
+
+  # :command.parse_requirements_while
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case "$key" in
+      # :flag.case
+      --example | -e)
+
+        # :flag.case_no_arg
+        args['--example']=1
+        shift
+        ;;
+
+      # :flag.case
+      --schema | -s)
+
+        # :flag.case_no_arg
+        args['--schema']=1
+        shift
+        ;;
+
+      # :flag.case
+      --plain | -p)
+
+        # :flag.case_no_arg
+        args['--plain']=1
+        shift
+        ;;
+
+      -?*)
+        printf "invalid option: %s\n" "$key" >&2
+        exit 1
+        ;;
+
+      *)
+        # :command.parse_requirements_case
+        # :command.parse_requirements_case_simple
+        # :argument.case
+        if [[ -z ${args['model']+x} ]]; then
+          args['model']=$1
+          shift
+        else
+          printf "invalid argument: %s\n" "$key" >&2
+          exit 1
+        fi
+
+        ;;
+
+    esac
+  done
+
+  # :command.required_args_filter
+  if [[ -z ${args['model']+x} ]]; then
+    printf "missing required argument: MODEL\nusage: repli info MODEL [OPTIONS]\n" >&2
+
+    exit 1
+  fi
+
+  # :command.validations
+  # :argument.validations
+  if [[ -v args['model'] ]]; then
+    validation_output="$(validate_model_name "${args['model']:-}")"
+    if [[ -n "$validation_output" ]]; then
+      printf "validation error in %s:\n%s\n" "MODEL" "$validation_output" >&2
+      exit 1
+    fi
+  fi
+
+}
+
 # :command.initialize
 initialize() {
   declare -g version="0.1.0"
@@ -1059,6 +1286,7 @@ run() {
     "new") repli_new_command ;;
     "get") repli_get_command ;;
     "upload") repli_upload_command ;;
+    "info") repli_info_command ;;
   esac
 }
 

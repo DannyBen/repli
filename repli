@@ -19,52 +19,51 @@ version_command() {
 repli_usage() {
   printf "repli - Replicate Workspace Tool\n\n"
 
-  printf "%s\n" "Usage:"
+  printf "%s\n" "$(bold "Usage:")"
   printf "  repli COMMAND\n"
   printf "  repli [COMMAND] --help | -h\n"
   printf "  repli --version | -v\n"
   echo
   # :command.usage_commands
-  printf "%s\n" "Commands:"
-  printf "  %s   Create a new configuration file from a tmeplate\n" "new   "
-  printf "  %s   Add a new template from a remote Replicate model example\n" "add   "
-  printf "  %s   Call Replicate using a configuration file and save the result\n" "get   "
-  printf "  %s   Upload a file to Replicate\n" "upload"
-  printf "  %s   Get information on a model\n" "info  "
-  printf "  %s   Show list of uploaded files\n" "files "
+  printf "%s\n" "$(bold "Commands:")"
+  printf "  %s   Create a new configuration file from a tmeplate\n" "$(green "new")      "
+  printf "  %s   Call Replicate using a configuration file and save the result\n" "$(green "get")      "
+  printf "  %s   Get information on a model\n" "$(green "info")     "
+  printf "  %s   Manage templates\n" "$(green "templates")"
+  printf "  %s   Manage uploaded files\n" "$(green "files")    "
   echo
 
   # :command.long_usage
   if [[ -n "$long_usage" ]]; then
     # :command.usage_options
-    printf "%s\n" "Options:"
+    printf "%s\n" "$(bold "Options:")"
 
     # :command.usage_fixed_flags
-    printf "  %s\n" "--help, -h"
+    printf "  %s\n" "$(green "--help, -h")"
     printf "    Show this help\n"
     echo
-    printf "  %s\n" "--version, -v"
+    printf "  %s\n" "$(green "--version, -v")"
     printf "    Show version number\n"
     echo
 
     # :command.usage_environment_variables
-    printf "%s\n" "Environment Variables:"
+    printf "%s\n" "$(bold "Environment Variables:")"
 
     # :environment_variable.usage
-    printf "  %s\n" "REPLI_LOG_LEVEL"
+    printf "  %s\n" "$(green "REPLI_LOG_LEVEL")"
     printf "    Log level\n"
     printf "    %s\n" "Allowed: debug, info, warn, error"
     printf "    %s\n" "Default: info"
     echo
 
     # :environment_variable.usage
-    printf "  %s\n" "REPLI_MODELS_DIR"
+    printf "  %s\n" "$(green "REPLI_MODELS_DIR")"
     printf "    Path to templates dir\n"
     printf "    %s\n" "Default: $HOME/repli/models"
     echo
 
     # :environment_variable.usage
-    printf "  %s\n" "REPLICATE_API_TOKEN (required)"
+    printf "  %s\n" "$(green "REPLICATE_API_TOKEN (required)")"
     printf "    Replicate API token\n"
     echo
 
@@ -77,7 +76,7 @@ repli_new_usage() {
   printf "Alias: n, init\n"
   echo
 
-  printf "%s\n" "Usage:"
+  printf "%s\n" "$(bold "Usage:")"
   printf "  repli new [SEARCH] [OPTIONS]\n"
   printf "  repli new --help | -h\n"
   echo
@@ -85,84 +84,36 @@ repli_new_usage() {
   # :command.long_usage
   if [[ -n "$long_usage" ]]; then
     # :command.usage_options
-    printf "%s\n" "Options:"
+    printf "%s\n" "$(bold "Options:")"
 
     # :command.usage_flags
     # :flag.usage
-    printf "  %s\n" "--output, -o PATH"
+    printf "  %s\n" "$(green "--output, -o PATH")"
     printf "    Path to target file\n"
     printf "    %s\n" "Default: repli.yaml"
     echo
 
     # :flag.usage
-    printf "  %s\n" "--force, -f"
+    printf "  %s\n" "$(green "--force, -f")"
     printf "    Overwrite target file\n"
     echo
 
     # :command.usage_fixed_flags
-    printf "  %s\n" "--help, -h"
+    printf "  %s\n" "$(green "--help, -h")"
     printf "    Show this help\n"
     echo
 
     # :command.usage_args
-    printf "%s\n" "Arguments:"
+    printf "%s\n" "$(bold "Arguments:")"
 
     # :argument.usage
-    printf "  %s\n" "SEARCH"
+    printf "  %s\n" "$(green "SEARCH")"
     printf "    Template search string or an exact name\n"
     echo
 
     # :command.usage_examples
-    printf "%s\n" "Examples:"
+    printf "%s\n" "$(bold "Examples:")"
     printf "  repli new flux\n"
-    echo
-
-  fi
-}
-
-# :command.usage
-repli_add_usage() {
-  printf "repli add - Add a new template from a remote Replicate model example\n\n"
-  printf "Alias: a\n"
-  echo
-
-  printf "%s\n" "Usage:"
-  printf "  repli add MODEL [NAME] [OPTIONS]\n"
-  printf "  repli add --help | -h\n"
-  echo
-
-  # :command.long_usage
-  if [[ -n "$long_usage" ]]; then
-    # :command.usage_options
-    printf "%s\n" "Options:"
-
-    # :command.usage_flags
-    # :flag.usage
-    printf "  %s\n" "--force, -f"
-    printf "    Overwrite target file\n"
-    echo
-
-    # :command.usage_fixed_flags
-    printf "  %s\n" "--help, -h"
-    printf "    Show this help\n"
-    echo
-
-    # :command.usage_args
-    printf "%s\n" "Arguments:"
-
-    # :argument.usage
-    printf "  %s\n" "MODEL"
-    printf "    Replicate model (author/model)\n"
-    echo
-
-    # :argument.usage
-    printf "  %s\n" "NAME"
-    printf "    Template name to save\n"
-    echo
-
-    # :command.usage_examples
-    printf "%s\n" "Examples:"
-    printf "  repli add google/nano-banana banana\n"
     echo
 
   fi
@@ -174,7 +125,7 @@ repli_get_usage() {
   printf "Alias: g\n"
   echo
 
-  printf "%s\n" "Usage:"
+  printf "%s\n" "$(bold "Usage:")"
   printf "  repli get [PREFIX] [OPTIONS]\n"
   printf "  repli get --help | -h\n"
   echo
@@ -182,63 +133,26 @@ repli_get_usage() {
   # :command.long_usage
   if [[ -n "$long_usage" ]]; then
     # :command.usage_options
-    printf "%s\n" "Options:"
+    printf "%s\n" "$(bold "Options:")"
 
     # :command.usage_flags
     # :flag.usage
-    printf "  %s\n" "--config, -c PATH"
+    printf "  %s\n" "$(green "--config, -c PATH")"
     printf "    Path to configuration file\n"
     printf "    %s\n" "Default: repli.yaml"
     echo
 
     # :command.usage_fixed_flags
-    printf "  %s\n" "--help, -h"
+    printf "  %s\n" "$(green "--help, -h")"
     printf "    Show this help\n"
     echo
 
     # :command.usage_args
-    printf "%s\n" "Arguments:"
+    printf "%s\n" "$(bold "Arguments:")"
 
     # :argument.usage
-    printf "  %s\n" "PREFIX"
+    printf "  %s\n" "$(green "PREFIX")"
     printf "    Prefix for saved JSON file and output files\n"
-    echo
-
-  fi
-}
-
-# :command.usage
-repli_upload_usage() {
-  if [[ -n $long_usage ]]; then
-    printf "repli upload\n\n"
-    printf "  Upload a file to Replicate\n  Note that under normal conditions, there should be no reason for you to use\n  this directly. Files will be uploaded automatically as needed.\n\n"
-  else
-    printf "repli upload - Upload a file to Replicate\n\n"
-  fi
-  printf "Alias: u\n"
-  echo
-
-  printf "%s\n" "Usage:"
-  printf "  repli upload FILE\n"
-  printf "  repli upload --help | -h\n"
-  echo
-
-  # :command.long_usage
-  if [[ -n "$long_usage" ]]; then
-    # :command.usage_options
-    printf "%s\n" "Options:"
-
-    # :command.usage_fixed_flags
-    printf "  %s\n" "--help, -h"
-    printf "    Show this help\n"
-    echo
-
-    # :command.usage_args
-    printf "%s\n" "Arguments:"
-
-    # :argument.usage
-    printf "  %s\n" "FILE"
-    printf "    Path to file\n"
     echo
 
   fi
@@ -250,7 +164,7 @@ repli_info_usage() {
   printf "Alias: i\n"
   echo
 
-  printf "%s\n" "Usage:"
+  printf "%s\n" "$(bold "Usage:")"
   printf "  repli info MODEL [OPTIONS]\n"
   printf "  repli info --help | -h\n"
   echo
@@ -258,46 +172,46 @@ repli_info_usage() {
   # :command.long_usage
   if [[ -n "$long_usage" ]]; then
     # :command.usage_options
-    printf "%s\n" "Options:"
+    printf "%s\n" "$(bold "Options:")"
 
     # :command.usage_flags
     # :flag.usage
-    printf "  %s\n" "--example, -e"
+    printf "  %s\n" "$(green "--example, -e")"
     printf "    Show the example only\n"
     printf "    %s\n" "Conflicts: --schema"
     echo
 
     # :flag.usage
-    printf "  %s\n" "--schema, -s"
+    printf "  %s\n" "$(green "--schema, -s")"
     printf "    Show the schema only\n"
     printf "    %s\n" "Conflicts: --example"
     echo
 
     # :flag.usage
-    printf "  %s\n" "--plain, -p"
+    printf "  %s\n" "$(green "--plain, -p")"
     printf "    Disable output colors\n"
     echo
 
     # :flag.usage
-    printf "  %s\n" "--json, -j"
+    printf "  %s\n" "$(green "--json, -j")"
     printf "    Output JSON instead of YAML\n"
     echo
 
     # :command.usage_fixed_flags
-    printf "  %s\n" "--help, -h"
+    printf "  %s\n" "$(green "--help, -h")"
     printf "    Show this help\n"
     echo
 
     # :command.usage_args
-    printf "%s\n" "Arguments:"
+    printf "%s\n" "$(bold "Arguments:")"
 
     # :argument.usage
-    printf "  %s\n" "MODEL"
+    printf "  %s\n" "$(green "MODEL")"
     printf "    Model name on replicate\n"
     echo
 
     # :command.usage_examples
-    printf "%s\n" "Examples:"
+    printf "%s\n" "$(bold "Examples:")"
     printf "  repli info google/nano-banana\n"
     printf "  repli info google/nano-banana --example --plain --json\n"
     echo
@@ -306,35 +220,176 @@ repli_info_usage() {
 }
 
 # :command.usage
-repli_files_usage() {
-  printf "repli files - Show list of uploaded files\n\n"
-  printf "Alias: f\n"
-  echo
+repli_templates_usage() {
+  printf "repli templates - Manage templates\n\n"
 
-  printf "%s\n" "Usage:"
-  printf "  repli files [OPTIONS]\n"
-  printf "  repli files --help | -h\n"
+  printf "%s\n" "$(bold "Usage:")"
+  printf "  repli templates COMMAND\n"
+  printf "  repli templates [COMMAND] --help | -h\n"
+  echo
+  # :command.usage_commands
+  printf "%s\n" "$(bold "Commands:")"
+  printf "  %s   Add a new template from a remote Replicate model example\n" "$(green "new")"
   echo
 
   # :command.long_usage
   if [[ -n "$long_usage" ]]; then
     # :command.usage_options
-    printf "%s\n" "Options:"
+    printf "%s\n" "$(bold "Options:")"
+
+    # :command.usage_fixed_flags
+    printf "  %s\n" "$(green "--help, -h")"
+    printf "    Show this help\n"
+    echo
+
+  fi
+}
+
+# :command.usage
+repli_templates_new_usage() {
+  printf "repli templates new - Add a new template from a remote Replicate model example\n\n"
+  printf "Alias: n, add\n"
+  echo
+
+  printf "%s\n" "$(bold "Usage:")"
+  printf "  repli templates new MODEL [OPTIONS]\n"
+  printf "  repli templates new --help | -h\n"
+  echo
+
+  # :command.long_usage
+  if [[ -n "$long_usage" ]]; then
+    # :command.usage_options
+    printf "%s\n" "$(bold "Options:")"
 
     # :command.usage_flags
     # :flag.usage
-    printf "  %s\n" "--plain, -p"
+    printf "  %s\n" "$(green "--force, -f")"
+    printf "    Overwrite target file\n"
+    echo
+
+    # :flag.usage
+    printf "  %s\n" "$(green "--name, -n NAME")"
+    printf "    Template name to save\n"
+    printf "    %s\n" "Default: auto"
+    echo
+
+    # :command.usage_fixed_flags
+    printf "  %s\n" "$(green "--help, -h")"
+    printf "    Show this help\n"
+    echo
+
+    # :command.usage_args
+    printf "%s\n" "$(bold "Arguments:")"
+
+    # :argument.usage
+    printf "  %s\n" "$(green "MODEL")"
+    printf "    Replicate model (author/model)\n"
+    echo
+
+    # :command.usage_examples
+    printf "%s\n" "$(bold "Examples:")"
+    printf "  repli add google/nano-banana banana\n"
+    echo
+
+  fi
+}
+
+# :command.usage
+repli_files_usage() {
+  printf "repli files - Manage uploaded files\n\n"
+  printf "Alias: f\n"
+  echo
+
+  printf "%s\n" "$(bold "Usage:")"
+  printf "  repli files COMMAND\n"
+  printf "  repli files [COMMAND] --help | -h\n"
+  echo
+  # :command.usage_commands
+  printf "%s\n" "$(bold "Commands:")"
+  printf "  %s   Show list of uploaded files\n" "$(green "list")  "
+  printf "  %s   Upload a file to Replicate\n" "$(green "upload")"
+  echo
+
+  # :command.long_usage
+  if [[ -n "$long_usage" ]]; then
+    # :command.usage_options
+    printf "%s\n" "$(bold "Options:")"
+
+    # :command.usage_fixed_flags
+    printf "  %s\n" "$(green "--help, -h")"
+    printf "    Show this help\n"
+    echo
+
+  fi
+}
+
+# :command.usage
+repli_files_list_usage() {
+  printf "repli files list - Show list of uploaded files\n\n"
+  printf "Alias: l\n"
+  echo
+
+  printf "%s\n" "$(bold "Usage:")"
+  printf "  repli files list [OPTIONS]\n"
+  printf "  repli files list --help | -h\n"
+  echo
+
+  # :command.long_usage
+  if [[ -n "$long_usage" ]]; then
+    # :command.usage_options
+    printf "%s\n" "$(bold "Options:")"
+
+    # :command.usage_flags
+    # :flag.usage
+    printf "  %s\n" "$(green "--plain, -p")"
     printf "    Disable output colors\n"
     echo
 
     # :flag.usage
-    printf "  %s\n" "--json, -j"
+    printf "  %s\n" "$(green "--json, -j")"
     printf "    Output JSON instead of YAML\n"
     echo
 
     # :command.usage_fixed_flags
-    printf "  %s\n" "--help, -h"
+    printf "  %s\n" "$(green "--help, -h")"
     printf "    Show this help\n"
+    echo
+
+  fi
+}
+
+# :command.usage
+repli_files_upload_usage() {
+  if [[ -n $long_usage ]]; then
+    printf "repli files upload\n\n"
+    printf "  Upload a file to Replicate\n  Note that under normal conditions, there should be no reason for you to use\n  this directly. Files will be uploaded automatically as needed.\n\n"
+  else
+    printf "repli files upload - Upload a file to Replicate\n\n"
+  fi
+  printf "Alias: u\n"
+  echo
+
+  printf "%s\n" "$(bold "Usage:")"
+  printf "  repli files upload FILE\n"
+  printf "  repli files upload --help | -h\n"
+  echo
+
+  # :command.long_usage
+  if [[ -n "$long_usage" ]]; then
+    # :command.usage_options
+    printf "%s\n" "$(bold "Options:")"
+
+    # :command.usage_fixed_flags
+    printf "  %s\n" "$(green "--help, -h")"
+    printf "    Show this help\n"
+    echo
+
+    # :command.usage_args
+    printf "%s\n" "$(bold "Arguments:")"
+
+    # :argument.usage
+    printf "  %s\n" "$(green "FILE")"
+    printf "    Path to file\n"
     echo
 
   fi
@@ -596,12 +651,14 @@ log() {
     error) color_func="red_bold" ;;
   esac
 
-  caller="${FUNCNAME[1]}"
-  printf "$(green_bold "•") %s • %s $(green_bold →) %s\n" \
-    "$("$color_func" "$level")" \
-    "$caller" \
-    "$msg" \
-    >&2
+  if [[ "$REPLI_LOG_LEVEL" == "debug" ]]; then
+    caller="${FUNCNAME[1]}"
+    printf "$(green_bold "•") %s • %s $(green_bold →) %s\n" \
+      "$("$color_func" "$level")" "$(cyan "$caller")" "$msg" >&2
+  else
+    printf "$(green_bold "•") %s $(green_bold →) %s\n" \
+      "$("$color_func" "$level")" "$msg" >&2
+  fi
 }
 
 # src/lib/replace_file_placeholders.sh
@@ -697,178 +754,55 @@ yurl() {
 # :command.function
 repli_new_command() {
 
-  # src/new_command.sh
-  search="${args[search]:-}"
-  outfile="${args[--output]}"
-  force="${args[--force]}"
-
-  log debug "models dir: $(blue "$models_dir")"
-
-  if [[ ! -d "$models_dir" ]]; then
-    log error "no models in $(blue "$models_dir")"
-    log info "change models dir using $(blue REPLI_MODELS_DIR)"
-    return 1
-  fi
-
-  # Do not overwrite unless --force is used
-  if [[ -e "$outfile" && -z "$force" ]]; then
-    log error "target already exists: $(blue "$outfile")"
-    log info "use $(blue --force) to overwrite or $(blue --output PATH) to save to another file"
-    return 1
-  fi
-
-  # Build match list using simple "contains" search
-  mapfile -t matches < <(
-    find "$models_dir" -maxdepth 1 -type f -name "*.yaml" -printf "%f\n" |
-      grep -i "${search:-.}"
-  )
-
-  # No matches
-  if [[ ${#matches[@]} -eq 0 ]]; then
-    log error "no matching templates"
-    return 1
-  fi
-
-  # Exactly one match → auto-select
-  if [[ ${#matches[@]} -eq 1 ]]; then
-    selected="${matches[0]}"
-  else
-    # Display simple numbered menu
-    echo
-    i=1
-    for f in "${matches[@]}"; do
-      echo " $i. ${f%.yaml}"
-      ((i++))
-    done
-
-    echo
-    read -rp "Choose a template (1-${#matches[@]}): " choice
-
-    # Validate selection
-    if ! [[ "$choice" =~ ^[0-9]+$ ]] || ((choice < 1 || choice > ${#matches[@]})); then
-      log error "invalid selection"
-      return 1
-    fi
-
-    selected="${matches[choice - 1]}"
-  fi
-
-  # Copy file (single place — no duplication)
-  log info "copying $(blue "$selected") → $(blue "$outfile")"
-  cp "$models_dir/$selected" "$outfile"
-
-}
-
-# :command.function
-repli_add_command() {
-
-  # src/add_command.sh
-  model="${args[model]}"
-  name="${args[name]}"
-  force="${args[--force]}"
-
-  if [[ -z "$name" ]]; then
-    get_example_from_replicate "$model"
-    return 0
-  fi
-
-  outpath="$models_dir/$name.yaml"
-
-  if [[ -f "$outpath" && ! "$force" ]]; then
-    log error "target already exists: $(blue "$outpath")"
-    log info "use --force to overwrite"
-    return 1
-  fi
-
-  log info "saving to $(blue "$outpath")"
-  mkdir -p "$models_dir"
-  get_example_from_replicate "$model" > "$outpath"
-
+  # src/commands/new.sh
+  echo "# This file is located at 'src/commands/new.sh'."
+  echo "# It contains the implementation for the 'repli new' command."
+  echo "# The code you write here will be wrapped by a function named 'repli_new_command()'."
+  echo "# Feel free to edit this file; your changes will persist when regenerating."
+  inspect_args
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
 }
 
 # :command.function
 repli_get_command() {
 
-  # src/get_command.sh
-  config="${args[--config]}"
-  prefix="${args[prefix]:-$(date +%H%M%S)}"
-  outfile="${prefix}.json"
-  log debug config: "$(blue "$config")"
-  log debug prefix: "$(blue "$prefix")"
-  log debug outfile: "$(blue "$outfile")"
-
-  # call API unless the JSON is already saved
-  if [[ -f "$outfile" ]]; then
-    log info skipping API call, file exists: "$(blue "$outfile")"
-  else
-    log info calling API and saving "$(blue "$outfile")"
-    yurl "$config" >"$outfile"
-  fi
-
-  # download outputs
-  download_outputs "$prefix" "$outfile"
-
-}
-
-# :command.function
-repli_upload_command() {
-
-  # src/upload_command.sh
-  file="${args[file]}"
-  files_list="files.ini"
-
-  if [[ -f "$files_list" ]]; then
-    log debug reading files list: "$(blue "$files_list")"
-
-    while IFS='=' read -r path url; do
-      if [[ "$path" == "$file" ]]; then
-        log info upload skipped, already registered in "$(blue "$files_list")"
-        log info url: "$url"
-        return 0
-      fi
-    done <"$files_list"
-  fi
-
-  log info uploading "$(blue "$file")"
-  url="$(upload_to_replicate "$file")"
-  log info url: "$(underlined "$url")"
-
-  log info saving URL to "$(blue "$files_list")"
-  echo "$file=$url" >>"$files_list"
-
+  # src/commands/get.sh
+  echo "# This file is located at 'src/commands/get.sh'."
+  echo "# It contains the implementation for the 'repli get' command."
+  echo "# The code you write here will be wrapped by a function named 'repli_get_command()'."
+  echo "# Feel free to edit this file; your changes will persist when regenerating."
+  inspect_args
+                                                                                                                                                                                           
 }
 
 # :command.function
 repli_info_command() {
 
-  # src/info_command.sh
-  model="${args[model]}"
-  plain="${args[--plain]}"
-  example="${args[--example]}"
-  schema="${args[--schema]}"
-  json="${args[--json]}"
-  node="."
-
-  if [[ -n "$json" ]]; then
-    parser="jq"
-    opts=()
-  else
-    parser="yq"
-    opts=(-P)
-  fi
-
-  [[ -n "$example" ]] && node=".default_example.input"
-  [[ -n "$schema" ]] && node=".latest_version.openapi_schema.components.schemas.Input"
-  [[ -n "$plain" ]] && opts+=("-M")
-
-  get_model_info "$model" | "$parser" "${opts[@]}" "$node"
-
+  # src/commands/info.sh
+  echo "# This file is located at 'src/commands/info.sh'."
+  echo "# It contains the implementation for the 'repli info' command."
+  echo "# The code you write here will be wrapped by a function named 'repli_info_command()'."
+  echo "# Feel free to edit this file; your changes will persist when regenerating."
+  inspect_args
+                                                                                                                                          
 }
 
 # :command.function
-repli_files_command() {
+repli_templates_new_command() {
 
-  # src/files_command.sh
+  # src/commands/templates/new.sh
+  echo "# This file is located at 'src/commands/templates/new.sh'."
+  echo "# It contains the implementation for the 'repli templates new' command."
+  echo "# The code you write here will be wrapped by a function named 'repli_templates_new_command()'."
+  echo "# Feel free to edit this file; your changes will persist when regenerating."
+  inspect_args
+                                                                                                                                                                               
+}
+
+# :command.function
+repli_files_list_command() {
+
+  # src/commands/files/list.sh
   plain="${args[--plain]}"
   json="${args[--json]}"
 
@@ -882,6 +816,18 @@ repli_files_command() {
 
   [[ -n "$plain" ]] && opts+=("-M")
   get_files_list | "$parser" "${opts[@]}" .results
+}
+
+# :command.function
+repli_files_upload_command() {
+
+  # src/commands/files/upload.sh
+  echo "# This file is located at 'src/commands/files/upload.sh'."
+  echo "# It contains the implementation for the 'repli files upload' command."
+  echo "# The code you write here will be wrapped by a function named 'repli_files_upload_command()'."
+  echo "# Feel free to edit this file; your changes will persist when regenerating."
+  inspect_args
+                                                                                                                                                                                                                        
 }
 
 # :command.parse_requirements
@@ -978,13 +924,6 @@ parse_requirements() {
       shift $#
       ;;
 
-    add | a)
-      action="add"
-      shift
-      repli_add_parse_requirements "$@"
-      shift $#
-      ;;
-
     get | g)
       action="get"
       shift
@@ -992,17 +931,17 @@ parse_requirements() {
       shift $#
       ;;
 
-    upload | u)
-      action="upload"
-      shift
-      repli_upload_parse_requirements "$@"
-      shift $#
-      ;;
-
     info | i)
       action="info"
       shift
       repli_info_parse_requirements "$@"
+      shift $#
+      ;;
+
+    templates)
+      action="templates"
+      shift
+      repli_templates_parse_requirements "$@"
       shift $#
       ;;
 
@@ -1127,87 +1066,6 @@ repli_new_parse_requirements() {
 }
 
 # :command.parse_requirements
-repli_add_parse_requirements() {
-  local key
-
-  # :command.fixed_flags_filter
-  while [[ $# -gt 0 ]]; do
-    key="$1"
-    case "$key" in
-      --help | -h)
-        long_usage=yes
-        repli_add_usage
-        exit
-        ;;
-
-      *)
-        break
-        ;;
-
-    esac
-  done
-
-  # :command.command_filter
-  action="add"
-
-  # :command.parse_requirements_while
-  while [[ $# -gt 0 ]]; do
-    key="$1"
-    case "$key" in
-      # :flag.case
-      --force | -f)
-
-        # :flag.case_no_arg
-        args['--force']=1
-        shift
-        ;;
-
-      -?*)
-        printf "invalid option: %s\n" "$key" >&2
-        exit 1
-        ;;
-
-      *)
-        # :command.parse_requirements_case
-        # :command.parse_requirements_case_simple
-        # :argument.case
-        if [[ -z ${args['model']+x} ]]; then
-          args['model']=$1
-          shift
-        # :argument.case
-        elif [[ -z ${args['name']+x} ]]; then
-          args['name']=$1
-          shift
-        else
-          printf "invalid argument: %s\n" "$key" >&2
-          exit 1
-        fi
-
-        ;;
-
-    esac
-  done
-
-  # :command.required_args_filter
-  if [[ -z ${args['model']+x} ]]; then
-    printf "missing required argument: MODEL\nusage: repli add MODEL [NAME] [OPTIONS]\n" >&2
-
-    exit 1
-  fi
-
-  # :command.validations
-  # :argument.validations
-  if [[ -v args['model'] ]]; then
-    validation_output="$(validate_model_name "${args['model']:-}")"
-    if [[ -n "$validation_output" ]]; then
-      printf "validation error in %s:\n%s\n" "MODEL" "$validation_output" >&2
-      exit 1
-    fi
-  fi
-
-}
-
-# :command.parse_requirements
 repli_get_parse_requirements() {
   local key
 
@@ -1280,76 +1138,6 @@ repli_get_parse_requirements() {
     validation_output="$(validate_file_exists "${args['--config']:-}")"
     if [[ -n "${validation_output}" ]]; then
       printf "validation error in %s:\n%s\n" "--config, -c PATH" "$validation_output" >&2
-      exit 1
-    fi
-  fi
-
-}
-
-# :command.parse_requirements
-repli_upload_parse_requirements() {
-  local key
-
-  # :command.fixed_flags_filter
-  while [[ $# -gt 0 ]]; do
-    key="$1"
-    case "$key" in
-      --help | -h)
-        long_usage=yes
-        repli_upload_usage
-        exit
-        ;;
-
-      *)
-        break
-        ;;
-
-    esac
-  done
-
-  # :command.command_filter
-  action="upload"
-
-  # :command.parse_requirements_while
-  while [[ $# -gt 0 ]]; do
-    key="$1"
-    case "$key" in
-
-      -?*)
-        printf "invalid option: %s\n" "$key" >&2
-        exit 1
-        ;;
-
-      *)
-        # :command.parse_requirements_case
-        # :command.parse_requirements_case_simple
-        # :argument.case
-        if [[ -z ${args['file']+x} ]]; then
-          args['file']=$1
-          shift
-        else
-          printf "invalid argument: %s\n" "$key" >&2
-          exit 1
-        fi
-
-        ;;
-
-    esac
-  done
-
-  # :command.required_args_filter
-  if [[ -z ${args['file']+x} ]]; then
-    printf "missing required argument: FILE\nusage: repli upload FILE\n" >&2
-
-    exit 1
-  fi
-
-  # :command.validations
-  # :argument.validations
-  if [[ -v args['file'] ]]; then
-    validation_output="$(validate_file_exists "${args['file']:-}")"
-    if [[ -n "$validation_output" ]]; then
-      printf "validation error in %s:\n%s\n" "FILE" "$validation_output" >&2
       exit 1
     fi
   fi
@@ -1451,9 +1239,180 @@ repli_info_parse_requirements() {
   # :command.required_args_filter
   if [[ -z ${args['model']+x} ]]; then
     printf "missing required argument: MODEL\nusage: repli info MODEL [OPTIONS]\n" >&2
+    # :command.examples_on_error
+    printf "examples:\n" >&2
+    printf "  repli info google/nano-banana\n" >&2
+    printf "  repli info google/nano-banana --example --plain --json\n" >&2
 
     exit 1
   fi
+
+  # :command.validations
+  # :argument.validations
+  if [[ -v args['model'] ]]; then
+    validation_output="$(validate_model_name "${args['model']:-}")"
+    if [[ -n "$validation_output" ]]; then
+      printf "validation error in %s:\n%s\n" "MODEL" "$validation_output" >&2
+      exit 1
+    fi
+  fi
+
+}
+
+# :command.parse_requirements
+repli_templates_parse_requirements() {
+  local key
+
+  # :command.fixed_flags_filter
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case "$key" in
+      --help | -h)
+        long_usage=yes
+        repli_templates_usage
+        exit
+        ;;
+
+      *)
+        break
+        ;;
+
+    esac
+  done
+
+  # :command.command_filter
+  action=${1:-}
+
+  case $action in
+    -*) ;;
+
+    new | n | add)
+      action="new"
+      shift
+      repli_templates_new_parse_requirements "$@"
+      shift $#
+      ;;
+
+    # :command.command_fallback
+    "")
+      repli_templates_usage >&2
+      exit 1
+      ;;
+
+    *)
+      printf "invalid command: %s\n" "$action" >&2
+      exit 1
+      ;;
+
+  esac
+
+  # :command.parse_requirements_while
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case "$key" in
+
+      -?*)
+        printf "invalid option: %s\n" "$key" >&2
+        exit 1
+        ;;
+
+      *)
+        # :command.parse_requirements_case
+        # :command.parse_requirements_case_simple
+        printf "invalid argument: %s\n" "$key" >&2
+        exit 1
+
+        ;;
+
+    esac
+  done
+
+}
+
+# :command.parse_requirements
+repli_templates_new_parse_requirements() {
+  local key
+
+  # :command.fixed_flags_filter
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case "$key" in
+      --help | -h)
+        long_usage=yes
+        repli_templates_new_usage
+        exit
+        ;;
+
+      *)
+        break
+        ;;
+
+    esac
+  done
+
+  # :command.command_filter
+  action="templates new"
+
+  # :command.parse_requirements_while
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case "$key" in
+      # :flag.case
+      --force | -f)
+
+        # :flag.case_no_arg
+        args['--force']=1
+        shift
+        ;;
+
+      # :flag.case
+      --name | -n)
+
+        # :flag.case_arg
+        if [[ -n ${2+x} ]]; then
+          args['--name']="$2"
+          shift
+          shift
+        else
+          printf "%s\n" "--name requires an argument: --name, -n NAME" >&2
+          exit 1
+        fi
+        ;;
+
+      -?*)
+        printf "invalid option: %s\n" "$key" >&2
+        exit 1
+        ;;
+
+      *)
+        # :command.parse_requirements_case
+        # :command.parse_requirements_case_simple
+        # :argument.case
+        if [[ -z ${args['model']+x} ]]; then
+          args['model']=$1
+          shift
+        else
+          printf "invalid argument: %s\n" "$key" >&2
+          exit 1
+        fi
+
+        ;;
+
+    esac
+  done
+
+  # :command.required_args_filter
+  if [[ -z ${args['model']+x} ]]; then
+    printf "missing required argument: MODEL\nusage: repli templates new MODEL [OPTIONS]\n" >&2
+    # :command.examples_on_error
+    printf "examples:\n" >&2
+    printf "  repli add google/nano-banana banana\n" >&2
+
+    exit 1
+  fi
+
+  # :command.default_assignments
+  [[ -n ${args['--name']:-} ]] || args['--name']="auto"
 
   # :command.validations
   # :argument.validations
@@ -1489,7 +1448,84 @@ repli_files_parse_requirements() {
   done
 
   # :command.command_filter
-  action="files"
+  action=${1:-}
+
+  case $action in
+    -*) ;;
+
+    list | l)
+      action="list"
+      shift
+      repli_files_list_parse_requirements "$@"
+      shift $#
+      ;;
+
+    upload | u)
+      action="upload"
+      shift
+      repli_files_upload_parse_requirements "$@"
+      shift $#
+      ;;
+
+    # :command.command_fallback
+    "")
+      repli_files_usage >&2
+      exit 1
+      ;;
+
+    *)
+      printf "invalid command: %s\n" "$action" >&2
+      exit 1
+      ;;
+
+  esac
+
+  # :command.parse_requirements_while
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case "$key" in
+
+      -?*)
+        printf "invalid option: %s\n" "$key" >&2
+        exit 1
+        ;;
+
+      *)
+        # :command.parse_requirements_case
+        # :command.parse_requirements_case_simple
+        printf "invalid argument: %s\n" "$key" >&2
+        exit 1
+
+        ;;
+
+    esac
+  done
+
+}
+
+# :command.parse_requirements
+repli_files_list_parse_requirements() {
+  local key
+
+  # :command.fixed_flags_filter
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case "$key" in
+      --help | -h)
+        long_usage=yes
+        repli_files_list_usage
+        exit
+        ;;
+
+      *)
+        break
+        ;;
+
+    esac
+  done
+
+  # :command.command_filter
+  action="files list"
 
   # :command.parse_requirements_while
   while [[ $# -gt 0 ]]; do
@@ -1529,6 +1565,76 @@ repli_files_parse_requirements() {
 
 }
 
+# :command.parse_requirements
+repli_files_upload_parse_requirements() {
+  local key
+
+  # :command.fixed_flags_filter
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case "$key" in
+      --help | -h)
+        long_usage=yes
+        repli_files_upload_usage
+        exit
+        ;;
+
+      *)
+        break
+        ;;
+
+    esac
+  done
+
+  # :command.command_filter
+  action="files upload"
+
+  # :command.parse_requirements_while
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case "$key" in
+
+      -?*)
+        printf "invalid option: %s\n" "$key" >&2
+        exit 1
+        ;;
+
+      *)
+        # :command.parse_requirements_case
+        # :command.parse_requirements_case_simple
+        # :argument.case
+        if [[ -z ${args['file']+x} ]]; then
+          args['file']=$1
+          shift
+        else
+          printf "invalid argument: %s\n" "$key" >&2
+          exit 1
+        fi
+
+        ;;
+
+    esac
+  done
+
+  # :command.required_args_filter
+  if [[ -z ${args['file']+x} ]]; then
+    printf "missing required argument: FILE\nusage: repli files upload FILE\n" >&2
+
+    exit 1
+  fi
+
+  # :command.validations
+  # :argument.validations
+  if [[ -v args['file'] ]]; then
+    validation_output="$(validate_file_exists "${args['file']:-}")"
+    if [[ -n "$validation_output" ]]; then
+      printf "validation error in %s:\n%s\n" "FILE" "$validation_output" >&2
+      exit 1
+    fi
+  fi
+
+}
+
 # :command.initialize
 initialize() {
   declare -g version="0.1.0"
@@ -1559,11 +1665,13 @@ run() {
 
   case "$action" in
     "new") repli_new_command ;;
-    "add") repli_add_command ;;
     "get") repli_get_command ;;
-    "upload") repli_upload_command ;;
     "info") repli_info_command ;;
+    "templates") repli_templates_command ;;
+    "templates new") repli_templates_new_command ;;
     "files") repli_files_command ;;
+    "files list") repli_files_list_command ;;
+    "files upload") repli_files_upload_command ;;
   esac
 }
 

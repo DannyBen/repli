@@ -33,10 +33,12 @@ log() {
     error) color_func="red_bold" ;;
   esac
 
-  caller="${FUNCNAME[1]}"
-  printf "$(green_bold "•") %s • %s $(green_bold →) %s\n" \
-    "$("$color_func" "$level")" \
-    "$caller" \
-    "$msg" \
-    >&2
+  if [[ "$REPLI_LOG_LEVEL" == "debug" ]]; then
+    caller="${FUNCNAME[1]}"
+    printf "$(green_bold "•") %s • %s $(green_bold →) %s\n" \
+      "$("$color_func" "$level")" "$(cyan "$caller")" "$msg" >&2
+  else
+    printf "$(green_bold "•") %s $(green_bold →) %s\n" \
+      "$("$color_func" "$level")" "$msg" >&2
+  fi
 }

@@ -2,6 +2,8 @@ name: repli
 help: Replicate Workspace Tool
 version: 0.1.0
 
+dependencies: [yq, jq, curl, wget]
+
 environment_variables:
 - name: repli_log_level
   help: Log level
@@ -13,8 +15,6 @@ environment_variables:
 - name: replicate_api_token
   help: Replicate API token
   required: true
-
-dependencies: [yq, jq, curl, wget]
 
 commands:
 - name: new
@@ -38,26 +38,6 @@ commands:
   examples:
   - repli new flux
 
-- name: add
-  alias: a
-  help: Add a new template from a remote Replicate model example
-
-  args:
-  - name: model
-    help: Replicate model (author/model)
-    validate: model_name
-    required: true
-  - name: name
-    help: Template name to save
-
-  flags:
-  - long: --force
-    short: -f
-    help: Overwrite target file
-
-  examples:
-  - repli add google/nano-banana banana
-
 - name: get
   alias: g
   help: Call Replicate using a configuration file and save the result
@@ -74,23 +54,9 @@ commands:
     default: repli.yaml
     validate: file_exists
 
-- name: upload
-  alias: u
-  help: >
-    Upload a file to Replicate
-
-    Note that under normal conditions, there should be no reason for you to use this directly. Files will be uploaded automatically as needed.
-
-  args:
-  - name: file
-    help: Path to file
-    validate: file_exists
-    required: true
-
 - name: info
   alias: i
   help: Get information on a model
-  
 
   args:
   - name: model
@@ -120,8 +86,52 @@ commands:
   - repli info google/nano-banana
   - repli info google/nano-banana --example --plain --json
 
+- name: templates
+  help: Manage templates
+  commands:
+  - name: new
+    alias: ['n', add]
+    help: Add a new template from a remote Replicate model example
+
+    args:
+    - name: model
+      help: Replicate model (author/model)
+      validate: model_name
+      required: true
+
+    flags:
+    - long: --force
+      short: -f
+      help: Overwrite target file
+    - long: --name
+      short: -n
+      arg: name
+      help: Template name to save
+      default: auto
+
+    examples:
+    - repli add google/nano-banana banana
+
+
 - name: files
   alias: f
-  help: Show list of uploaded files
-  flags: [*plain, *json]
+  help: Manage uploaded files
 
+  commands:
+  - name: list
+    alias: l
+    help: Show list of uploaded files
+    flags: [*plain, *json]
+
+  - name: upload
+    alias: u
+    help: >
+      Upload a file to Replicate
+
+      Note that under normal conditions, there should be no reason for you to use this directly. Files will be uploaded automatically as needed.
+
+    args:
+    - name: file
+      help: Path to file
+      validate: file_exists
+      required: true

@@ -1,0 +1,5 @@
+missing required argument: MODEL
+usage: repli info MODEL [OPTIONS]
+examples:
+  repli info google/nano-banana
+  repli info google/nano-banana --example --plain --json

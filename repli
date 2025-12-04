@@ -17,7 +17,7 @@ version_command() {
 
 # :command.usage
 repli_usage() {
-  printf "repli - Replicate Workspace Tool\n\n"
+  printf "repli - Replicate AI Workspace Tool\n\n"
 
   printf "%s\n" "$(bold "Usage:")"
   printf "  repli COMMAND\n"
@@ -1013,10 +1013,12 @@ parse_requirements() {
   # :command.environment_variables_default
   export REPLI_LOG_LEVEL="${REPLI_LOG_LEVEL:-info}"
   export REPLI_TEMPLATES_DIR="${REPLI_TEMPLATES_DIR:-$HOME/repli}"
+  export REPLICATE_HOST="${REPLICATE_HOST:-https://api.replicate.com}"
 
   env_var_names+=("REPLI_LOG_LEVEL")
   env_var_names+=("REPLI_TEMPLATES_DIR")
   env_var_names+=("REPLICATE_API_TOKEN")
+  env_var_names+=("REPLICATE_HOST")
   if [[ -z "${REPLICATE_API_TOKEN:-}" ]]; then
     printf "missing required environment variable: REPLICATE_API_TOKEN\n" >&2
     exit 1
@@ -1850,10 +1852,11 @@ initialize() {
   # :command.environment_variables_default
   export REPLI_LOG_LEVEL="${REPLI_LOG_LEVEL:-info}"
   export REPLI_TEMPLATES_DIR="${REPLI_TEMPLATES_DIR:-$HOME/repli}"
+  export REPLICATE_HOST="${REPLICATE_HOST:-https://api.replicate.com}"
 
   # src/initialize.sh
   set -o pipefail
-  declare -g replicate_host=https://api.replicate.com
+  declare -g replicate_host="$REPLICATE_HOST"
   declare -g templates_dir="$REPLI_TEMPLATES_DIR"
   declare -g log_level="$REPLI_LOG_LEVEL"
 

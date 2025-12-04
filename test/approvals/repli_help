@@ -1,0 +1,33 @@
+repli - Replicate AI Workspace Tool
+
+[1mUsage:[0m
+  repli COMMAND
+  repli [COMMAND] --help | -h
+  repli --version | -v
+
+[1mCommands:[0m
+  [32mnew[0m         Create a new configuration file from a tmeplate
+  [32mget[0m         Call Replicate using a configuration file and save the result
+  [32minfo[0m        Get information on a model
+  [32mtemplates[0m   Manage templates
+  [32mfiles[0m       Manage uploaded files
+
+[1mOptions:[0m
+  [32m--help, -h[0m
+    Show this help
+
+  [32m--version, -v[0m
+    Show version number
+
+[1mEnvironment Variables:[0m
+  [32mREPLI_LOG_LEVEL[0m
+    Log level
+    Allowed: debug, info, warn, error
+    Default: info
+
+  [32mREPLI_TEMPLATES_DIR[0m
+    Path to templates dir
+    Default: */repli
+
+  [32mREPLICATE_API_TOKEN (required)[0m
+    Replicate API token

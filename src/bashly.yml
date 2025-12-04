@@ -1,5 +1,5 @@
 name: repli
-help: Replicate Workspace Tool
+help: Replicate AI Workspace Tool
 version: 0.1.0
 
 dependencies: [yq, jq, curl, wget]
@@ -15,6 +15,10 @@ environment_variables:
 - name: replicate_api_token
   help: Replicate API token
   required: true
+- name: replicate_host
+  help: Replicate host
+  default: https://api.replicate.com
+  private: true
 
 commands:
 - name: new

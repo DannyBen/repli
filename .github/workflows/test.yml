@@ -1,0 +1,35 @@
+name: Test
+on:
+  pull_request:
+  push: { branches: master }
+
+jobs:
+  ubuntu:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Add current directory to path
+      run: echo "$PWD" >> $GITHUB_PATH
+
+    - name: Run shellcheck tests
+      run: shellcheck repli
+
+    - name: Configure Ruby for the mock server
+      uses: ruby/setup-ruby@v1
+      with: 
+        ruby-version: '3.4'
+        bundler-cache: true
+
+    - name: Install mock server dependencies
+      run: gem install sinatra puma rackup
+
+    - name: Start mock server
+      run: |
+        ruby test/mockserver/mockserver.rb &
+        sleep 5
+
+    - name: Run approval tests
+      run: test/approve

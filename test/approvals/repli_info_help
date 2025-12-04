@@ -1,0 +1,33 @@
+repli info - Get information on a model
+
+Alias: i
+
+[1mUsage:[0m
+  repli info MODEL [OPTIONS]
+  repli info --help | -h
+
+[1mOptions:[0m
+  [32m--example, -e[0m
+    Show the example only
+    Conflicts: --schema
+
+  [32m--schema, -s[0m
+    Show the schema only
+    Conflicts: --example
+
+  [32m--plain, -p[0m
+    Disable output colors
+
+  [32m--json, -j[0m
+    Output JSON instead of YAML
+
+  [32m--help, -h[0m
+    Show this help
+
+[1mArguments:[0m
+  [32mMODEL[0m
+    Model name on replicate
+
+[1mExamples:[0m
+  repli info google/nano-banana
+  repli info google/nano-banana --example --plain --json

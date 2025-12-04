@@ -1,0 +1,25 @@
+repli new - Create a new configuration file from a tmeplate
+
+Alias: n, init
+
+[1mUsage:[0m
+  repli new [SEARCH] [OPTIONS]
+  repli new --help | -h
+
+[1mOptions:[0m
+  [32m--output, -o PATH[0m
+    Path to target file
+    Default: repli.yaml
+
+  [32m--force, -f[0m
+    Overwrite target file
+
+  [32m--help, -h[0m
+    Show this help
+
+[1mArguments:[0m
+  [32mSEARCH[0m
+    Template search string or an exact name
+
+[1mExamples:[0m
+  repli new flux

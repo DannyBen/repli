@@ -1,0 +1,14 @@
+default_example:
+  input:
+    prompt: an image of a JSON file
+    output_format: jpg
+latest_version:
+  openapi_schema:
+    components:
+      schemas:
+        Input:
+          type: object
+          title: Input
+          required:
+            - prompt
+          properties: '... trimmed ...'

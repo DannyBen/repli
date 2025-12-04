@@ -1,0 +1,15 @@
+repli templates - Manage templates
+
+Alias: t
+
+[1mUsage:[0m
+  repli templates COMMAND
+  repli templates [COMMAND] --help | -h
+
+[1mCommands:[0m
+  [32mnew[0m    Add a new template from a remote Replicate model example
+  [32mlist[0m   Show list of templates
+
+[1mOptions:[0m
+  [32m--help, -h[0m
+    Show this help

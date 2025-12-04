@@ -13,7 +13,7 @@ log() {
     *) rank_req=20 ;;
   esac
 
-  case "$REPLI_LOG_LEVEL" in
+  case "$log_level" in
     debug) rank_cur=10 ;;
     info) rank_cur=20 ;;
     warn) rank_cur=30 ;;
@@ -33,7 +33,7 @@ log() {
     error) color_func="red_bold" ;;
   esac
 
-  if [[ "$REPLI_LOG_LEVEL" == "debug" ]]; then
+  if [[ "$log_level" == "debug" ]]; then
     caller="${FUNCNAME[1]}"
     printf "$(green_bold "•") %s • %s $(green_bold →) %s\n" \
       "$("$color_func" "$level")" "$(cyan "$caller")" "$msg" >&2

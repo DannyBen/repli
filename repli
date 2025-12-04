@@ -57,9 +57,9 @@ repli_usage() {
     echo
 
     # :environment_variable.usage
-    printf "  %s\n" "$(green "REPLI_MODELS_DIR")"
+    printf "  %s\n" "$(green "REPLI_TEMPLATES_DIR")"
     printf "    Path to templates dir\n"
-    printf "    %s\n" "Default: $HOME/repli/models"
+    printf "    %s\n" "Default: $HOME/repli"
     echo
 
     # :environment_variable.usage
@@ -222,6 +222,8 @@ repli_info_usage() {
 # :command.usage
 repli_templates_usage() {
   printf "repli templates - Manage templates\n\n"
+  printf "Alias: t\n"
+  echo
 
   printf "%s\n" "$(bold "Usage:")"
   printf "  repli templates COMMAND\n"
@@ -229,7 +231,8 @@ repli_templates_usage() {
   echo
   # :command.usage_commands
   printf "%s\n" "$(bold "Commands:")"
-  printf "  %s   Add a new template from a remote Replicate model example\n" "$(green "new")"
+  printf "  %s   Add a new template from a remote Replicate model example\n" "$(green "new") "
+  printf "  %s   Show list of templates\n" "$(green "list")"
   echo
 
   # :command.long_usage
@@ -295,6 +298,30 @@ repli_templates_new_usage() {
 }
 
 # :command.usage
+repli_templates_list_usage() {
+  printf "repli templates list - Show list of templates\n\n"
+  printf "Alias: ls\n"
+  echo
+
+  printf "%s\n" "$(bold "Usage:")"
+  printf "  repli templates list\n"
+  printf "  repli templates list --help | -h\n"
+  echo
+
+  # :command.long_usage
+  if [[ -n "$long_usage" ]]; then
+    # :command.usage_options
+    printf "%s\n" "$(bold "Options:")"
+
+    # :command.usage_fixed_flags
+    printf "  %s\n" "$(green "--help, -h")"
+    printf "    Show this help\n"
+    echo
+
+  fi
+}
+
+# :command.usage
 repli_files_usage() {
   printf "repli files - Manage uploaded files\n\n"
   printf "Alias: f\n"
@@ -326,7 +353,7 @@ repli_files_usage() {
 # :command.usage
 repli_files_list_usage() {
   printf "repli files list - Show list of uploaded files\n\n"
-  printf "Alias: l\n"
+  printf "Alias: ls\n"
   echo
 
   printf "%s\n" "$(bold "Usage:")"
@@ -631,7 +658,7 @@ log() {
     *) rank_req=20 ;;
   esac
 
-  case "$REPLI_LOG_LEVEL" in
+  case "$log_level" in
     debug) rank_cur=10 ;;
     info) rank_cur=20 ;;
     warn) rank_cur=30 ;;
@@ -651,7 +678,7 @@ log() {
     error) color_func="red_bold" ;;
   esac
 
-  if [[ "$REPLI_LOG_LEVEL" == "debug" ]]; then
+  if [[ "$log_level" == "debug" ]]; then
     caller="${FUNCNAME[1]}"
     printf "$(green_bold "•") %s • %s $(green_bold →) %s\n" \
       "$("$color_func" "$level")" "$(cyan "$caller")" "$msg" >&2
@@ -755,48 +782,157 @@ yurl() {
 repli_new_command() {
 
   # src/commands/new.sh
-  echo "# This file is located at 'src/commands/new.sh'."
-  echo "# It contains the implementation for the 'repli new' command."
-  echo "# The code you write here will be wrapped by a function named 'repli_new_command()'."
-  echo "# Feel free to edit this file; your changes will persist when regenerating."
-  inspect_args
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
+  search="${args[search]:-}"
+  outfile="${args[--output]}"
+  force="${args[--force]}"
+
+  log debug "templates dir: $(blue "$templates_dir")"
+
+  if [[ ! -d "$templates_dir" ]]; then
+    log error "no templates in $(blue "$templates_dir")"
+    log info "change templates dir using $(blue REPLI_TEMPLATES_DIR)"
+    return 1
+  fi
+
+  # Do not overwrite unless --force is used
+  if [[ -e "$outfile" && -z "$force" ]]; then
+    log error "target already exists: $(blue "$outfile")"
+    log info "use $(blue --force) to overwrite or $(blue --output PATH) to save to another file"
+    return 1
+  fi
+
+  # Build match list using simple "contains" search
+  mapfile -t matches < <(
+    find "$templates_dir" -maxdepth 1 -type f -name "*.yaml" -printf "%f\n" |
+      grep -i "${search:-.}"
+  )
+
+  # No matches
+  if [[ ${#matches[@]} -eq 0 ]]; then
+    log error "no matching templates"
+    return 1
+  fi
+
+  # Exactly one match → auto-select
+  if [[ ${#matches[@]} -eq 1 ]]; then
+    selected="${matches[0]}"
+  else
+    # Display simple numbered menu
+    echo
+    i=1
+    for f in "${matches[@]}"; do
+      echo " $i. ${f%.yaml}"
+      ((i++))
+    done
+
+    echo
+    read -rp "Choose a template (1-${#matches[@]}): " choice
+
+    # Validate selection
+    if ! [[ "$choice" =~ ^[0-9]+$ ]] || ((choice < 1 || choice > ${#matches[@]})); then
+      log error "invalid selection"
+      return 1
+    fi
+
+    selected="${matches[choice - 1]}"
+  fi
+
+  # Copy file (single place — no duplication)
+  log info "copying $(blue "$selected") → $(blue "$outfile")"
+  cp "$templates_dir/$selected" "$outfile"
+
 }
 
 # :command.function
 repli_get_command() {
 
   # src/commands/get.sh
-  echo "# This file is located at 'src/commands/get.sh'."
-  echo "# It contains the implementation for the 'repli get' command."
-  echo "# The code you write here will be wrapped by a function named 'repli_get_command()'."
-  echo "# Feel free to edit this file; your changes will persist when regenerating."
-  inspect_args
-                                                                                                                                                                                           
+  config="${args[--config]}"
+  prefix="${args[prefix]:-$(date +%H%M%S)}"
+  outfile="${prefix}.json"
+  log debug config: "$(blue "$config")"
+  log debug prefix: "$(blue "$prefix")"
+  log debug outfile: "$(blue "$outfile")"
+
+  # call API unless the JSON is already saved
+  if [[ -f "$outfile" ]]; then
+    log info skipping API call, file exists: "$(blue "$outfile")"
+  else
+    log info calling API and saving "$(blue "$outfile")"
+    yurl "$config" >"$outfile"
+  fi
+
+  # download outputs
+  download_outputs "$prefix" "$outfile"
+
 }
 
 # :command.function
 repli_info_command() {
 
   # src/commands/info.sh
-  echo "# This file is located at 'src/commands/info.sh'."
-  echo "# It contains the implementation for the 'repli info' command."
-  echo "# The code you write here will be wrapped by a function named 'repli_info_command()'."
-  echo "# Feel free to edit this file; your changes will persist when regenerating."
-  inspect_args
-                                                                                                                                          
+  model="${args[model]}"
+  plain="${args[--plain]}"
+  example="${args[--example]}"
+  schema="${args[--schema]}"
+  json="${args[--json]}"
+  node="."
+
+  if [[ -n "$json" ]]; then
+    parser="jq"
+    opts=()
+  else
+    parser="yq"
+    opts=(-P)
+  fi
+
+  [[ -n "$example" ]] && node=".default_example.input"
+  [[ -n "$schema" ]] && node=".latest_version.openapi_schema.components.schemas.Input"
+  [[ -n "$plain" ]] && opts+=("-M")
+
+  get_model_info "$model" | "$parser" "${opts[@]}" "$node"
+
 }
 
 # :command.function
 repli_templates_new_command() {
 
   # src/commands/templates/new.sh
-  echo "# This file is located at 'src/commands/templates/new.sh'."
-  echo "# It contains the implementation for the 'repli templates new' command."
-  echo "# The code you write here will be wrapped by a function named 'repli_templates_new_command()'."
-  echo "# Feel free to edit this file; your changes will persist when regenerating."
-  inspect_args
-                                                                                                                                                                               
+  model="${args[model]}"
+  name="${args[--name]}"
+  force="${args[--force]}"
+
+  [[ "$name" == "auto" ]] && name="${model#*/}"
+
+  outpath="$templates_dir/$name.yaml"
+
+  if [[ -f "$outpath" && ! "$force" ]]; then
+    log debug "target: $(blue "$outpath")"
+    log error "target already exists: $(blue "$name")"
+    log info "use $(blue --force) to overwrite or $(blue --output NAME) to save with another name"
+    return 1
+  fi
+
+  log info "saving to $(blue "$outpath")"
+  mkdir -p "$templates_dir"
+  get_example_from_replicate "$model" > "$outpath"
+
+}
+
+# :command.function
+repli_templates_list_command() {
+
+  # src/commands/templates/list.sh
+  if [[ ! -d "$templates_dir" ]]; then
+    log error "templates dir not found: $(blue "$templates_dir")"
+    log info "change templates dir using $(blue REPLI_TEMPLATES_DIR)"
+  fi
+
+  log debug "templates dir: $(blue "$templates_dir")"
+  for file in "$templates_dir"/*.yaml; do
+    basename "$file" ".yaml"
+  done
+
 }
 
 # :command.function
@@ -816,18 +952,35 @@ repli_files_list_command() {
 
   [[ -n "$plain" ]] && opts+=("-M")
   get_files_list | "$parser" "${opts[@]}" .results
+
 }
 
 # :command.function
 repli_files_upload_command() {
 
   # src/commands/files/upload.sh
-  echo "# This file is located at 'src/commands/files/upload.sh'."
-  echo "# It contains the implementation for the 'repli files upload' command."
-  echo "# The code you write here will be wrapped by a function named 'repli_files_upload_command()'."
-  echo "# Feel free to edit this file; your changes will persist when regenerating."
-  inspect_args
-                                                                                                                                                                                                                        
+  file="${args[file]}"
+  files_list="files.ini"
+
+  if [[ -f "$files_list" ]]; then
+    log debug reading files list: "$(blue "$files_list")"
+
+    while IFS='=' read -r path url; do
+      if [[ "$path" == "$file" ]]; then
+        log info upload skipped, already registered in "$(blue "$files_list")"
+        log info url: "$url"
+        return 0
+      fi
+    done <"$files_list"
+  fi
+
+  log info uploading "$(blue "$file")"
+  url="$(upload_to_replicate "$file")"
+  log info url: "$(underlined "$url")"
+
+  log info saving URL to "$(blue "$files_list")"
+  echo "$file=$url" >>"$files_list"
+
 }
 
 # :command.parse_requirements
@@ -859,10 +1012,10 @@ parse_requirements() {
   # :command.environment_variables_filter
   # :command.environment_variables_default
   export REPLI_LOG_LEVEL="${REPLI_LOG_LEVEL:-info}"
-  export REPLI_MODELS_DIR="${REPLI_MODELS_DIR:-$HOME/repli/models}"
+  export REPLI_TEMPLATES_DIR="${REPLI_TEMPLATES_DIR:-$HOME/repli}"
 
   env_var_names+=("REPLI_LOG_LEVEL")
-  env_var_names+=("REPLI_MODELS_DIR")
+  env_var_names+=("REPLI_TEMPLATES_DIR")
   env_var_names+=("REPLICATE_API_TOKEN")
   if [[ -z "${REPLICATE_API_TOKEN:-}" ]]; then
     printf "missing required environment variable: REPLICATE_API_TOKEN\n" >&2
@@ -938,7 +1091,7 @@ parse_requirements() {
       shift $#
       ;;
 
-    templates)
+    templates | t)
       action="templates"
       shift
       repli_templates_parse_requirements "$@"
@@ -1293,6 +1446,13 @@ repli_templates_parse_requirements() {
       shift $#
       ;;
 
+    list | ls)
+      action="list"
+      shift
+      repli_templates_list_parse_requirements "$@"
+      shift $#
+      ;;
+
     # :command.command_fallback
     "")
       repli_templates_usage >&2
@@ -1427,6 +1587,53 @@ repli_templates_new_parse_requirements() {
 }
 
 # :command.parse_requirements
+repli_templates_list_parse_requirements() {
+  local key
+
+  # :command.fixed_flags_filter
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case "$key" in
+      --help | -h)
+        long_usage=yes
+        repli_templates_list_usage
+        exit
+        ;;
+
+      *)
+        break
+        ;;
+
+    esac
+  done
+
+  # :command.command_filter
+  action="templates list"
+
+  # :command.parse_requirements_while
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case "$key" in
+
+      -?*)
+        printf "invalid option: %s\n" "$key" >&2
+        exit 1
+        ;;
+
+      *)
+        # :command.parse_requirements_case
+        # :command.parse_requirements_case_simple
+        printf "invalid argument: %s\n" "$key" >&2
+        exit 1
+
+        ;;
+
+    esac
+  done
+
+}
+
+# :command.parse_requirements
 repli_files_parse_requirements() {
   local key
 
@@ -1453,7 +1660,7 @@ repli_files_parse_requirements() {
   case $action in
     -*) ;;
 
-    list | l)
+    list | ls)
       action="list"
       shift
       repli_files_list_parse_requirements "$@"
@@ -1642,12 +1849,13 @@ initialize() {
 
   # :command.environment_variables_default
   export REPLI_LOG_LEVEL="${REPLI_LOG_LEVEL:-info}"
-  export REPLI_MODELS_DIR="${REPLI_MODELS_DIR:-$HOME/repli/models}"
+  export REPLI_TEMPLATES_DIR="${REPLI_TEMPLATES_DIR:-$HOME/repli}"
 
   # src/initialize.sh
   set -o pipefail
   declare -g replicate_host=https://api.replicate.com
-  declare -g models_dir="$REPLI_MODELS_DIR"
+  declare -g templates_dir="$REPLI_TEMPLATES_DIR"
+  declare -g log_level="$REPLI_LOG_LEVEL"
 
 }
 
@@ -1669,6 +1877,7 @@ run() {
     "info") repli_info_command ;;
     "templates") repli_templates_command ;;
     "templates new") repli_templates_new_command ;;
+    "templates list") repli_templates_list_command ;;
     "files") repli_files_command ;;
     "files list") repli_files_list_command ;;
     "files upload") repli_files_upload_command ;;

@@ -9,9 +9,9 @@ environment_variables:
   help: Log level
   default: info
   allowed: [debug, info, warn, error]
-- name: repli_models_dir
+- name: repli_templates_dir
   help: Path to templates dir
-  default: "$HOME/repli/models"
+  default: "$HOME/repli"
 - name: replicate_api_token
   help: Replicate API token
   required: true
@@ -87,6 +87,7 @@ commands:
   - repli info google/nano-banana --example --plain --json
 
 - name: templates
+  alias: t
   help: Manage templates
   commands:
   - name: new
@@ -112,6 +113,9 @@ commands:
     examples:
     - repli add google/nano-banana banana
 
+  - name: list
+    alias: [ls]
+    help: Show list of templates
 
 - name: files
   alias: f
@@ -119,7 +123,7 @@ commands:
 
   commands:
   - name: list
-    alias: l
+    alias: [ls]
     help: Show list of uploaded files
     flags: [*plain, *json]
 

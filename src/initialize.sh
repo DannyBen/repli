@@ -1,3 +1,4 @@
 set -o pipefail
 declare -g replicate_host=https://api.replicate.com
-declare -g models_dir="$REPLI_MODELS_DIR"
+declare -g templates_dir="$REPLI_TEMPLATES_DIR"
+declare -g log_level="$REPLI_LOG_LEVEL"

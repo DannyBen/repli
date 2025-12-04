@@ -1,0 +1,4 @@
+missing required argument: MODEL
+usage: repli templates new MODEL [OPTIONS]
+examples:
+  repli add google/nano-banana banana

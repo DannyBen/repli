@@ -1,15 +1,13 @@
 #!/usr/bin/env bash
 # Run this from the root directory
 
-cd ./test || exit
+cd ./test || exit 1
 source approvals.bash
-
 export REPLICATE_HOST=http://localhost:3000
 export REPLICATE_API_TOKEN=no-token-needed
 
 if [ "$(curl -s ${REPLICATE_HOST}/ | jq -r '."mock server status"')" != "running" ]; then
-  echo "Mock server NOT running - aborting"
-  exit 1
+  fail "mock server not running, testing is aborted"
 fi
 
 describe "help"
@@ -17,7 +15,35 @@ describe "help"
   allow_diff "\/home\/[^\/]*"
   approve "repli --help"
 
+describe "new"
+  approve "repli new --help"
+
+describe "get"
+  approve "repli get --help"
+
 describe "info"
   approve "repli info"
+  approve "repli info --help"
   approve "repli info google/nano-banana"
   approve "repli info google/nano-banana --json"
+
+describe "templates"
+  approve "repli templates"
+  approve "repli templates --help"
+
+describe "templates new"
+  approve "repli templates new"
+  approve "repli templates new --help"
+
+describe "templates list"
+  approve "repli templates list --help"
+
+describe "files"
+  approve "repli files"
+  approve "repli files --help"
+
+describe "files list"
+  approve "repli files list --help"
+
+describe "files upload"
+  approve "repli files upload --help"

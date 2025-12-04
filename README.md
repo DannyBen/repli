@@ -1,72 +1,138 @@
-# repli - Replicate Workspace Tool
+# repli - Replicate AI Workspace Tool
 
-Command line utility that is designed to provide easy access to the Replicate
-API using YAML configuration files.
+**repli** is a command-line tool that turns Replicate API calls into a clean,
+reproducible, YAML-driven workflow.  
+Generate templates, edit your configuration, run a single command, and let
+repli handle file uploads, API calls, and output saving.
+
+With repli, you can:
+
+- Generate starter templates directly from Replicate models  
+- Edit simple YAML instead of crafting JSON payloads  
+- Automatically upload local files  
+- Save outputs predictably in your working directory  
+- Keep your AI workflows organized and version-controllable  
+
+---
+
+## Development Status
+
+- **Current release:** Prototype v0.1.0  
+- **In progress:**  
+  - Tests  
+  - Documentation  
+  - Setup + installation instructions  
+- **Next milestone:** Alpha v0.2.0  
+
+---
 
 ## Concept
 
-1. You create a YAML file based on Replicate examples
-   (`repli templates new google/nano-banana`)
-2. You edit the YAML file to configure API options.
-3. You run repli to call the API and save the output (`repli get`).
+repli simplifies working with Replicate into three steps:
 
-File uploads are handled automatically. Local files specified in angled
-brackets (e.g., `<sample.png>`) are uploaded to Replicate before the API call.
+1. Generate a YAML template for any Replicate model:  
+   ```
+   repli templates new google/nano-banana
+   ```
+2. Edit the template to configure the model’s inputs.
+3. Run the model with:
+   ```
+   repli get
+   ```
+
+Local file references are handled automatically, and all output files are saved
+directly to your working directory.
+
+Process overview:
+
+```
+template → edit YAML → repli get → output files
+```
 
 ## Installation
 
-Installation instructions will be provided here.
+Installation instructions will be provided here in a future release.
+
+In the meantime, you can download the
+[repli](https://github.com/DannyBen/repli/blob/master/repli) bash script:
+
+```bash
+curl -o repli https://raw.githubusercontent.com/DannyBen/repli/refs/heads/master/repli
+chmod +x repli
+sudo mv repli /usr/local/bin/
+```
 
 ## Quick Start
 
-Get your first template. This command fetches an example for a given model from
-the Replicate API and creates a YAML template in the templates directory.
+### 1. Generate a model template
 
-```bash
+```
 repli templates new black-forest-labs/flux-schnell
 ```
 
-Now, in an empty directory, create `repli.yml` from this template by running:
+### 2. Create `repli.yml` in your working directory
 
-```bash
+```
 repli new flux-schnell
 ```
 
-Edit the generated `repli.yml` file, and then call the API by running:
+### 3. Edit the YAML file  
 
-```bash
+Change the input parameters to your needs.
+
+### 4. Run the model
+
+```
 repli get
 ```
 
-You should see a JSON file and as well as the image file saved in your working
-directory.
+### 5. Check your working directory  
+You'll find:
 
+- A JSON response file  
+- Any resulting image or output files  
+- A `files.ini` file tracking uploaded assets  
 
 ## YAML Configuration
 
-repli expects a YAML configuration (named `repli.yml` by default) to exist in 
-the working directory, and include two options: `model` and `input`.
+repli expects a configuration file named `repli.yml` in the current directory.  
+It must include two keys:
 
-The `input` may contain any option supported by the model on Replicate.
+- `model`: the Replicate model name  
+- `input`: a mapping of any valid model options  
 
-For example:
+Example:
 
 ```yaml
-# repli.yaml
+# repli.yml
 model: google/nano-banana
 input:
   prompt: tuxedo cat standing on a black and white printer
   aspect_ratio: "1:1"
   output_format: png
   image_input:
-  - value: <sample.png>
+    - value: <sample.png>
 ```
 
-### File Uploads
+See more examples in the [examples folder][examples].
 
-Any value inside angled brackets, like `<sample.png>` above, means that this
-is a local file that is expected to be uploaded to Replicate prior to calling
-the API. In this case, the local file will be uploaded, and the resulting URL
-saved in `files.ini` in the working directory, in order to avoid unnecessary
-subsequent uploads.
+## File Uploads
 
+Any value wrapped in angle brackets - such as `<sample.png>` - is treated as a
+local file path.  
+repli will automatically:
+
+1. Upload the file to Replicate  
+2. Store the resulting URL in `files.ini`  
+3. Reuse that URL on future runs to avoid unnecessary uploads  
+
+---
+
+## Contributing / Support
+
+If you have questions, suggestions, or run into an issue, feel free to open an
+[issue][issues] on GitHub:
+
+[bashly]: https://bashly.dannyb.co/
+[issues]: https://github.com/DannyBen/repli/issues
+[examples]: https://github.com/DannyBen/repli/tree/master/examples

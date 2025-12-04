@@ -1,0 +1,14 @@
+# https://replicate.com/bytedance/seedream-4
+
+model: bytedance/seedream-4
+input:
+  prompt: abstract art depicting boredom
+  aspect_ratio: "1:1"    # 1:1 2:3 3:4 4:5 16:9 21:9 + portraits + 'match_input_image'
+  size: 1K               # 1K 2K 4K
+
+  # ADDITIONAL OPTIONS:
+  # image_input:
+  # - <sample.png>      # path to local image (in <>) or URL (up to 10 files)
+  # max_images: 1                          # 1-15
+  # sequential_image_generation: disabled  # disabled auto
+  # enhance_prompt: true

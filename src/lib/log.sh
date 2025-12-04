@@ -1,9 +1,10 @@
+## usage: log <level> <message...>
 log() {
-  # Args: log <level> <message...>
-  local level="$1"; shift
+  local level="$1"
+  shift
   local msg="$*"
+  local padded caller color_func rank_req rank_cur
 
-  local rank_req rank_cur
   case "$level" in
     debug) rank_req=10;;
     info)  rank_req=20;;
@@ -24,7 +25,7 @@ log() {
   [[ $rank_req -lt $rank_cur ]] && return 0
 
   # choose color function
-  local color_func="cyan"
+  color_func="cyan"
   case "$level" in
     debug) color_func="magenta";;
     info)  color_func="green";;
@@ -32,12 +33,14 @@ log() {
     error) color_func="red_bold";;
   esac
 
-  local padded
   printf -v padded_level "%-5s" "$level"
+  caller="${FUNCNAME[1]}"
 
-  printf "%s %s → %s\n" \
-    "$(date '+%H:%M:%S')" \
+  printf "%s %s %s %s %s\n" \
+    "$(green_bold →)" \
     "$("$color_func" "$padded_level")" \
+    "$caller" \
+    "$(green_bold "•")" \
     "$msg" \
     >&2
 }

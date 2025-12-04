@@ -2,15 +2,19 @@
 ## usage: yurl request.yaml
 yurl() {
   local yaml_file="$1"
+  local model input_json final_json
 
-  local model
-
-  # Get model from the YAML
+  # Get the model
   model=$(yq -r '.model' "$yaml_file")
 
-  # Get the input node from teh YAML, pipe it to jq to convert it to JSON,
-  # then pipe it to curl which uses it (@-) as its data.
-  yq -o=json '.input' "$yaml_file" \
+  # Convert .input YAML → JSON
+  input_json=$(yq -o=json '.input' "$yaml_file")
+
+  # Replace any "<filename>" placeholders
+  final_json=$(replace_file_placeholders "$input_json")
+
+  # Pipe the evaluated JSON to curl which uses it (@-) as its data.
+  echo "$final_json" \
     | jq '{input: .}' \
     | curl -sS -X POST \
       -H "Authorization: Bearer $REPLICATE_API_TOKEN" \

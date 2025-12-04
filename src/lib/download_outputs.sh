@@ -2,6 +2,7 @@
 download_outputs() {
   local prefix="$1"
   local json_file="$2"
+  local filename
 
   if [[ ! -f "$json_file" ]]; then
     log error file not found: "$(blue "$json_file")"
@@ -22,14 +23,14 @@ download_outputs() {
   fi
 
   for url in "${urls[@]}"; do
-    local filename="${prefix}_$(basename "$url")"
+    filename="${prefix}_$(basename "$url")"
 
     if [[ -f "$filename" ]]; then
       log info "skipping download, file exists: $(blue "$filename")"
       continue
     fi
 
-    log debug "found url: $(underlined "$url")"
+    log debug "downloading from: $(underlined "$url")"
     log info "downloading to $(blue "$filename")"
 
     wget -q -O "$filename" "$url" \

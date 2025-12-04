@@ -261,6 +261,7 @@ white_underlined() { print_in_color "\e[4;37m" "$*"; }
 download_outputs() {
   local prefix="$1"
   local json_file="$2"
+  local filename
 
   if [[ ! -f "$json_file" ]]; then
     log error file not found: "$(blue "$json_file")"
@@ -281,14 +282,14 @@ download_outputs() {
   fi
 
   for url in "${urls[@]}"; do
-    local filename="${prefix}_$(basename "$url")"
+    filename="${prefix}_$(basename "$url")"
 
     if [[ -f "$filename" ]]; then
       log info "skipping download, file exists: $(blue "$filename")"
       continue
     fi
 
-    log debug "found url: $(underlined "$url")"
+    log debug "downloading from: $(underlined "$url")"
     log info "downloading to $(blue "$filename")"
 
     wget -q -O "$filename" "$url" \
@@ -297,13 +298,39 @@ download_outputs() {
   done
 }
 
+# src/lib/get_file_url.sh
+get_file_url() {
+  local file="$1"
+  local files_list="files.ini"
+
+  if [[ -f "$files_list" ]]; then
+    log debug reading files list: "$(blue "$files_list")"
+
+    while IFS='=' read -r path url; do
+      if [[ "$path" == "$file" ]]; then
+        log debug file already registered in "$(blue "$files_list")"
+        log debug "$file → $url"
+        echo "$url"
+        return
+      fi
+    done < "$files_list"
+  fi
+
+  log info uploading file: "$(blue "$file")"
+  url="$(upload_to_replicate "$file")"
+  log debug file url: "$(underlined "$url")"
+  log debug saving URL to "$(blue "$files_list")"
+  echo "$file=$url" >> "$files_list"
+  echo "$url"
+}
+
 # src/lib/log.sh
 log() {
-  # Args: log <level> <message...>
-  local level="$1"; shift
+  local level="$1"
+  shift
   local msg="$*"
+  local padded caller color_func rank_req rank_cur
 
-  local rank_req rank_cur
   case "$level" in
     debug) rank_req=10;;
     info)  rank_req=20;;
@@ -324,7 +351,7 @@ log() {
   [[ $rank_req -lt $rank_cur ]] && return 0
 
   # choose color function
-  local color_func="cyan"
+  color_func="cyan"
   case "$level" in
     debug) color_func="magenta";;
     info)  color_func="green";;
@@ -332,19 +359,44 @@ log() {
     error) color_func="red_bold";;
   esac
 
-  local padded
   printf -v padded_level "%-5s" "$level"
+  caller="${FUNCNAME[1]}"
 
-  printf "%s %s → %s\n" \
-    "$(date '+%H:%M:%S')" \
+  printf "%s %s %s %s %s\n" \
+    "$(green_bold →)" \
     "$("$color_func" "$padded_level")" \
+    "$caller" \
+    "$(green_bold "•")" \
     "$msg" \
     >&2
 }
 
+# src/lib/replace_file_placeholders.sh
+replace_file_placeholders() {
+  local json="$1"
+  local url
+  local files=()
+
+  # Find all "<filename>" occurrences in JSON values
+  mapfile -t files < <(echo "$json" | jq -r '
+    .. | select(type == "string") |
+    match("^<(.+)>$")? | .captures[0].string
+  ')
+
+  # Replace each placeholder with uploaded file URL
+  for file in "${files[@]}"; do
+    url=$(get_file_url "$file")
+    json=$(echo "$json" | jq --arg f "<$file>" --arg u "$url" '
+      (.. | select(type=="string" and .==$f)) |= $u
+    ')
+  done
+
+  echo "$json"
+}
+
 # src/lib/upload_to_replicate.sh
 upload_to_replicate() {
-  input_file="$1"
+  local input_file="$1"
 
   file=$(curl -s -X POST "https://api.replicate.com/v1/files" \
     -H "Authorization: Bearer $REPLICATE_API_TOKEN" \
@@ -379,15 +431,19 @@ validate_integer() {
 # src/lib/yurl.sh
 yurl() {
   local yaml_file="$1"
+  local model input_json final_json
 
-  local model
-
-  # Get model from the YAML
+  # Get the model
   model=$(yq -r '.model' "$yaml_file")
 
-  # Get the input node from teh YAML, pipe it to jq to convert it to JSON,
-  # then pipe it to curl which uses it (@-) as its data.
-  yq -o=json '.input' "$yaml_file" \
+  # Convert .input YAML → JSON
+  input_json=$(yq -o=json '.input' "$yaml_file")
+
+  # Replace any "<filename>" placeholders
+  final_json=$(replace_file_placeholders "$input_json")
+
+  # Pipe the evaluated JSON to curl which uses it (@-) as its data.
+  echo "$final_json" \
     | jq '{input: .}' \
     | curl -sS -X POST \
       -H "Authorization: Bearer $REPLICATE_API_TOKEN" \

@@ -1,5 +1,5 @@
 upload_to_replicate() {
-  input_file="$1"
+  local input_file="$1"
 
   file=$(curl -s -X POST "https://api.replicate.com/v1/files" \
     -H "Authorization: Bearer $REPLICATE_API_TOKEN" \

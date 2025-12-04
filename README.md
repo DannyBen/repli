@@ -19,12 +19,12 @@ repli was developed using the [Bashly Command Line Framework][bashly].
 
 ## Development Status
 
-- **Current release:** Prototype v0.1.0  
-- **In progress:**  
-  - Tests  
-  - Documentation  
-  - Setup + installation instructions  
-- **Next milestone:** Alpha v0.2.0  
+- [x] Prototype v0.1.0  
+- [ ] Tests  
+- [ ] Documentation  
+- [ ] Setup + installation instructions  
+- [ ] CI
+- [ ] Alpha v0.2.0  
 
 ---
 

@@ -27,7 +27,7 @@ repli - Replicate AI Workspace Tool
 
   [32mREPLI_TEMPLATES_DIR[0m
     Path to templates dir
-    Default: /home/vagrant/repli
+    Default: */repli
 
   [32mREPLICATE_API_TOKEN (required)[0m
     Replicate API token

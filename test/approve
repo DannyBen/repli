@@ -14,6 +14,7 @@ fi
 
 describe "help"
   approve "repli"
+  allow_diff "\/home\/[^\/]*"
   approve "repli --help"
 
 describe "info"

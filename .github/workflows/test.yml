@@ -10,17 +10,26 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+
     - name: Add current directory to path
       run: echo "$PWD" >> $GITHUB_PATH
+
     - name: Run shellcheck tests
       run: shellcheck repli
-    - name: Installing mock server prerequisites
-      run: |
-        ruby -v
-        gem install sinatra puma
+
+    - name: Configure Ruby for the mock server
+      uses: ruby/setup-ruby@v1
+      with: 
+        ruby-version: '3.4'
+        bundler-cache: true
+
+    - name: Install mock server dependencies
+      run: gem install sinatra puma
+
     - name: Start mock server
       run: |
         ruby test/mockserver/mockserver.rb &
         sleep 2
+
     - name: Run approval tests
       run: test/approve

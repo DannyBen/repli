@@ -6,6 +6,11 @@ source approvals.bash
 
 export REPLICATE_HOST=http://localhost:3000
 
+if [ "$(curl -s ${REPLICATE_HOST}/ | jq -r '."mock server status"')" != "running" ]; then
+  echo "Mock server NOT running - aborting"
+  exit 1
+fi
+
 describe "help"
   approve "repli"
   approve "repli --help"

@@ -10,7 +10,7 @@ if [[ -f "$files_list" ]]; then
       log info url: "$url"
       return 0
     fi
-  done < "$files_list"
+  done <"$files_list"
 fi
 
 log info uploading "$(blue "$file")"
@@ -18,4 +18,4 @@ url="$(upload_to_replicate "$file")"
 log info url: "$(underlined "$url")"
 
 log info saving URL to "$(blue "$files_list")"
-echo "$file=$url" >> "$files_list"
+echo "$file=$url" >>"$files_list"

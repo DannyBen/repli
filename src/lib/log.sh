@@ -6,19 +6,19 @@ log() {
   local caller color_func rank_req rank_cur
 
   case "$level" in
-    debug) rank_req=10;;
-    info)  rank_req=20;;
-    warn)  rank_req=30;;
-    error) rank_req=40;;
-    *)     rank_req=20;;
+    debug) rank_req=10 ;;
+    info) rank_req=20 ;;
+    warn) rank_req=30 ;;
+    error) rank_req=40 ;;
+    *) rank_req=20 ;;
   esac
 
   case "$REPLI_LOG_LEVEL" in
-    debug) rank_cur=10;;
-    info)  rank_cur=20;;
-    warn)  rank_cur=30;;
-    error) rank_cur=40;;
-    *)     rank_cur=20;;
+    debug) rank_cur=10 ;;
+    info) rank_cur=20 ;;
+    warn) rank_cur=30 ;;
+    error) rank_cur=40 ;;
+    *) rank_cur=20 ;;
   esac
 
   # filter by level
@@ -27,10 +27,10 @@ log() {
   # choose color function
   color_func="cyan"
   case "$level" in
-    debug) color_func="magenta";;
-    info)  color_func="green";;
-    warn)  color_func="yellow_bold";;
-    error) color_func="red_bold";;
+    debug) color_func="magenta" ;;
+    info) color_func="green" ;;
+    warn) color_func="yellow_bold" ;;
+    error) color_func="red_bold" ;;
   esac
 
   caller="${FUNCNAME[1]}"

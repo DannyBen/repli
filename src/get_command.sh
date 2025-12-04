@@ -10,7 +10,7 @@ if [[ -f "$outfile" ]]; then
   log info skipping API call, file exists: "$(blue "$outfile")"
 else
   log info calling API and saving "$(blue "$outfile")"
-  yurl "$config" > "$outfile"
+  yurl "$config" >"$outfile"
 fi
 
 # download outputs

@@ -19,7 +19,7 @@ fi
 # Build match list using simple "contains" search
 mapfile -t matches < <(
   find "$models_dir" -maxdepth 1 -type f -name "*.yaml" -printf "%f\n" |
-  grep -i "${search:-.}"
+    grep -i "${search:-.}"
 )
 
 # No matches
@@ -44,12 +44,12 @@ else
   read -rp "Choose a template (1-${#matches[@]}): " choice
 
   # Validate selection
-  if ! [[ "$choice" =~ ^[0-9]+$ ]] || (( choice < 1 || choice > ${#matches[@]} )); then
+  if ! [[ "$choice" =~ ^[0-9]+$ ]] || ((choice < 1 || choice > ${#matches[@]})); then
     log error "invalid selection"
     return 1
   fi
 
-  selected="${matches[choice-1]}"
+  selected="${matches[choice - 1]}"
 fi
 
 # Copy file (single place — no duplication)

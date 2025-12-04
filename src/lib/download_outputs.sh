@@ -33,8 +33,8 @@ download_outputs() {
     log debug "downloading from: $(underlined "$url")"
     log info "downloading to $(blue "$filename")"
 
-    wget -q -O "$filename" "$url" \
-      || log error "failed to download: $(underlined "$url")"
+    wget -q -O "$filename" "$url" ||
+      log error "failed to download: $(underlined "$url")"
 
   done
 }

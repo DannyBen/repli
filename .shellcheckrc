@@ -1,0 +1,1 @@
+disable=SC2094  # false positive: our log writes only to stderr

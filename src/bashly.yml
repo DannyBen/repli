@@ -71,11 +71,10 @@ commands:
     validate: file_exists
     required: true
 
-
 - name: info
   alias: i
   help: Get information on a model
-  dependencies: [jq, curl]
+  dependencies: [yq, jq, curl]
   environment_variables: [*api_key]
 
   args:
@@ -91,9 +90,22 @@ commands:
   - long: --schema
     short: -s
     help: Show the schema only
-  - long: --plain
+  - &plain
+    long: --plain
     short: -p
     help: Disable output colors
+  - &json
+    long: --json
+    short: -j
+    help: Output JSON instead of YAML
 
   examples:
   - repli info google/nano-banana
+  - repli info google/nano-banana --example --plain --json
+
+- name: files
+  alias: f
+  help: Show list of uploaded files
+  dependencies: [yq, jq, curl]
+  environment_variables: [*api_key]
+  flags: [*plain, *json]

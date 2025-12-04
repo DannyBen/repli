@@ -12,13 +12,13 @@ get_file_url() {
         echo "$url"
         return 0
       fi
-    done < "$files_list"
+    done <"$files_list"
   fi
 
   log info uploading file: "$(blue "$file")"
   url="$(upload_to_replicate "$file")"
   log debug file url: "$(underlined "$url")"
   log debug saving URL to "$(blue "$files_list")"
-  echo "$file=$url" >> "$files_list"
+  echo "$file=$url" >>"$files_list"
   echo "$url"
 }

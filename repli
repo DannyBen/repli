@@ -30,6 +30,7 @@ repli_usage() {
   printf "  %s   Call Replicate using a configuration file and save the result\n" "get   "
   printf "  %s   Upload a file to Replicate\n" "upload"
   printf "  %s   Get information on a model\n" "info  "
+  printf "  %s   Show list of uploaded files\n" "files "
   echo
 
   # :command.long_usage
@@ -234,6 +235,11 @@ repli_info_usage() {
     printf "    Disable output colors\n"
     echo
 
+    # :flag.usage
+    printf "  %s\n" "--json, -j"
+    printf "    Output JSON instead of YAML\n"
+    echo
+
     # :command.usage_fixed_flags
     printf "  %s\n" "--help, -h"
     printf "    Show this help\n"
@@ -258,6 +264,50 @@ repli_info_usage() {
     # :command.usage_examples
     printf "%s\n" "Examples:"
     printf "  repli info google/nano-banana\n"
+    printf "  repli info google/nano-banana --example --plain --json\n"
+    echo
+
+  fi
+}
+
+# :command.usage
+repli_files_usage() {
+  printf "repli files - Show list of uploaded files\n\n"
+  printf "Alias: f\n"
+  echo
+
+  printf "%s\n" "Usage:"
+  printf "  repli files [OPTIONS]\n"
+  printf "  repli files --help | -h\n"
+  echo
+
+  # :command.long_usage
+  if [[ -n "$long_usage" ]]; then
+    # :command.usage_options
+    printf "%s\n" "Options:"
+
+    # :command.usage_flags
+    # :flag.usage
+    printf "  %s\n" "--plain, -p"
+    printf "    Disable output colors\n"
+    echo
+
+    # :flag.usage
+    printf "  %s\n" "--json, -j"
+    printf "    Output JSON instead of YAML\n"
+    echo
+
+    # :command.usage_fixed_flags
+    printf "  %s\n" "--help, -h"
+    printf "    Show this help\n"
+    echo
+
+    # :command.usage_environment_variables
+    printf "%s\n" "Environment Variables:"
+
+    # :environment_variable.usage
+    printf "  %s\n" "REPLICATE_API_TOKEN (required)"
+    printf "    Replicate API token\n"
     echo
 
   fi
@@ -412,8 +462,8 @@ download_outputs() {
     log debug "downloading from: $(underlined "$url")"
     log info "downloading to $(blue "$filename")"
 
-    wget -q -O "$filename" "$url" \
-      || log error "failed to download: $(underlined "$url")"
+    wget -q -O "$filename" "$url" ||
+      log error "failed to download: $(underlined "$url")"
 
   done
 }
@@ -433,23 +483,27 @@ get_file_url() {
         echo "$url"
         return 0
       fi
-    done < "$files_list"
+    done <"$files_list"
   fi
 
   log info uploading file: "$(blue "$file")"
   url="$(upload_to_replicate "$file")"
   log debug file url: "$(underlined "$url")"
   log debug saving URL to "$(blue "$files_list")"
-  echo "$file=$url" >> "$files_list"
+  echo "$file=$url" >>"$files_list"
   echo "$url"
+}
+
+# src/lib/get_files_list.sh
+get_files_list() {
+  curl -s -H "Authorization: Token $REPLICATE_API_TOKEN" "$replicate_host/v1/files"
 }
 
 # src/lib/get_model_info.sh
 get_model_info() {
   model="$1"
 
-  curl -s -H "Authorization: Bearer $REPLICATE_API_TOKEN" \
-    "https://api.replicate.com/v1/models/$model"
+  curl -s -H "Authorization: Bearer $REPLICATE_API_TOKEN" "$replicate_host/v1/models/$model"
 }
 
 # src/lib/log.sh
@@ -460,19 +514,19 @@ log() {
   local caller color_func rank_req rank_cur
 
   case "$level" in
-    debug) rank_req=10;;
-    info)  rank_req=20;;
-    warn)  rank_req=30;;
-    error) rank_req=40;;
-    *)     rank_req=20;;
+    debug) rank_req=10 ;;
+    info) rank_req=20 ;;
+    warn) rank_req=30 ;;
+    error) rank_req=40 ;;
+    *) rank_req=20 ;;
   esac
 
   case "$REPLI_LOG_LEVEL" in
-    debug) rank_cur=10;;
-    info)  rank_cur=20;;
-    warn)  rank_cur=30;;
-    error) rank_cur=40;;
-    *)     rank_cur=20;;
+    debug) rank_cur=10 ;;
+    info) rank_cur=20 ;;
+    warn) rank_cur=30 ;;
+    error) rank_cur=40 ;;
+    *) rank_cur=20 ;;
   esac
 
   # filter by level
@@ -481,10 +535,10 @@ log() {
   # choose color function
   color_func="cyan"
   case "$level" in
-    debug) color_func="magenta";;
-    info)  color_func="green";;
-    warn)  color_func="yellow_bold";;
-    error) color_func="red_bold";;
+    debug) color_func="magenta" ;;
+    info) color_func="green" ;;
+    warn) color_func="yellow_bold" ;;
+    error) color_func="red_bold" ;;
   esac
 
   caller="${FUNCNAME[1]}"
@@ -522,10 +576,10 @@ replace_file_placeholders() {
 upload_to_replicate() {
   local input_file="$1"
 
-  file=$(curl -s -X POST "https://api.replicate.com/v1/files" \
+  file=$(curl -s -X POST "$replicate_host/v1/files" \
     -H "Authorization: Bearer $REPLICATE_API_TOKEN" \
     -H "Content-Type: multipart/form-data" \
-    -F "content=@$input_file;type=application/octet-stream;title=$(basename $input_file)")
+    -F "content=@$input_file;type=application/octet-stream;title=$(basename "$input_file")")
 
   input_file_url=$(echo "$file" | jq -r '.urls.get')
   echo "$input_file_url"
@@ -574,14 +628,14 @@ yurl() {
   final_json=$(replace_file_placeholders "$input_json")
 
   # Pipe the evaluated JSON to curl which uses it (@-) as its data.
-  echo "$final_json" \
-    | jq '{input: .}' \
-    | curl -sS -X POST \
+  echo "$final_json" |
+    jq '{input: .}' |
+    curl -sS -X POST \
       -H "Authorization: Bearer $REPLICATE_API_TOKEN" \
       -H "Content-Type: application/json" \
       -H "Prefer: wait" \
       -d @- \
-      "https://api.replicate.com/v1/models/${model}/predictions"
+      "$replicate_host/v1/models/${model}/predictions"
 }
 
 # :command.command_functions
@@ -610,7 +664,7 @@ repli_new_command() {
   # Build match list using simple "contains" search
   mapfile -t matches < <(
     find "$models_dir" -maxdepth 1 -type f -name "*.yaml" -printf "%f\n" |
-    grep -i "${search:-.}"
+      grep -i "${search:-.}"
   )
 
   # No matches
@@ -635,12 +689,12 @@ repli_new_command() {
     read -rp "Choose a template (1-${#matches[@]}): " choice
 
     # Validate selection
-    if ! [[ "$choice" =~ ^[0-9]+$ ]] || (( choice < 1 || choice > ${#matches[@]} )); then
+    if ! [[ "$choice" =~ ^[0-9]+$ ]] || ((choice < 1 || choice > ${#matches[@]})); then
       log error "invalid selection"
       return 1
     fi
 
-    selected="${matches[choice-1]}"
+    selected="${matches[choice - 1]}"
   fi
 
   # Copy file (single place — no duplication)
@@ -665,7 +719,7 @@ repli_get_command() {
     log info skipping API call, file exists: "$(blue "$outfile")"
   else
     log info calling API and saving "$(blue "$outfile")"
-    yurl "$config" > "$outfile"
+    yurl "$config" >"$outfile"
   fi
 
   # download outputs
@@ -689,7 +743,7 @@ repli_upload_command() {
         log info url: "$url"
         return 0
       fi
-    done < "$files_list"
+    done <"$files_list"
   fi
 
   log info uploading "$(blue "$file")"
@@ -697,7 +751,7 @@ repli_upload_command() {
   log info url: "$(underlined "$url")"
 
   log info saving URL to "$(blue "$files_list")"
-  echo "$file=$url" >> "$files_list"
+  echo "$file=$url" >>"$files_list"
 
 }
 
@@ -709,16 +763,45 @@ repli_info_command() {
   plain="${args[--plain]}"
   example="${args[--example]}"
   schema="${args[--schema]}"
+  json="${args[--json]}"
+
+  if [[ -n "$json" ]]; then
+    parser="jq"
+    opts=()
+  else
+    parser="yq"
+    opts=(-P)
+  fi
 
   node="."
   [[ -n "$example" ]] && node=".default_example.input"
   [[ -n "$schema" ]] && node=".latest_version.openapi_schema.components.schemas.Input"
 
-  jq_opts=()
-  [[ -n "$plain" ]] && jq_opts+=("-M")
+  opts=()
+  [[ -n "$plain" ]] && opts+=("-M")
 
-  get_model_info "$model" | jq "${jq_opts[@]}" "$node"
+  get_model_info "$model" | "$parser" "${opts[@]}" "$node"
 
+}
+
+# :command.function
+repli_files_command() {
+
+  # src/files_command.sh
+  plain="${args[--plain]}"
+  json="${args[--json]}"
+
+  if [[ -n "$json" ]]; then
+    parser="jq"
+    opts=()
+  else
+    parser="yq"
+    opts=(-P)
+  fi
+
+  [[ -n "$plain" ]] && opts+=("-M")
+
+  get_files_list | "$parser" "${opts[@]}" .results
 }
 
 # :command.parse_requirements
@@ -788,6 +871,13 @@ parse_requirements() {
       action="info"
       shift
       repli_info_parse_requirements "$@"
+      shift $#
+      ;;
+
+    files | f)
+      action="files"
+      shift
+      repli_files_parse_requirements "$@"
       shift $#
       ;;
 
@@ -1169,6 +1259,14 @@ repli_info_parse_requirements() {
   # :command.dependencies_filter
   missing_deps=
   # :dependency.filter
+  if ! command -v yq >/dev/null 2>&1; then
+    printf "missing dependency: yq\n" >&2
+    missing_deps=1
+  else
+    deps['yq']="$(command -v yq | head -n1)"
+  fi
+
+  # :dependency.filter
   if ! command -v jq >/dev/null 2>&1; then
     printf "missing dependency: jq\n" >&2
     missing_deps=1
@@ -1219,6 +1317,14 @@ repli_info_parse_requirements() {
         shift
         ;;
 
+      # :flag.case
+      --json | -j)
+
+        # :flag.case_no_arg
+        args['--json']=1
+        shift
+        ;;
+
       -?*)
         printf "invalid option: %s\n" "$key" >&2
         exit 1
@@ -1260,6 +1366,106 @@ repli_info_parse_requirements() {
 
 }
 
+# :command.parse_requirements
+repli_files_parse_requirements() {
+  local key
+
+  # :command.fixed_flags_filter
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case "$key" in
+      --help | -h)
+        long_usage=yes
+        repli_files_usage
+        exit
+        ;;
+
+      *)
+        break
+        ;;
+
+    esac
+  done
+
+  # :command.environment_variables_filter
+
+  env_var_names+=("REPLICATE_API_TOKEN")
+  if [[ -z "${REPLICATE_API_TOKEN:-}" ]]; then
+    printf "missing required environment variable: REPLICATE_API_TOKEN\n" >&2
+    exit 1
+  fi
+
+  # :command.dependencies_filter
+  missing_deps=
+  # :dependency.filter
+  if ! command -v yq >/dev/null 2>&1; then
+    printf "missing dependency: yq\n" >&2
+    missing_deps=1
+  else
+    deps['yq']="$(command -v yq | head -n1)"
+  fi
+
+  # :dependency.filter
+  if ! command -v jq >/dev/null 2>&1; then
+    printf "missing dependency: jq\n" >&2
+    missing_deps=1
+  else
+    deps['jq']="$(command -v jq | head -n1)"
+  fi
+
+  # :dependency.filter
+  if ! command -v curl >/dev/null 2>&1; then
+    printf "missing dependency: curl\n" >&2
+    missing_deps=1
+  else
+    deps['curl']="$(command -v curl | head -n1)"
+  fi
+
+  if [[ -n $missing_deps ]]; then
+    exit 1
+  fi
+
+  # :command.command_filter
+  action="files"
+
+  # :command.parse_requirements_while
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case "$key" in
+      # :flag.case
+      --plain | -p)
+
+        # :flag.case_no_arg
+        args['--plain']=1
+        shift
+        ;;
+
+      # :flag.case
+      --json | -j)
+
+        # :flag.case_no_arg
+        args['--json']=1
+        shift
+        ;;
+
+      -?*)
+        printf "invalid option: %s\n" "$key" >&2
+        exit 1
+        ;;
+
+      *)
+        # :command.parse_requirements_case
+        # :command.parse_requirements_case_simple
+        printf "invalid argument: %s\n" "$key" >&2
+        exit 1
+
+        ;;
+
+    esac
+  done
+
+}
+
 # :command.initialize
 initialize() {
   declare -g version="0.1.0"
@@ -1267,6 +1473,9 @@ initialize() {
 
   # :command.environment_variables_default
   export REPLI_LOG_LEVEL="${REPLI_LOG_LEVEL:-info}"
+
+  # src/initialize.sh
+  declare -g replicate_host=https://api.replicate.com
 
 }
 
@@ -1287,6 +1496,7 @@ run() {
     "get") repli_get_command ;;
     "upload") repli_upload_command ;;
     "info") repli_info_command ;;
+    "files") repli_files_command ;;
   esac
 }
 

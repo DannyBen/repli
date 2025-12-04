@@ -14,12 +14,12 @@ yurl() {
   final_json=$(replace_file_placeholders "$input_json")
 
   # Pipe the evaluated JSON to curl which uses it (@-) as its data.
-  echo "$final_json" \
-    | jq '{input: .}' \
-    | curl -sS -X POST \
+  echo "$final_json" |
+    jq '{input: .}' |
+    curl -sS -X POST \
       -H "Authorization: Bearer $REPLICATE_API_TOKEN" \
       -H "Content-Type: application/json" \
       -H "Prefer: wait" \
       -d @- \
-      "https://api.replicate.com/v1/models/${model}/predictions"
+      "$replicate_host/v1/models/${model}/predictions"
 }

@@ -3,7 +3,7 @@ log() {
   local level="$1"
   shift
   local msg="$*"
-  local padded caller color_func rank_req rank_cur
+  local caller color_func rank_req rank_cur
 
   case "$level" in
     debug) rank_req=10;;
@@ -13,7 +13,7 @@ log() {
     *)     rank_req=20;;
   esac
 
-  case "$LOG_LEVEL" in
+  case "$REPLI_LOG_LEVEL" in
     debug) rank_cur=10;;
     info)  rank_cur=20;;
     warn)  rank_cur=30;;
@@ -33,14 +33,10 @@ log() {
     error) color_func="red_bold";;
   esac
 
-  printf -v padded_level "%-5s" "$level"
   caller="${FUNCNAME[1]}"
-
-  printf "%s %s %s %s %s\n" \
-    "$(green_bold →)" \
-    "$("$color_func" "$padded_level")" \
+  printf "$(green_bold "•") %s • %s $(green_bold →) %s\n" \
+    "$("$color_func" "$level")" \
     "$caller" \
-    "$(green_bold "•")" \
     "$msg" \
     >&2
 }

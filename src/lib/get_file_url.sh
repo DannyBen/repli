@@ -10,7 +10,7 @@ get_file_url() {
         log debug file already registered in "$(blue "$files_list")"
         log debug "$file → $url"
         echo "$url"
-        return
+        return 0
       fi
     done < "$files_list"
   fi

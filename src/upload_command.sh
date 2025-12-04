@@ -8,7 +8,7 @@ if [[ -f "$files_list" ]]; then
     if [[ "$path" == "$file" ]]; then
       log info upload skipped, already registered in "$(blue "$files_list")"
       log info url: "$url"
-      return
+      return 0
     fi
   done < "$files_list"
 fi

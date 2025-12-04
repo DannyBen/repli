@@ -26,8 +26,9 @@ repli_usage() {
   echo
   # :command.usage_commands
   printf "%s\n" "Commands:"
-  printf "  %s   Upload a file to Replicate\n" "upload"
+  printf "  %s   Create a new configuration file from a tmeplate\n" "new   "
   printf "  %s   Call Replicate using a configuration file and save the result\n" "get   "
+  printf "  %s   Upload a file to Replicate\n" "upload"
   echo
 
   # :command.long_usage
@@ -47,7 +48,7 @@ repli_usage() {
     printf "%s\n" "Environment Variables:"
 
     # :environment_variable.usage
-    printf "  %s\n" "LOG_LEVEL"
+    printf "  %s\n" "REPLI_LOG_LEVEL"
     printf "    Log level\n"
     printf "    %s\n" "Allowed: debug, info, warn, error"
     printf "    %s\n" "Default: info"
@@ -57,8 +58,112 @@ repli_usage() {
 }
 
 # :command.usage
+repli_new_usage() {
+  printf "repli new - Create a new configuration file from a tmeplate\n\n"
+  printf "Alias: n, init, i\n"
+  echo
+
+  printf "%s\n" "Usage:"
+  printf "  repli new [SEARCH] [OPTIONS]\n"
+  printf "  repli new --help | -h\n"
+  echo
+
+  # :command.long_usage
+  if [[ -n "$long_usage" ]]; then
+    # :command.usage_options
+    printf "%s\n" "Options:"
+
+    # :command.usage_flags
+    # :flag.usage
+    printf "  %s\n" "--output, -o PATH"
+    printf "    Path to target file\n"
+    printf "    %s\n" "Default: repli.yaml"
+    echo
+
+    # :flag.usage
+    printf "  %s\n" "--force, -f"
+    printf "    Overwrite target file\n"
+    echo
+
+    # :command.usage_fixed_flags
+    printf "  %s\n" "--help, -h"
+    printf "    Show this help\n"
+    echo
+
+    # :command.usage_args
+    printf "%s\n" "Arguments:"
+
+    # :argument.usage
+    printf "  %s\n" "SEARCH"
+    printf "    Template search string or an exact template name\n"
+    echo
+
+    # :command.usage_environment_variables
+    printf "%s\n" "Environment Variables:"
+
+    # :environment_variable.usage
+    printf "  %s\n" "REPLI_MODELS_DIR (required)"
+    printf "    Path to templates dir\n"
+    echo
+
+  fi
+}
+
+# :command.usage
+repli_get_usage() {
+  printf "repli get - Call Replicate using a configuration file and save the result\n\n"
+  printf "Alias: g\n"
+  echo
+
+  printf "%s\n" "Usage:"
+  printf "  repli get [PREFIX] [OPTIONS]\n"
+  printf "  repli get --help | -h\n"
+  echo
+
+  # :command.long_usage
+  if [[ -n "$long_usage" ]]; then
+    # :command.usage_options
+    printf "%s\n" "Options:"
+
+    # :command.usage_flags
+    # :flag.usage
+    printf "  %s\n" "--config, -c PATH"
+    printf "    Path to configuration file\n"
+    printf "    %s\n" "Default: repli.yaml"
+    echo
+
+    # :command.usage_fixed_flags
+    printf "  %s\n" "--help, -h"
+    printf "    Show this help\n"
+    echo
+
+    # :command.usage_args
+    printf "%s\n" "Arguments:"
+
+    # :argument.usage
+    printf "  %s\n" "PREFIX"
+    printf "    Prefix for saved JSON file and output files\n"
+    echo
+
+    # :command.usage_environment_variables
+    printf "%s\n" "Environment Variables:"
+
+    # :environment_variable.usage
+    printf "  %s\n" "REPLICATE_API_TOKEN (required)"
+    printf "    Replicate API token\n"
+    echo
+
+  fi
+}
+
+# :command.usage
 repli_upload_usage() {
-  printf "repli upload - Upload a file to Replicate\n\n"
+  if [[ -n $long_usage ]]; then
+    printf "repli upload\n\n"
+    printf "  Upload a file to Replicate\n  Note that under normal conditions, there should be no reason for you to use\n  this directly. Files will be uploaded automatically as needed.\n\n"
+  else
+    printf "repli upload - Upload a file to Replicate\n\n"
+  fi
   printf "Alias: u\n"
   echo
 
@@ -83,53 +188,6 @@ repli_upload_usage() {
     # :argument.usage
     printf "  %s\n" "FILE"
     printf "    Path to file\n"
-    echo
-
-    # :command.usage_environment_variables
-    printf "%s\n" "Environment Variables:"
-
-    # :environment_variable.usage
-    printf "  %s\n" "REPLICATE_API_TOKEN (required)"
-    printf "    Replicate API token\n"
-    echo
-
-  fi
-}
-
-# :command.usage
-repli_get_usage() {
-  printf "repli get - Call Replicate using a configuration file and save the result\n\n"
-  printf "Alias: g\n"
-  echo
-
-  printf "%s\n" "Usage:"
-  printf "  repli get [CONFIG] [OPTIONS]\n"
-  printf "  repli get --help | -h\n"
-  echo
-
-  # :command.long_usage
-  if [[ -n "$long_usage" ]]; then
-    # :command.usage_options
-    printf "%s\n" "Options:"
-
-    # :command.usage_flags
-    # :flag.usage
-    printf "  %s\n" "--prefix, -p STRING"
-    printf "    Prefix for saved JSON file and output files\n"
-    echo
-
-    # :command.usage_fixed_flags
-    printf "  %s\n" "--help, -h"
-    printf "    Show this help\n"
-    echo
-
-    # :command.usage_args
-    printf "%s\n" "Arguments:"
-
-    # :argument.usage
-    printf "  %s\n" "CONFIG"
-    printf "    Path to configuration file\n"
-    printf "    %s\n" "Default: repli.yaml"
     echo
 
     # :command.usage_environment_variables
@@ -278,7 +336,7 @@ download_outputs() {
 
   if [[ ${#urls[@]} -eq 0 || "${urls[0]}" == "null" ]]; then
     log warn no outputs found in "$(blue "$json_file")"
-    return
+    return 0
   fi
 
   for url in "${urls[@]}"; do
@@ -311,7 +369,7 @@ get_file_url() {
         log debug file already registered in "$(blue "$files_list")"
         log debug "$file → $url"
         echo "$url"
-        return
+        return 0
       fi
     done < "$files_list"
   fi
@@ -329,7 +387,7 @@ log() {
   local level="$1"
   shift
   local msg="$*"
-  local padded caller color_func rank_req rank_cur
+  local caller color_func rank_req rank_cur
 
   case "$level" in
     debug) rank_req=10;;
@@ -339,7 +397,7 @@ log() {
     *)     rank_req=20;;
   esac
 
-  case "$LOG_LEVEL" in
+  case "$REPLI_LOG_LEVEL" in
     debug) rank_cur=10;;
     info)  rank_cur=20;;
     warn)  rank_cur=30;;
@@ -359,14 +417,10 @@ log() {
     error) color_func="red_bold";;
   esac
 
-  printf -v padded_level "%-5s" "$level"
   caller="${FUNCNAME[1]}"
-
-  printf "%s %s %s %s %s\n" \
-    "$(green_bold →)" \
-    "$("$color_func" "$padded_level")" \
+  printf "$(green_bold "•") %s • %s $(green_bold →) %s\n" \
+    "$("$color_func" "$level")" \
     "$caller" \
-    "$(green_bold "•")" \
     "$msg" \
     >&2
 }
@@ -455,30 +509,66 @@ yurl() {
 
 # :command.command_functions
 # :command.function
-repli_upload_command() {
+repli_new_command() {
 
-  # src/upload_command.sh
-  file="${args[file]}"
-  files_list="files.ini"
+  # src/new_command.sh
+  search="${args[search]:-}"
+  outfile="${args[--output]}"
+  force="${args[--force]}"
+  models_dir="$REPLI_MODELS_DIR"
 
-  if [[ -f "$files_list" ]]; then
-    log debug reading files list: "$(blue "$files_list")"
-
-    while IFS='=' read -r path url; do
-      if [[ "$path" == "$file" ]]; then
-        log info upload skipped, already registered in "$(blue "$files_list")"
-        log info url: "$url"
-        return
-      fi
-    done < "$files_list"
+  if [[ ! -d "$models_dir" ]]; then
+    log error "models dir not found: $models_dir"
+    log info "set models dir using REPLI_MODELS_DIR"
+    return 1
   fi
 
-  log info uploading "$(blue "$file")"
-  url="$(upload_to_replicate "$file")"
-  log info url: "$(underlined "$url")"
+  # Do not overwrite unless --force is used
+  if [[ -e "$outfile" && -z "$force" ]]; then
+    log error "target already exists: $(blue "$outfile")"
+    log info "use --force to overwrite"
+    return 1
+  fi
 
-  log info saving URL to "$(blue "$files_list")"
-  echo "$file=$url" >> "$files_list"
+  # Build match list using simple "contains" search
+  mapfile -t matches < <(
+    find "$models_dir" -maxdepth 1 -type f -name "*.yaml" -printf "%f\n" |
+    grep -i "${search:-.}"
+  )
+
+  # No matches
+  if [[ ${#matches[@]} -eq 0 ]]; then
+    log error "no matching templates"
+    return 1
+  fi
+
+  # Exactly one match → auto-select
+  if [[ ${#matches[@]} -eq 1 ]]; then
+    selected="${matches[0]}"
+  else
+    # Display simple numbered menu
+    echo
+    i=1
+    for f in "${matches[@]}"; do
+      echo " $i. ${f%.yaml}"
+      ((i++))
+    done
+
+    echo
+    read -rp "Choose a template (1-${#matches[@]}): " choice
+
+    # Validate selection
+    if ! [[ "$choice" =~ ^[0-9]+$ ]] || (( choice < 1 || choice > ${#matches[@]} )); then
+      log error "invalid selection"
+      return 1
+    fi
+
+    selected="${matches[choice-1]}"
+  fi
+
+  # Copy file (single place — no duplication)
+  log info "copying $(blue "$selected") → $(blue "$outfile")"
+  cp "$models_dir/$selected" "$outfile"
 
 }
 
@@ -486,8 +576,8 @@ repli_upload_command() {
 repli_get_command() {
 
   # src/get_command.sh
-  config="${args[config]}"
-  prefix="${args[--prefix]:-$(date +%H%M%S)}"
+  config="${args[--config]}"
+  prefix="${args[prefix]:-$(date +%H%M%S)}"
   outfile="${prefix}.json"
   log debug config: "$(blue "$config")"
   log debug prefix: "$(blue "$prefix")"
@@ -503,6 +593,34 @@ repli_get_command() {
 
   # download outputs
   download_outputs "$prefix" "$outfile"
+
+}
+
+# :command.function
+repli_upload_command() {
+
+  # src/upload_command.sh
+  file="${args[file]}"
+  files_list="files.ini"
+
+  if [[ -f "$files_list" ]]; then
+    log debug reading files list: "$(blue "$files_list")"
+
+    while IFS='=' read -r path url; do
+      if [[ "$path" == "$file" ]]; then
+        log info upload skipped, already registered in "$(blue "$files_list")"
+        log info url: "$url"
+        return 0
+      fi
+    done < "$files_list"
+  fi
+
+  log info uploading "$(blue "$file")"
+  url="$(upload_to_replicate "$file")"
+  log info url: "$(underlined "$url")"
+
+  log info saving URL to "$(blue "$files_list")"
+  echo "$file=$url" >> "$files_list"
 
 }
 
@@ -534,11 +652,11 @@ parse_requirements() {
 
   # :command.environment_variables_filter
   # :command.environment_variables_default
-  export LOG_LEVEL="${LOG_LEVEL:-info}"
+  export REPLI_LOG_LEVEL="${REPLI_LOG_LEVEL:-info}"
 
-  env_var_names+=("LOG_LEVEL")
-  if [[ -n "${LOG_LEVEL:-}" ]] && [[ ! ${LOG_LEVEL:-} =~ ^(debug|info|warn|error)$ ]]; then
-    printf "%s\n" "LOG_LEVEL environment variable must be one of: debug, info, warn, error" >&2
+  env_var_names+=("REPLI_LOG_LEVEL")
+  if [[ -n "${REPLI_LOG_LEVEL:-}" ]] && [[ ! ${REPLI_LOG_LEVEL:-} =~ ^(debug|info|warn|error)$ ]]; then
+    printf "%s\n" "REPLI_LOG_LEVEL environment variable must be one of: debug, info, warn, error" >&2
     exit 1
   fi
 
@@ -548,10 +666,10 @@ parse_requirements() {
   case $action in
     -*) ;;
 
-    upload | u)
-      action="upload"
+    new | n | init | i)
+      action="new"
       shift
-      repli_upload_parse_requirements "$@"
+      repli_new_parse_requirements "$@"
       shift $#
       ;;
 
@@ -559,6 +677,13 @@ parse_requirements() {
       action="get"
       shift
       repli_get_parse_requirements "$@"
+      shift $#
+      ;;
+
+    upload | u)
+      action="upload"
+      shift
+      repli_upload_parse_requirements "$@"
       shift $#
       ;;
 
@@ -595,6 +720,216 @@ parse_requirements() {
 
     esac
   done
+
+}
+
+# :command.parse_requirements
+repli_new_parse_requirements() {
+  local key
+
+  # :command.fixed_flags_filter
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case "$key" in
+      --help | -h)
+        long_usage=yes
+        repli_new_usage
+        exit
+        ;;
+
+      *)
+        break
+        ;;
+
+    esac
+  done
+
+  # :command.environment_variables_filter
+
+  env_var_names+=("REPLI_MODELS_DIR")
+  if [[ -z "${REPLI_MODELS_DIR:-}" ]]; then
+    printf "missing required environment variable: REPLI_MODELS_DIR\n" >&2
+    exit 1
+  fi
+
+  # :command.command_filter
+  action="new"
+
+  # :command.parse_requirements_while
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case "$key" in
+      # :flag.case
+      --output | -o)
+
+        # :flag.case_arg
+        if [[ -n ${2+x} ]]; then
+          args['--output']="$2"
+          shift
+          shift
+        else
+          printf "%s\n" "--output requires an argument: --output, -o PATH" >&2
+          exit 1
+        fi
+        ;;
+
+      # :flag.case
+      --force | -f)
+
+        # :flag.case_no_arg
+        args['--force']=1
+        shift
+        ;;
+
+      -?*)
+        printf "invalid option: %s\n" "$key" >&2
+        exit 1
+        ;;
+
+      *)
+        # :command.parse_requirements_case
+        # :command.parse_requirements_case_simple
+        # :argument.case
+        if [[ -z ${args['search']+x} ]]; then
+          args['search']=$1
+          shift
+        else
+          printf "invalid argument: %s\n" "$key" >&2
+          exit 1
+        fi
+
+        ;;
+
+    esac
+  done
+
+  # :command.default_assignments
+  [[ -n ${args['--output']:-} ]] || args['--output']="repli.yaml"
+
+}
+
+# :command.parse_requirements
+repli_get_parse_requirements() {
+  local key
+
+  # :command.fixed_flags_filter
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case "$key" in
+      --help | -h)
+        long_usage=yes
+        repli_get_usage
+        exit
+        ;;
+
+      *)
+        break
+        ;;
+
+    esac
+  done
+
+  # :command.environment_variables_filter
+
+  env_var_names+=("REPLICATE_API_TOKEN")
+  if [[ -z "${REPLICATE_API_TOKEN:-}" ]]; then
+    printf "missing required environment variable: REPLICATE_API_TOKEN\n" >&2
+    exit 1
+  fi
+
+  # :command.dependencies_filter
+  missing_deps=
+  # :dependency.filter
+  if ! command -v yq >/dev/null 2>&1; then
+    printf "missing dependency: yq\n" >&2
+    missing_deps=1
+  else
+    deps['yq']="$(command -v yq | head -n1)"
+  fi
+
+  # :dependency.filter
+  if ! command -v jq >/dev/null 2>&1; then
+    printf "missing dependency: jq\n" >&2
+    missing_deps=1
+  else
+    deps['jq']="$(command -v jq | head -n1)"
+  fi
+
+  # :dependency.filter
+  if ! command -v curl >/dev/null 2>&1; then
+    printf "missing dependency: curl\n" >&2
+    missing_deps=1
+  else
+    deps['curl']="$(command -v curl | head -n1)"
+  fi
+
+  # :dependency.filter
+  if ! command -v wget >/dev/null 2>&1; then
+    printf "missing dependency: wget\n" >&2
+    missing_deps=1
+  else
+    deps['wget']="$(command -v wget | head -n1)"
+  fi
+
+  if [[ -n $missing_deps ]]; then
+    exit 1
+  fi
+
+  # :command.command_filter
+  action="get"
+
+  # :command.parse_requirements_while
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case "$key" in
+      # :flag.case
+      --config | -c)
+
+        # :flag.case_arg
+        if [[ -n ${2+x} ]]; then
+          args['--config']="$2"
+          shift
+          shift
+        else
+          printf "%s\n" "--config requires an argument: --config, -c PATH" >&2
+          exit 1
+        fi
+        ;;
+
+      -?*)
+        printf "invalid option: %s\n" "$key" >&2
+        exit 1
+        ;;
+
+      *)
+        # :command.parse_requirements_case
+        # :command.parse_requirements_case_simple
+        # :argument.case
+        if [[ -z ${args['prefix']+x} ]]; then
+          args['prefix']=$1
+          shift
+        else
+          printf "invalid argument: %s\n" "$key" >&2
+          exit 1
+        fi
+
+        ;;
+
+    esac
+  done
+
+  # :command.default_assignments
+  [[ -n ${args['--config']:-} ]] || args['--config']="repli.yaml"
+
+  # :command.validations
+  # :flag.validations
+  if [[ -v args['--config'] ]]; then
+    validation_output="$(validate_file_exists "${args['--config']:-}")"
+    if [[ -n "${validation_output}" ]]; then
+      printf "validation error in %s:\n%s\n" "--config, -c PATH" "$validation_output" >&2
+      exit 1
+    fi
+  fi
 
 }
 
@@ -698,138 +1033,13 @@ repli_upload_parse_requirements() {
 
 }
 
-# :command.parse_requirements
-repli_get_parse_requirements() {
-  local key
-
-  # :command.fixed_flags_filter
-  while [[ $# -gt 0 ]]; do
-    key="$1"
-    case "$key" in
-      --help | -h)
-        long_usage=yes
-        repli_get_usage
-        exit
-        ;;
-
-      *)
-        break
-        ;;
-
-    esac
-  done
-
-  # :command.environment_variables_filter
-
-  env_var_names+=("REPLICATE_API_TOKEN")
-  if [[ -z "${REPLICATE_API_TOKEN:-}" ]]; then
-    printf "missing required environment variable: REPLICATE_API_TOKEN\n" >&2
-    exit 1
-  fi
-
-  # :command.dependencies_filter
-  missing_deps=
-  # :dependency.filter
-  if ! command -v yq >/dev/null 2>&1; then
-    printf "missing dependency: yq\n" >&2
-    missing_deps=1
-  else
-    deps['yq']="$(command -v yq | head -n1)"
-  fi
-
-  # :dependency.filter
-  if ! command -v jq >/dev/null 2>&1; then
-    printf "missing dependency: jq\n" >&2
-    missing_deps=1
-  else
-    deps['jq']="$(command -v jq | head -n1)"
-  fi
-
-  # :dependency.filter
-  if ! command -v curl >/dev/null 2>&1; then
-    printf "missing dependency: curl\n" >&2
-    missing_deps=1
-  else
-    deps['curl']="$(command -v curl | head -n1)"
-  fi
-
-  # :dependency.filter
-  if ! command -v wget >/dev/null 2>&1; then
-    printf "missing dependency: wget\n" >&2
-    missing_deps=1
-  else
-    deps['wget']="$(command -v wget | head -n1)"
-  fi
-
-  if [[ -n $missing_deps ]]; then
-    exit 1
-  fi
-
-  # :command.command_filter
-  action="get"
-
-  # :command.parse_requirements_while
-  while [[ $# -gt 0 ]]; do
-    key="$1"
-    case "$key" in
-      # :flag.case
-      --prefix | -p)
-
-        # :flag.case_arg
-        if [[ -n ${2+x} ]]; then
-          args['--prefix']="$2"
-          shift
-          shift
-        else
-          printf "%s\n" "--prefix requires an argument: --prefix, -p STRING" >&2
-          exit 1
-        fi
-        ;;
-
-      -?*)
-        printf "invalid option: %s\n" "$key" >&2
-        exit 1
-        ;;
-
-      *)
-        # :command.parse_requirements_case
-        # :command.parse_requirements_case_simple
-        # :argument.case
-        if [[ -z ${args['config']+x} ]]; then
-          args['config']=$1
-          shift
-        else
-          printf "invalid argument: %s\n" "$key" >&2
-          exit 1
-        fi
-
-        ;;
-
-    esac
-  done
-
-  # :command.default_assignments
-  [[ -n ${args['config']:-} ]] || args['config']="repli.yaml"
-
-  # :command.validations
-  # :argument.validations
-  if [[ -v args['config'] ]]; then
-    validation_output="$(validate_file_exists "${args['config']:-}")"
-    if [[ -n "$validation_output" ]]; then
-      printf "validation error in %s:\n%s\n" "CONFIG" "$validation_output" >&2
-      exit 1
-    fi
-  fi
-
-}
-
 # :command.initialize
 initialize() {
   declare -g version="0.1.0"
   set -e
 
   # :command.environment_variables_default
-  export LOG_LEVEL="${LOG_LEVEL:-info}"
+  export REPLI_LOG_LEVEL="${REPLI_LOG_LEVEL:-info}"
 
 }
 
@@ -846,8 +1056,9 @@ run() {
   parse_requirements "${input[@]}"
 
   case "$action" in
-    "upload") repli_upload_command ;;
+    "new") repli_new_command ;;
     "get") repli_get_command ;;
+    "upload") repli_upload_command ;;
   esac
 }
 

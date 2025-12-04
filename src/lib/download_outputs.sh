@@ -19,7 +19,7 @@ download_outputs() {
 
   if [[ ${#urls[@]} -eq 0 || "${urls[0]}" == "null" ]]; then
     log warn no outputs found in "$(blue "$json_file")"
-    return
+    return 0
   fi
 
   for url in "${urls[@]}"; do

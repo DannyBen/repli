@@ -3,28 +3,34 @@ help: Replicate Workspace Tool
 version: 0.1.0
 
 environment_variables:
-- name: log_level
+- name: repli_log_level
   help: Log level
   default: info
   allowed: [debug, info, warn, error]
 
 commands:
-- name: upload
-  alias: u
-  help: Upload a file to Replicate
-  dependencies: [jq, curl]
-
-  args:
-  - name: file
-    help: Path to file
-    validate: file_exists
-    required: true
+- name: new
+  alias: ['n', init, i]
+  help: Create a new configuration file from a tmeplate
 
   environment_variables:
-  - &api_key
-    name: replicate_api_token
-    help: Replicate API token
+  - name: repli_models_dir
+    help: Path to templates dir
     required: true
+
+  args:
+  - name: search
+    help: Template search string or an exact template name
+
+  flags:
+  - long: --output
+    short: -o
+    arg: path
+    help: Path to target file
+    default: repli.yaml
+  - long: --force
+    short: -f
+    help: Overwrite target file
 
 - name: get
   alias: g
@@ -32,16 +38,37 @@ commands:
   dependencies: [yq, jq, curl, wget]
 
   args:
-  - name: config
+  - name: prefix
+    help: Prefix for saved JSON file and output files
+
+  flags:
+  - long: --config
+    short: -c
+    arg: path
     help: Path to configuration file
     default: repli.yaml
     validate: file_exists
 
-  flags:
-  - long: --prefix
-    short: -p
-    arg: string
-    help: Prefix for saved JSON file and output files
+  environment_variables:
+  - &api_key
+    name: replicate_api_token
+    help: Replicate API token
+    required: true
+
+- name: upload
+  alias: u
+  help: >
+    Upload a file to Replicate
+
+    Note that under normal conditions, there should be no reason for you to use this directly. Files will be uploaded automatically as needed.
+
+  dependencies: [jq, curl]
+
+  args:
+  - name: file
+    help: Path to file
+    validate: file_exists
+    required: true
 
   environment_variables:
   - *api_key

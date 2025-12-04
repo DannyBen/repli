@@ -24,7 +24,7 @@ jobs:
         bundler-cache: true
 
     - name: Install mock server dependencies
-      run: gem install sinatra puma
+      run: gem install sinatra puma rackup
 
     - name: Start mock server
       run: |

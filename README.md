@@ -13,6 +13,8 @@ With repli, you can:
 - Save outputs predictably in your working directory  
 - Keep your AI workflows organized and version-controllable  
 
+repli was developed using the [Bashly Command Line Framework][bashly].
+
 ---
 
 ## Development Status

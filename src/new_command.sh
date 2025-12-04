@@ -1,18 +1,19 @@
 search="${args[search]:-}"
 outfile="${args[--output]}"
 force="${args[--force]}"
-models_dir="$REPLI_MODELS_DIR"
+
+log debug "models dir: $(blue "$models_dir")"
 
 if [[ ! -d "$models_dir" ]]; then
-  log error "models dir not found: $models_dir"
-  log info "set models dir using REPLI_MODELS_DIR"
+  log error "no models in $(blue "$models_dir")"
+  log info "change models dir using $(blue REPLI_MODELS_DIR)"
   return 1
 fi
 
 # Do not overwrite unless --force is used
 if [[ -e "$outfile" && -z "$force" ]]; then
   log error "target already exists: $(blue "$outfile")"
-  log info "use --force to overwrite"
+  log info "use $(blue --force) to overwrite or $(blue --output PATH) to save to another file"
   return 1
 fi
 

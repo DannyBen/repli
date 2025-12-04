@@ -10,5 +10,4 @@ else
 fi
 
 [[ -n "$plain" ]] && opts+=("-M")
-
 get_files_list | "$parser" "${opts[@]}" .results

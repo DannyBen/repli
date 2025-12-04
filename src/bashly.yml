@@ -7,20 +7,23 @@ environment_variables:
   help: Log level
   default: info
   allowed: [debug, info, warn, error]
+- name: repli_models_dir
+  help: Path to templates dir
+  default: "$HOME/repli/models"
+- name: replicate_api_token
+  help: Replicate API token
+  required: true
+
+dependencies: [yq, jq, curl, wget]
 
 commands:
 - name: new
   alias: ['n', init]
   help: Create a new configuration file from a tmeplate
 
-  environment_variables:
-  - name: repli_models_dir
-    help: Path to templates dir
-    required: true
-
   args:
   - name: search
-    help: Template search string or an exact template name
+    help: Template search string or an exact name
 
   flags:
   - long: --output
@@ -32,10 +35,32 @@ commands:
     short: -f
     help: Overwrite target file
 
+  examples:
+  - repli new flux
+
+- name: add
+  alias: a
+  help: Add a new template from a remote Replicate model example
+
+  args:
+  - name: model
+    help: Replicate model (author/model)
+    validate: model_name
+    required: true
+  - name: name
+    help: Template name to save
+
+  flags:
+  - long: --force
+    short: -f
+    help: Overwrite target file
+
+  examples:
+  - repli add google/nano-banana banana
+
 - name: get
   alias: g
   help: Call Replicate using a configuration file and save the result
-  dependencies: [yq, jq, curl, wget]
 
   args:
   - name: prefix
@@ -49,21 +74,12 @@ commands:
     default: repli.yaml
     validate: file_exists
 
-  environment_variables:
-  - &api_key
-    name: replicate_api_token
-    help: Replicate API token
-    required: true
-
 - name: upload
   alias: u
   help: >
     Upload a file to Replicate
 
     Note that under normal conditions, there should be no reason for you to use this directly. Files will be uploaded automatically as needed.
-
-  dependencies: [jq, curl]
-  environment_variables: [*api_key]
 
   args:
   - name: file
@@ -74,8 +90,7 @@ commands:
 - name: info
   alias: i
   help: Get information on a model
-  dependencies: [yq, jq, curl]
-  environment_variables: [*api_key]
+  
 
   args:
   - name: model
@@ -87,9 +102,11 @@ commands:
   - long: --example
     short: -e
     help: Show the example only
+    conflicts: [--schema]
   - long: --schema
     short: -s
     help: Show the schema only
+    conflicts: [--example]
   - &plain
     long: --plain
     short: -p
@@ -106,6 +123,5 @@ commands:
 - name: files
   alias: f
   help: Show list of uploaded files
-  dependencies: [yq, jq, curl]
-  environment_variables: [*api_key]
   flags: [*plain, *json]
+

@@ -5,9 +5,9 @@ API using YAML configuration files.
 
 ## Concept
 
-1. You create a YAML file based on Replicate examples.
+1. You create a YAML file based on Replicate examples (`repli templates new google/nano-banana`)
 2. You edit the YAML file with the API options.
-3. You run `repli get` to call the API and automatically save its output.
+3. You run repli to call the API and save the output (`repli get`).
 
 File uploads are handled automatically.
 
@@ -25,13 +25,13 @@ directory.
 repli templates new black-forest-labs/flux-schnell
 ```
 
-Now, in an empty directory, create repli.yml from this template:
+Now, in an empty directory, create `repli.yml` from this template by running:
 
 ```bash
 repli new flux-schnell
 ```
 
-Edit the generated `repli.yml` file, and then call the API using this command:
+Edit the generated `repli.yml` file, and then call the API by running:
 
 ```bash
 repli get
@@ -46,7 +46,7 @@ directory.
 repli expects a YAML configuration (named `repli.yaml` by default) to exist in 
 the working directory, and include two options: `model` and `input`.
 
-The `input` may contain any option supported by the replicate model.
+The `input` may contain any option supported by the model on Replicate.
 
 For example:
 

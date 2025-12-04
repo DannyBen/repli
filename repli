@@ -17,7 +17,7 @@ version_command() {
 
 # :command.usage
 repli_usage() {
-  printf "repli - Replicate Workspace Tool\n\n"
+  printf "repli - Replicate AI Workspace Tool\n\n"
 
   printf "%s\n" "$(bold "Usage:")"
   printf "  repli COMMAND\n"

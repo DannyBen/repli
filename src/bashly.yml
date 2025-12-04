@@ -9,9 +9,25 @@ environment_variables:
   allowed: [debug, info, warn, error]
 
 commands:
+- name: upload
+  alias: u
+  help: Upload a file to Replicate
+  dependencies: [jq, curl]
+
+  args:
+  - name: file
+    help: Path to file
+    validate: file_exists
+    required: true
+
+  environment_variables:
+  - &api_key
+    name: replicate_api_token
+    help: Replicate API token
+    required: true
+
 - name: get
   alias: g
-  default: true
   help: Call Replicate using a configuration file and save the result
   dependencies: [yq, jq, curl, wget]
 
@@ -28,7 +44,4 @@ commands:
     help: Prefix for saved JSON file and output files
 
   environment_variables:
-  - &api_key
-    name: replicate_api_token
-    help: Replicate API token
-    required: true
+  - *api_key

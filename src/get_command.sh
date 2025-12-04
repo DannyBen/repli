@@ -1,4 +1,3 @@
-# set variables
 config="${args[config]}"
 prefix="${args[--prefix]:-$(date +%H%M%S)}"
 outfile="${prefix}.json"

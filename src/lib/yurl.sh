@@ -4,6 +4,17 @@ yurl() {
   local yaml_file="$1"
   local model input_json final_json
 
+  # YAML validation
+  if ! yq -e '.model' "$yaml_file" >/dev/null 2>&1; then
+    log error "no model field in $(blue "$yaml_file")"
+    return 1
+  fi
+
+  if ! yq -e '.input' "$yaml_file" >/dev/null 2>&1; then
+    log error "no input field in $(blue "$yaml_file")"
+    return 1
+  fi
+
   # Get the model
   model=$(yq -r '.model' "$yaml_file")
 

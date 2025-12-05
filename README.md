@@ -20,10 +20,10 @@ repli was developed using the [Bashly Command Line Framework][bashly].
 ## Development Status
 
 - [x] Prototype v0.1.0  
-- [ ] Tests  
-- [ ] Documentation  
+- [x] Tests  
+- [x] Documentation  
+- [x] CI
 - [ ] Setup + installation instructions  
-- [ ] CI
 - [ ] Alpha v0.2.0  
 
 ---

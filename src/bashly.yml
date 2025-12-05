@@ -12,12 +12,25 @@ environment_variables:
 - name: repli_templates_dir
   help: Path to templates dir
   default: "$HOME/repli"
+- name: repli_file
+  help: Name of the repli file
+  default: repli.yaml
 - name: replicate_api_token
   help: Replicate API token
   required: true
 - name: replicate_host
   help: Replicate host
   default: https://api.replicate.com
+
+variables:
+- name: repli_file
+  value: $REPLI_FILE
+- name: templates_dir
+  value: $REPLI_TEMPLATES_DIR
+- name: log_level
+  value: $REPLI_LOG_LEVEL
+- name: replicate_host
+  value: $REPLICATE_HOST
 
 commands:
 - name: new
@@ -32,8 +45,8 @@ commands:
   - long: --output
     short: -o
     arg: path
-    help: Path to target file
-    default: repli.yaml
+    help: Path to target repli file
+    default: $REPLI_FILE
   - long: --force
     short: -f
     help: Overwrite target file
@@ -53,8 +66,8 @@ commands:
   - long: --config
     short: -c
     arg: path
-    help: Path to configuration file
-    default: repli.yaml
+    help: Path to repli file
+    default: $REPLI_FILE
     validate: file_exists
 
 - name: info

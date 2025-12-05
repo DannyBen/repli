@@ -29,6 +29,10 @@ repli - Replicate AI Workspace Tool
     Path to templates dir
     Default: */repli
 
+  [32mREPLI_FILE[0m
+    Name of the repli file
+    Default: repli.yaml
+
   [32mREPLICATE_API_TOKEN (required)[0m
     Replicate API token
 

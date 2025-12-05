@@ -63,6 +63,12 @@ repli_usage() {
     echo
 
     # :environment_variable.usage
+    printf "  %s\n" "$(green "REPLI_FILE")"
+    printf "    Name of the repli file\n"
+    printf "    %s\n" "Default: repli.yaml"
+    echo
+
+    # :environment_variable.usage
     printf "  %s\n" "$(green "REPLICATE_API_TOKEN (required)")"
     printf "    Replicate API token\n"
     echo
@@ -95,8 +101,8 @@ repli_new_usage() {
     # :command.usage_flags
     # :flag.usage
     printf "  %s\n" "$(green "--output, -o PATH")"
-    printf "    Path to target file\n"
-    printf "    %s\n" "Default: repli.yaml"
+    printf "    Path to target repli file\n"
+    printf "    %s\n" "Default: $REPLI_FILE"
     echo
 
     # :flag.usage
@@ -144,8 +150,8 @@ repli_get_usage() {
     # :command.usage_flags
     # :flag.usage
     printf "  %s\n" "$(green "--config, -c PATH")"
-    printf "    Path to configuration file\n"
-    printf "    %s\n" "Default: repli.yaml"
+    printf "    Path to repli file\n"
+    printf "    %s\n" "Default: $REPLI_FILE"
     echo
 
     # :command.usage_fixed_flags
@@ -1037,10 +1043,12 @@ parse_requirements() {
   # :command.environment_variables_default
   export REPLI_LOG_LEVEL="${REPLI_LOG_LEVEL:-info}"
   export REPLI_TEMPLATES_DIR="${REPLI_TEMPLATES_DIR:-$HOME/repli}"
+  export REPLI_FILE="${REPLI_FILE:-repli.yaml}"
   export REPLICATE_HOST="${REPLICATE_HOST:-https://api.replicate.com}"
 
   env_var_names+=("REPLI_LOG_LEVEL")
   env_var_names+=("REPLI_TEMPLATES_DIR")
+  env_var_names+=("REPLI_FILE")
   env_var_names+=("REPLICATE_API_TOKEN")
   env_var_names+=("REPLICATE_HOST")
   if [[ -z "${REPLICATE_API_TOKEN:-}" ]]; then
@@ -1240,7 +1248,7 @@ repli_new_parse_requirements() {
   done
 
   # :command.default_assignments
-  [[ -n ${args['--output']:-} ]] || args['--output']="repli.yaml"
+  [[ -n ${args['--output']:-} ]] || args['--output']="$REPLI_FILE"
 
 }
 
@@ -1309,7 +1317,7 @@ repli_get_parse_requirements() {
   done
 
   # :command.default_assignments
-  [[ -n ${args['--config']:-} ]] || args['--config']="repli.yaml"
+  [[ -n ${args['--config']:-} ]] || args['--config']="$REPLI_FILE"
 
   # :command.validations
   # :flag.validations
@@ -1871,18 +1879,26 @@ repli_files_upload_parse_requirements() {
 # :command.initialize
 initialize() {
   declare -g version="0.1.1"
-  set -e
+  set -eo pipefail
+
+  # :command.variables
+  # :variable.definition
+  declare -g repli_file="$REPLI_FILE"
+
+  # :variable.definition
+  declare -g templates_dir="$REPLI_TEMPLATES_DIR"
+
+  # :variable.definition
+  declare -g log_level="$REPLI_LOG_LEVEL"
+
+  # :variable.definition
+  declare -g replicate_host="$REPLICATE_HOST"
 
   # :command.environment_variables_default
   export REPLI_LOG_LEVEL="${REPLI_LOG_LEVEL:-info}"
   export REPLI_TEMPLATES_DIR="${REPLI_TEMPLATES_DIR:-$HOME/repli}"
+  export REPLI_FILE="${REPLI_FILE:-repli.yaml}"
   export REPLICATE_HOST="${REPLICATE_HOST:-https://api.replicate.com}"
-
-  # src/initialize.sh
-  set -o pipefail
-  declare -g replicate_host="$REPLICATE_HOST"
-  declare -g templates_dir="$REPLI_TEMPLATES_DIR"
-  declare -g log_level="$REPLI_LOG_LEVEL"
 
 }
 

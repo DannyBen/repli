@@ -8,7 +8,7 @@ Alias: g
 
 [1mOptions:[0m
   [32m--config, -c PATH[0m
-    Path to configuration file
+    Path to repli file
     Default: repli.yaml
 
   [32m--help, -h[0m

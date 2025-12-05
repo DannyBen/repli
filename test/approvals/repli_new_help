@@ -8,7 +8,7 @@ Alias: n, init
 
 [1mOptions:[0m
   [32m--output, -o PATH[0m
-    Path to target file
+    Path to target repli file
     Default: repli.yaml
 
   [32m--force, -f[0m

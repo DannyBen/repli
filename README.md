@@ -1,4 +1,9 @@
+<div align='center'>
+<img src='support/header.jpg'>
+
 # repli - Replicate AI Workspace Tool
+
+</div>
 
 **repli** is a command-line tool that turns Replicate API calls into a clean,
 reproducible, YAML-driven workflow.  

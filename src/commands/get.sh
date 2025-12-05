@@ -1,5 +1,5 @@
 config="${args[--config]}"
-prefix="${args[prefix]:-$(date +%H%M%S)}"
+prefix="${args[prefix]:-$(get_unique_filename)}"
 outfile="${prefix}.json"
 log debug config: "$(blue "$config")"
 log debug prefix: "$(blue "$prefix")"

@@ -50,6 +50,11 @@ repli_usage() {
     printf "%s\n" "$(bold "Environment Variables:")"
 
     # :environment_variable.usage
+    printf "  %s\n" "$(green "REPLICATE_API_TOKEN (required)")"
+    printf "    Replicate API token\n"
+    echo
+
+    # :environment_variable.usage
     printf "  %s\n" "$(green "REPLI_LOG_LEVEL")"
     printf "    Log level\n"
     printf "    %s\n" "Allowed: debug, info, warn, error"
@@ -66,11 +71,6 @@ repli_usage() {
     printf "  %s\n" "$(green "REPLI_FILE")"
     printf "    Name of the repli file\n"
     printf "    %s\n" "Default: repli.yaml"
-    echo
-
-    # :environment_variable.usage
-    printf "  %s\n" "$(green "REPLICATE_API_TOKEN (required)")"
-    printf "    Replicate API token\n"
     echo
 
     # :environment_variable.usage
@@ -655,6 +655,24 @@ get_model_info() {
   printf '%s\n' "$body"
 }
 
+# src/lib/get_unique_filename.sh
+get_unique_filename() {
+  local base="${1:-$(basename "$repli_file" ".yaml")}"
+  local max=0
+  local n
+
+  for f in "${base}-"*; do
+    [[ -e "$f" ]] || continue   # skip if no match
+
+    if [[ $f =~ ${base}-([0-9]+) ]]; then
+      n="${BASH_REMATCH[1]}"
+      (( n > max )) && max="$n"
+    fi
+  done
+
+  echo "${base}-$((max + 1))"
+}
+
 # src/lib/log.sh
 log() {
   local level="$1"
@@ -877,7 +895,7 @@ repli_get_command() {
 
   # src/commands/get.sh
   config="${args[--config]}"
-  prefix="${args[prefix]:-$(date +%H%M%S)}"
+  prefix="${args[prefix]:-$(get_unique_filename)}"
   outfile="${prefix}.json"
   log debug config: "$(blue "$config")"
   log debug prefix: "$(blue "$prefix")"
@@ -1046,10 +1064,10 @@ parse_requirements() {
   export REPLI_FILE="${REPLI_FILE:-repli.yaml}"
   export REPLICATE_HOST="${REPLICATE_HOST:-https://api.replicate.com}"
 
+  env_var_names+=("REPLICATE_API_TOKEN")
   env_var_names+=("REPLI_LOG_LEVEL")
   env_var_names+=("REPLI_TEMPLATES_DIR")
   env_var_names+=("REPLI_FILE")
-  env_var_names+=("REPLICATE_API_TOKEN")
   env_var_names+=("REPLICATE_HOST")
   if [[ -z "${REPLICATE_API_TOKEN:-}" ]]; then
     printf "missing required environment variable: REPLICATE_API_TOKEN\n" >&2
@@ -1881,6 +1899,12 @@ initialize() {
   declare -g version="0.1.1"
   set -eo pipefail
 
+  # :command.environment_variables_default
+  export REPLI_LOG_LEVEL="${REPLI_LOG_LEVEL:-info}"
+  export REPLI_TEMPLATES_DIR="${REPLI_TEMPLATES_DIR:-$HOME/repli}"
+  export REPLI_FILE="${REPLI_FILE:-repli.yaml}"
+  export REPLICATE_HOST="${REPLICATE_HOST:-https://api.replicate.com}"
+
   # :command.variables
   # :variable.definition
   declare -g repli_file="$REPLI_FILE"
@@ -1893,12 +1917,6 @@ initialize() {
 
   # :variable.definition
   declare -g replicate_host="$REPLICATE_HOST"
-
-  # :command.environment_variables_default
-  export REPLI_LOG_LEVEL="${REPLI_LOG_LEVEL:-info}"
-  export REPLI_TEMPLATES_DIR="${REPLI_TEMPLATES_DIR:-$HOME/repli}"
-  export REPLI_FILE="${REPLI_FILE:-repli.yaml}"
-  export REPLICATE_HOST="${REPLICATE_HOST:-https://api.replicate.com}"
 
 }
 

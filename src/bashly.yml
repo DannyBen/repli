@@ -5,19 +5,19 @@ version: 0.1.1
 dependencies: [yq, jq, curl, wget]
 
 environment_variables:
+- name: replicate_api_token
+  help: Replicate API token
+  required: true
 - name: repli_log_level
   help: Log level
   default: info
   allowed: [debug, info, warn, error]
 - name: repli_templates_dir
   help: Path to templates dir
-  default: "$HOME/repli"
+  default: $HOME/repli
 - name: repli_file
   help: Name of the repli file
   default: repli.yaml
-- name: replicate_api_token
-  help: Replicate API token
-  required: true
 - name: replicate_host
   help: Replicate host
   default: https://api.replicate.com

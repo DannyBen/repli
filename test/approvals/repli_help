@@ -20,6 +20,9 @@ repli - Replicate AI Workspace Tool
     Show version number
 
 [1mEnvironment Variables:[0m
+  [32mREPLICATE_API_TOKEN (required)[0m
+    Replicate API token
+
   [32mREPLI_LOG_LEVEL[0m
     Log level
     Allowed: debug, info, warn, error
@@ -32,9 +35,6 @@ repli - Replicate AI Workspace Tool
   [32mREPLI_FILE[0m
     Name of the repli file
     Default: repli.yaml
-
-  [32mREPLICATE_API_TOKEN (required)[0m
-    Replicate API token
 
   [32mREPLICATE_HOST[0m
     Replicate host

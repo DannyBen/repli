@@ -1,7 +1,7 @@
 ## Search for existing files matching base-N*
 ## args: prefix
 get_unique_filename() {
-  local base="${1:-$(basename "$repli_file" ".yaml")}"
+  local base="$1"
   local max=0
   local n
 

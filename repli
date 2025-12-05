@@ -657,7 +657,7 @@ get_model_info() {
 
 # src/lib/get_unique_filename.sh
 get_unique_filename() {
-  local base="${1:-$(basename "$repli_file" ".yaml")}"
+  local base="$1"
   local max=0
   local n
 
@@ -895,7 +895,7 @@ repli_get_command() {
 
   # src/commands/get.sh
   config="${args[--config]}"
-  prefix="${args[prefix]:-$(get_unique_filename)}"
+  prefix="${args[prefix]:-$(get_unique_filename "$(basename "$repli_file" ".yaml")")}"
   outfile="${prefix}.json"
   log debug config: "$(blue "$config")"
   log debug prefix: "$(blue "$prefix")"

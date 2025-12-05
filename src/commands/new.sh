@@ -29,7 +29,7 @@ if [[ ${#templates[@]} -eq 1 ]]; then
   selected="${templates[0]}"
 else
   # Show interactive menu
-  show_templates_list  
+  show_templates_list "$search"
   read -rp "Choose a template (1-${#templates[@]}): " choice
 
   # Validate selection

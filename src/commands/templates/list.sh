@@ -4,4 +4,4 @@ if [[ ! -d "$templates_dir" ]]; then
   return 1
 fi
 
-show_templates_list
+show_templates_list ''

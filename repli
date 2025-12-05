@@ -889,8 +889,7 @@ repli_new_command() {
     selected="${templates[0]}"
   else
     # Show interactive menu
-    show_templates_list
-
+    show_templates_list "$search"
     read -rp "Choose a template (1-${#templates[@]}): " choice
 
     # Validate selection
@@ -998,7 +997,7 @@ repli_templates_list_command() {
     return 1
   fi
 
-  show_templates_list
+  show_templates_list ''
 
 }
 

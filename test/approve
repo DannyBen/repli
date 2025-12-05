@@ -66,6 +66,11 @@ describe "new"
   approve "cat repli.yaml"
   rm repli.yaml
 
+  context "with interactive menu"
+    reset_state
+    add_templates 2
+    approve "echo 2 | repli new"
+
 describe "get"
   reset_state
   approve "repli get --help"

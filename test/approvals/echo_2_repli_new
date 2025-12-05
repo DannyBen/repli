@@ -1,0 +1,6 @@
+[1;32m•[0m [35mdebug[0m • [36mrepli_new_command[0m [1;32m→[0m templates dir: [34mtmp/templates[0m
+
+ 1. model1
+ 2. model2
+
+[1;32m•[0m [32minfo[0m • [36mrepli_new_command[0m [1;32m→[0m copying [34mmodel2.yaml[0m → [34mrepli.yaml[0m

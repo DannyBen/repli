@@ -1864,7 +1864,7 @@ repli_files_upload_parse_requirements() {
 
 # :command.initialize
 initialize() {
-  declare -g version="0.1.0"
+  declare -g version="0.1.1"
   set -e
 
   # :command.environment_variables_default

@@ -1,0 +1,2 @@
+[1;32m•[0m [1;31merror[0m • [36mrepli_templates_list_command[0m [1;32m→[0m templates dir not found: [34mtmp/templates[0m
+[1;32m•[0m [32minfo[0m • [36mrepli_templates_list_command[0m [1;32m→[0m change templates dir using [34mREPLI_TEMPLATES_DIR[0m

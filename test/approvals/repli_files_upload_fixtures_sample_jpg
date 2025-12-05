@@ -1,0 +1,3 @@
+[1;32m•[0m [32minfo[0m • [36mrepli_files_upload_command[0m [1;32m→[0m uploading [34mfixtures/sample.jpg[0m
+[1;32m•[0m [32minfo[0m • [36mrepli_files_upload_command[0m [1;32m→[0m url: [4mhttps://api.replicate.com/v1/files/some-hash[0m
+[1;32m•[0m [32minfo[0m • [36mrepli_files_upload_command[0m [1;32m→[0m saving URL to [34mfiles.ini[0m

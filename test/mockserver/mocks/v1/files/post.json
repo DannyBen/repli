@@ -1,0 +1,10 @@
+{
+    "id": "123",
+    "name": "sample.png",
+    "content_type": "application/octet-stream;title=sample.png",
+    "size": 431626,
+    "urls":
+    {
+        "get": "https://api.replicate.com/v1/files/some-hash"
+    }
+}

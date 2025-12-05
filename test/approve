@@ -1,49 +1,78 @@
 #!/usr/bin/env bash
 # Run this from the root directory
-
-cd ./test || exit 1
-source approvals.bash
-export REPLICATE_HOST=http://localhost:3000
-export REPLICATE_API_TOKEN=no-token-needed
-
-if [ "$(curl -s ${REPLICATE_HOST}/ | jq -r '."mock server status"')" != "running" ]; then
-  fail "mock server not running, testing is aborted"
-fi
+source test/helper.bash
+# From this point the working dir is 'test'
 
 describe "help"
-  approve "repli"
   allow_diff "\/home\/[^\/]*"
   approve "repli --help"
-
-describe "new"
-  approve "repli new --help"
-
-describe "get"
-  approve "repli get --help"
+  approve "repli"
 
 describe "info"
-  approve "repli info"
   approve "repli info --help"
+  approve "repli info"
   approve "repli info google/nano-banana"
   approve "repli info google/nano-banana --json"
+  approve "repli info google/nano-banana --schema"
+  approve "repli info google/nano-banana --example"
 
 describe "templates"
-  approve "repli templates"
   approve "repli templates --help"
+  approve "repli templates"
 
 describe "templates new"
-  approve "repli templates new"
+  reset_state
   approve "repli templates new --help"
+  approve "repli templates new"
+  approve "repli templates new google/nano-banana"
+  approve "repli templates new google/nano-banana" "repli_templates_new_google_nano_banana@exist"
+  approve "repli templates new google/nano-banana --force"
+  approve "repli templates new google/nano-banana --name banana"
+  approve "cat $REPLI_TEMPLATES_DIR/banana.yaml" "cat_banana_yaml"
 
 describe "templates list"
+  reset_state
   approve "repli templates list --help"
+  approve "repli templates list" "repli_templates_list@empty"
+  add_templates 2
+  approve "repli templates list"
 
 describe "files"
-  approve "repli files"
   approve "repli files --help"
+  approve "repli files"
 
 describe "files list"
   approve "repli files list --help"
+  approve "repli files list"
 
 describe "files upload"
+  reset_state
   approve "repli files upload --help"
+  approve "repli files upload --help"
+  approve "repli files upload fixtures/sample.jpg"
+  approve "repli files upload fixtures/sample.jpg" "repli_files_upload_fixtures_sample_jpg@again"
+  rm files.ini
+
+describe "new"
+  reset_state
+  add_templates 2
+  approve "repli new --help"
+  approve "repli new model1"
+  approve "repli new model1" "repli_new_model1@again"
+  approve "repli new model1 --force"
+  approve "repli new model1 --output tmp/renamed.yaml"
+  approve "cat repli.yaml"
+  rm repli.yaml
+
+describe "get"
+  reset_state
+  approve "repli get --help"
+  approve "repli get" "repli get@no_repli_yaml"
+  add_repli_yaml
+  approve "repli get tmp/get"
+
+  # ensure the downloaded file matches the source file
+  [[ "$(stat -c%s tmp/get_out-0.jpg)" -eq "$(stat -c%s mockserver/mocks/assets/out-0.jpg)" ]] ||
+    fail "downloaded file does not match the source file"
+  
+  approve "repli get tmp/get" "repli_get_tmp_get@again"

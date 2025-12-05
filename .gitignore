@@ -1,2 +1,6 @@
-/tmp
+/*.jpg
+/*.json
+/*.png
 /dev
+/repli.yaml
+/tmp

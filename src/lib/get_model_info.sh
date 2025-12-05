@@ -9,8 +9,8 @@ get_model_info() {
     "$replicate_host/v1/models/$model")
 
   # Split last line as status code, everything above is the JSON body
-  status=$(tail -n1 <<< "$body")
-  body=$(sed '$d' <<< "$body")
+  status=$(tail -n1 <<<"$body")
+  body=$(sed '$d' <<<"$body")
 
   # Any 4xx or 5xx status means error
   if [[ "$status" -ge 400 ]]; then

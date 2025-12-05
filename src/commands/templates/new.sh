@@ -15,4 +15,4 @@ fi
 
 log info "saving to $(blue "$outpath")"
 mkdir -p "$templates_dir"
-get_example_from_replicate "$model" > "$outpath"
+get_example_from_replicate "$model" >"$outpath"

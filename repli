@@ -630,8 +630,8 @@ get_model_info() {
     "$replicate_host/v1/models/$model")
 
   # Split last line as status code, everything above is the JSON body
-  status=$(tail -n1 <<< "$body")
-  body=$(sed '$d' <<< "$body")
+  status=$(tail -n1 <<<"$body")
+  body=$(sed '$d' <<<"$body")
 
   # Any 4xx or 5xx status means error
   if [[ "$status" -ge 400 ]]; then
@@ -721,6 +721,12 @@ upload_to_replicate() {
     -F "content=@$input_file;type=application/octet-stream;title=$(basename "$input_file")")
 
   input_file_url=$(echo "$file" | jq -r '.urls.get')
+  if [[ -z "$input_file_url" ]]; then
+    log error "could not get file URL"
+    log debug "$file"
+    return 1
+  fi
+
   echo "$input_file_url"
 }
 
@@ -915,7 +921,7 @@ repli_templates_new_command() {
 
   log info "saving to $(blue "$outpath")"
   mkdir -p "$templates_dir"
-  get_example_from_replicate "$model" > "$outpath"
+  get_example_from_replicate "$model" >"$outpath"
 
 }
 
@@ -926,6 +932,7 @@ repli_templates_list_command() {
   if [[ ! -d "$templates_dir" ]]; then
     log error "templates dir not found: $(blue "$templates_dir")"
     log info "change templates dir using $(blue REPLI_TEMPLATES_DIR)"
+    return 1
   fi
 
   log debug "templates dir: $(blue "$templates_dir")"

@@ -5,7 +5,13 @@ upload_to_replicate() {
     -H "Authorization: Bearer $REPLICATE_API_TOKEN" \
     -H "Content-Type: multipart/form-data" \
     -F "content=@$input_file;type=application/octet-stream;title=$(basename "$input_file")")
-  
+
   input_file_url=$(echo "$file" | jq -r '.urls.get')
+  if [[ -z "$input_file_url" ]]; then
+    log error "could not get file URL"
+    log debug "$file"
+    return 1
+  fi
+
   echo "$input_file_url"
 }

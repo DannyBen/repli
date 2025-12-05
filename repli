@@ -316,7 +316,7 @@ repli_templates_list_usage() {
   echo
 
   printf "%s\n" "$(bold "Usage:")"
-  printf "  repli templates list\n"
+  printf "  repli templates list [SEARCH]\n"
   printf "  repli templates list --help | -h\n"
   echo
 
@@ -328,6 +328,14 @@ repli_templates_list_usage() {
     # :command.usage_fixed_flags
     printf "  %s\n" "$(green "--help, -h")"
     printf "    Show this help\n"
+    echo
+
+    # :command.usage_args
+    printf "%s\n" "$(bold "Arguments:")"
+
+    # :argument.usage
+    printf "  %s\n" "$(green "SEARCH")"
+    printf "    Template search string\n"
     echo
 
   fi
@@ -659,11 +667,13 @@ get_model_info() {
 get_templates_list() {
   local search="${1:-.}" # optional search term
 
-  find "$templates_dir" -maxdepth 1 -type f -name '*.yaml' -print0 |
-    grep -iz "$search" |
-    sort -zV |
-    xargs -0 -n1 basename -s .yaml |
-    tr '\n' '\0'
+  while IFS= read -r -d '' file; do
+    basename -s .yaml "$file"
+  done < <(
+    find "$templates_dir" -maxdepth 1 -type f -name '*.yaml' -print0 |
+      grep -iz "$search" |
+      sort -zV
+  ) | tr '\n' '\0'
 }
 
 # src/lib/get_unique_filename.sh
@@ -760,6 +770,12 @@ show_templates_list() {
   echo
 
   mapfile -d '' templates < <(get_templates_list "$search")
+
+  if (( ${#templates[@]} == 0 )); then
+    echo "  No templates found."
+    echo
+    return
+  fi
 
   i=1
   for f in "${templates[@]}"; do
@@ -991,13 +1007,15 @@ repli_templates_new_command() {
 repli_templates_list_command() {
 
   # src/commands/templates/list.sh
+  search="${args[search]}"
+
   if [[ ! -d "$templates_dir" ]]; then
     log error "templates dir not found: $(blue "$templates_dir")"
     log info "change templates dir using $(blue REPLI_TEMPLATES_DIR)"
     return 1
   fi
 
-  show_templates_list ''
+  show_templates_list "$search"
 
 }
 
@@ -1693,8 +1711,14 @@ repli_templates_list_parse_requirements() {
       *)
         # :command.parse_requirements_case
         # :command.parse_requirements_case_simple
-        printf "invalid argument: %s\n" "$key" >&2
-        exit 1
+        # :argument.case
+        if [[ -z ${args['search']+x} ]]; then
+          args['search']=$1
+          shift
+        else
+          printf "invalid argument: %s\n" "$key" >&2
+          exit 1
+        fi
 
         ;;
 

@@ -1,6 +1,7 @@
 Templates in [34mtmp/templates[0m:
 
- 1. model1
- 2. model2
+ 1. another
+ 2. model1
+ 3. model2
 
-[1;32m•[0m [32minfo[0m • [36mrepli_new_command[0m [1;32m→[0m copying [34mtmp/templates/model2.yaml[0m → [34mrepli.yaml[0m
+[1;32m•[0m [32minfo[0m • [36mrepli_new_command[0m [1;32m→[0m copying [34mtmp/templates/model1.yaml[0m → [34mrepli.yaml[0m

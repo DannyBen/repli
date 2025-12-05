@@ -14,13 +14,12 @@ reset_state() {
 
 # add dummy templates to the templates dir
 add_templates() {
-  count="${1:-1}"
-  blue_bold "  adding $count dummy templates"
+  blue_bold "  adding dummy templates"
   mkdir -p tmp/templates
 
-  for i in $(seq 1 "$count"); do
-    cp fixtures/template.yaml "tmp/templates/model${i}.yaml"
-  done
+  cp fixtures/template.yaml "tmp/templates/model1.yaml"
+  cp fixtures/template.yaml "tmp/templates/model2.yaml"
+  cp fixtures/template.yaml "tmp/templates/another.yaml"
 }
 
 add_repli_yaml() {

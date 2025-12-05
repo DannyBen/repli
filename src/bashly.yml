@@ -132,6 +132,9 @@ commands:
   - name: list
     alias: [ls]
     help: Show list of templates
+    args:
+    - name: search
+      help: Template search string
 
 - name: files
   alias: f

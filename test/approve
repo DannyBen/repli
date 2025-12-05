@@ -36,8 +36,10 @@ describe "templates list"
   reset_state
   approve "repli templates list --help"
   approve "repli templates list" "repli_templates_list@empty"
-  add_templates 2
+  add_templates
   approve "repli templates list"
+  approve "repli templates list model"
+  approve "repli templates list nosuchmodel"
 
 describe "files"
   approve "repli files --help"
@@ -57,7 +59,7 @@ describe "files upload"
 
 describe "new"
   reset_state
-  add_templates 2
+  add_templates
   approve "repli new --help"
   approve "repli new model1"
   approve "repli new model1" "repli_new_model1@again"
@@ -68,8 +70,11 @@ describe "new"
 
   context "with interactive menu"
     reset_state
-    add_templates 2
+    add_templates
     approve "echo 2 | repli new"
+    reset_state
+    add_templates
+    approve "echo 2 | repli new model"
 
 describe "get"
   reset_state

@@ -721,6 +721,13 @@ upload_to_replicate() {
     -F "content=@$input_file;type=application/octet-stream;title=$(basename "$input_file")")
 
   input_file_url=$(echo "$file" | jq -r '.urls.get')
+  if [[ -z "$input_file_url" ]]; then
+    log error "could not get file URL"
+    log debug "$file"
+    return 1
+  fi
+
+  log debug "url: $input_file_url"
   echo "$input_file_url"
 }
 

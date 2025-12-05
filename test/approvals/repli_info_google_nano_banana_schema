@@ -1,0 +1,6 @@
+[1;32m•[0m [35mdebug[0m • [36mget_model_info[0m [1;32m→[0m calling replicate API
+type: object
+title: Input
+required:
+  - prompt
+properties: '... trimmed ...'

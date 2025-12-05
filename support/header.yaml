@@ -1,7 +1,7 @@
 model: google/nano-banana
 input:
   prompt: >
-    the word "repli" built as a 3D ancient ruins monument on ac old icy planet.
+    the word "repli" built as a 3D ancient ruins monument on an old icy planet.
     near the monument, a tiny human silhouette stands, to demonstrate the
     magnitude of the monument. 
   aspect_ratio: "21:9"

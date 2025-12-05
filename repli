@@ -727,7 +727,6 @@ upload_to_replicate() {
     return 1
   fi
 
-  log debug "url: $input_file_url"
   echo "$input_file_url"
 }
 

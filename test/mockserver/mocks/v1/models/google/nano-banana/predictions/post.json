@@ -1,0 +1,15 @@
+{
+    "id": "123",
+    "model": "google/nano-banana",
+    "input":
+    {
+        "output_format": "jpg",
+        "prompt": "an image of a JSON file"
+    },
+    "output":
+    [
+        "http://localhost:3000/assets/out-0.jpg"
+    ],
+    "error": null,
+    "status": "succeeded"
+}

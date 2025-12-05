@@ -6,6 +6,6 @@ fi
 
 echo "Templates in $(blue "$templates_dir"):"
 echo
-for file in "$templates_dir"/*.yaml; do
+for file in $(ls "$templates_dir"/*.yaml | sort); do
   basename "$file" ".yaml"
 done

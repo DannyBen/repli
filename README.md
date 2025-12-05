@@ -53,16 +53,27 @@ template → edit YAML → repli get → output files
 
 ## Installation
 
-Installation instructions will be provided here in a future release.
+repli comes as a single standalone bash script which you can download from this
+repository, or from the [latest releases page][release].
 
-In the meantime, you can download the
-[repli](https://github.com/DannyBen/repli/blob/master/repli) bash script:
+You can also install repli using one of these methods:
 
-```bash
-curl -o repli https://raw.githubusercontent.com/DannyBen/repli/refs/heads/master/repli
-chmod +x repli
-sudo mv repli /usr/local/bin/
+**Manual download**
+
+```console
+# download the latest release and place it in /usr/local/bin
+wget https://github.com/DannyBen/repli/releases/latest/download/repli
+sudo install -m 0755 repli /usr/local/bin/
 ```
+
+**Using the setup script**
+
+*This [setup script][setup] is doing the same thing.*
+
+```console
+curl -Ls get.dannyb.co/repli/setup | bash
+```
+
 
 ## Quick Start
 
@@ -135,6 +146,10 @@ repli will automatically:
 If you have questions, suggestions, or run into an issue, feel free to open an
 [issue][issues] on GitHub:
 
+
 [bashly]: https://bashly.dannyb.co/
 [issues]: https://github.com/DannyBen/repli/issues
 [examples]: https://github.com/DannyBen/repli/tree/master/examples
+[release]: https://github.com/DannyBen/repli/releases/latest
+[setup]: https://github.com/DannyBen/repli/tree/master/setup
+

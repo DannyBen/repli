@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Ensure wget exists
+if ! command -v wget >/dev/null 2>&1; then
+  echo "Error: wget is required but not installed." >&2
+  exit 1
+fi
+
+echo "Downloading repli from GitHub..."
+tmpfile="$(mktemp)"
+wget -qO "$tmpfile" https://github.com/DannyBen/repli/releases/latest/download/repli
+
+echo "Installing to /usr/local/bin..."
+sudo install -m 0755 "$tmpfile" /usr/local/bin/repli
+rm -f "$tmpfile"
+
+echo "Installation completed."
+echo "repli --version:"
+repli --version

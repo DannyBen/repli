@@ -7,6 +7,9 @@ jobs:
   ubuntu:
     name: Test
     runs-on: ubuntu-latest
+    env: 
+      LC_ALL: en_US.UTF-8   # For consistent sort order
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4

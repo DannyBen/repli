@@ -6,6 +6,10 @@ fi
 
 echo "Templates in $(blue "$templates_dir"):"
 echo
-for file in $(ls "$templates_dir"/*.yaml | sort); do
-  basename "$file" ".yaml"
+
+mapfile -d '' files \
+  < <(find "$templates_dir" -maxdepth 1 -type f -name '*.yaml' -print0 | sort -z)
+
+for file in "${files[@]}"; do
+  basename "$file" .yaml
 done

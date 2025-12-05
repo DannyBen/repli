@@ -23,7 +23,7 @@ repli was developed using the [Bashly Command Line Framework][bashly].
 - [x] Tests  
 - [x] Documentation  
 - [x] CI
-- [ ] Setup + installation instructions  
+- [x] Setup + installation instructions  
 - [ ] Alpha v0.2.0  
 
 ---

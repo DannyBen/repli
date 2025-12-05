@@ -31,3 +31,7 @@ repli - Replicate AI Workspace Tool
 
   [32mREPLICATE_API_TOKEN (required)[0m
     Replicate API token
+
+  [32mREPLICATE_HOST[0m
+    Replicate host
+    Default: https://api.replicate.com

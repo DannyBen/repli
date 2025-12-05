@@ -18,7 +18,6 @@ environment_variables:
 - name: replicate_host
   help: Replicate host
   default: https://api.replicate.com
-  private: true
 
 commands:
 - name: new

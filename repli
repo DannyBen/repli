@@ -67,6 +67,12 @@ repli_usage() {
     printf "    Replicate API token\n"
     echo
 
+    # :environment_variable.usage
+    printf "  %s\n" "$(green "REPLICATE_HOST")"
+    printf "    Replicate host\n"
+    printf "    %s\n" "Default: https://api.replicate.com"
+    echo
+
   fi
 }
 

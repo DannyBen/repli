@@ -15,6 +15,5 @@ echo "Installing to /usr/local/bin..."
 sudo install -m 0755 "$tmpfile" /usr/local/bin/repli
 rm -f "$tmpfile"
 
-echo "Installation completed."
-echo "repli --version:"
+echo "Installation completed. repli --version:"
 repli --version

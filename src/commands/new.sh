@@ -1,8 +1,6 @@
-search="${args[search]:-}"
+search="${args[search]}"
 outfile="${args[--output]}"
 force="${args[--force]}"
-
-log debug "templates dir: $(blue "$templates_dir")"
 
 if [[ ! -d "$templates_dir" ]]; then
   log error "no templates in $(blue "$templates_dir")"
@@ -17,42 +15,33 @@ if [[ -e "$outfile" && -z "$force" ]]; then
   return 1
 fi
 
-# Build match list using simple "contains" search
-mapfile -t matches < <(
-  find "$templates_dir" -maxdepth 1 -type f -name "*.yaml" -printf "%f\n" |
-    grep -i "${search:-.}"
-)
+# Get templates list matching the search
+mapfile -d '' templates < <(get_templates_list "$search")
 
 # No matches
-if [[ ${#matches[@]} -eq 0 ]]; then
+if [[ ${#templates[@]} -eq 0 ]]; then
   log error "no matching templates"
   return 1
 fi
 
-# Exactly one match → auto-select
-if [[ ${#matches[@]} -eq 1 ]]; then
-  selected="${matches[0]}"
+if [[ ${#templates[@]} -eq 1 ]]; then
+  # Exactly one match → auto-select
+  selected="${templates[0]}"
 else
-  # Display simple numbered menu
-  echo
-  i=1
-  for f in "${matches[@]}"; do
-    echo " $i. ${f%.yaml}"
-    ((i++))
-  done
-
-  echo
-  read -rp "Choose a template (1-${#matches[@]}): " choice
+  # Show interactive menu
+  show_templates_list  
+  read -rp "Choose a template (1-${#templates[@]}): " choice
 
   # Validate selection
-  if ! [[ "$choice" =~ ^[0-9]+$ ]] || ((choice < 1 || choice > ${#matches[@]})); then
+  if ! [[ "$choice" =~ ^[0-9]+$ ]] || ((choice < 1 || choice > ${#templates[@]})); then
     log error "invalid selection"
     return 1
   fi
 
-  selected="${matches[choice - 1]}"
+  selected="${templates[choice - 1]}"
 fi
 
-# Copy file (single place — no duplication)
-log info "copying $(blue "$selected") → $(blue "$outfile")"
-cp "$templates_dir/$selected" "$outfile"
+# Copy file
+infile="${templates_dir}/${selected}.yaml"
+log info "copying $(blue "$infile") → $(blue "$outfile")"
+cp "$infile" "$outfile"

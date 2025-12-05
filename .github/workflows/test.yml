@@ -35,8 +35,8 @@ jobs:
         sleep 5
 
     # DEBUG
-    - name: Setup tmate session
-      uses: mxschmitt/action-tmate@v3
+    # - name: Setup tmate session
+    #   uses: mxschmitt/action-tmate@v3
     # DEBUG
 
     - name: Run approval tests

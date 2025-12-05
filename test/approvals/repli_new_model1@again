@@ -1,3 +1,2 @@
-[1;32m•[0m [35mdebug[0m • [36mrepli_new_command[0m [1;32m→[0m templates dir: [34mtmp/templates[0m
 [1;32m•[0m [1;31merror[0m • [36mrepli_new_command[0m [1;32m→[0m target already exists: [34mrepli.yaml[0m
 [1;32m•[0m [32minfo[0m • [36mrepli_new_command[0m [1;32m→[0m use [34m--force[0m to overwrite or [34m--output PATH[0m to save to another file

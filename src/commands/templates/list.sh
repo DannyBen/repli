@@ -4,12 +4,4 @@ if [[ ! -d "$templates_dir" ]]; then
   return 1
 fi
 
-echo "Templates in $(blue "$templates_dir"):"
-echo
-
-mapfile -d '' files \
-  < <(find "$templates_dir" -maxdepth 1 -type f -name '*.yaml' -print0 | sort -z)
-
-for file in "${files[@]}"; do
-  basename "$file" .yaml
-done
+show_templates_list ''

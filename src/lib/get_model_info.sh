@@ -14,8 +14,8 @@ get_model_info() {
 
   # Any 4xx or 5xx status means error
   if [[ "$status" -ge 400 ]]; then
-    log error "failed getting model info for $(blue "$model") (HTTP $status)"
-    log error "$(jq -r '.detail // empty' <<<"$body")"
+    log error "failed getting model info for $(blue "$model")"
+    log error "($status) $(jq -r '.detail // empty' <<<"$body")"
     return 1
   fi
 

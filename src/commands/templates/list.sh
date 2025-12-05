@@ -4,7 +4,8 @@ if [[ ! -d "$templates_dir" ]]; then
   return 1
 fi
 
-log debug "templates dir: $(blue "$templates_dir")"
+echo "Templates in $(blue "$templates_dir"):"
+echo
 for file in "$templates_dir"/*.yaml; do
   basename "$file" ".yaml"
 done

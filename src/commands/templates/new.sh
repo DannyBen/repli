@@ -13,6 +13,9 @@ if [[ -f "$outpath" && ! "$force" ]]; then
   return 1
 fi
 
-log info "saving to $(blue "$outpath")"
 mkdir -p "$templates_dir"
-get_example_from_replicate "$model" >"$outpath"
+log debug "fetching example for $(blue "$model")"
+template="$(get_example_from_replicate "$model")"
+
+log info "saving to $(blue "$outpath")"
+[[ -n "$template" ]] && printf "%s\n" "$template" > "$outpath"

@@ -647,8 +647,8 @@ get_model_info() {
 
   # Any 4xx or 5xx status means error
   if [[ "$status" -ge 400 ]]; then
-    log error "failed getting model info for $(blue "$model") (HTTP $status)"
-    log error "$(jq -r '.detail // empty' <<<"$body")"
+    log error "failed getting model info for $(blue "$model")"
+    log error "($status) $(jq -r '.detail // empty' <<<"$body")"
     return 1
   fi
 
@@ -960,9 +960,12 @@ repli_templates_new_command() {
     return 1
   fi
 
-  log info "saving to $(blue "$outpath")"
   mkdir -p "$templates_dir"
-  get_example_from_replicate "$model" >"$outpath"
+  log debug "fetching example for $(blue "$model")"
+  template="$(get_example_from_replicate "$model")"
+
+  log info "saving to $(blue "$outpath")"
+  [[ -n "$template" ]] && printf "%s\n" "$template" > "$outpath"
 
 }
 
@@ -976,7 +979,8 @@ repli_templates_list_command() {
     return 1
   fi
 
-  log debug "templates dir: $(blue "$templates_dir")"
+  echo "Templates in $(blue "$templates_dir"):"
+  echo
   for file in "$templates_dir"/*.yaml; do
     basename "$file" ".yaml"
   done

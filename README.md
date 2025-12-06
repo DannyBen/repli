@@ -36,7 +36,7 @@ repli simplifies working with Replicate into three steps:
    ```console
    repli new nano-banana
    ```
-3. Edit the template to configure the model’s inputs:  
+3. Edit the template to configure the model's inputs:  
    ```console
    repli edit
    ```

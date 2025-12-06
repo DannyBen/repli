@@ -23,8 +23,6 @@ environment_variables:
   default: https://api.replicate.com
 
 variables:
-- name: repli_file
-  value: $REPLI_FILE
 - name: templates_dir
   value: $REPLI_TEMPLATES_DIR
 - name: log_level

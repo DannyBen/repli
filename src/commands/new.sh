@@ -3,12 +3,6 @@ outfile="${args[--output]}"
 force="${args[--force]}"
 exact="${args[--exact]}"
 
-if [[ ! -d "$templates_dir" ]]; then
-  log error "no templates in $(blue "$templates_dir")"
-  log info "change templates dir using $(blue REPLI_TEMPLATES_DIR)"
-  return 1
-fi
-
 # Do not overwrite unless --force is used
 if [[ -e "$outfile" && -z "$force" ]]; then
   log error "target already exists: $(blue "$outfile")"

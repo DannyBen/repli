@@ -27,11 +27,17 @@ add_repli_yaml() {
   cp fixtures/template.yaml repli.yaml
 }
 
+editstub() {
+  echo "editstub $*"
+}
+
 initialize() {
   export REPLICATE_HOST=http://localhost:3000
   export REPLICATE_API_TOKEN=no-token-needed
   export REPLI_TEMPLATES_DIR=tmp/templates
   export REPLI_LOG_LEVEL=debug
+  export EDITOR=editstub
+  export -f editstub
 
   if [[ "$(curl -s ${REPLICATE_HOST}/ | jq -r '."mock server status"')" != "running" ]]; then
     fail "mock server not running, testing is aborted"

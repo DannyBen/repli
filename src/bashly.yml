@@ -36,6 +36,7 @@ commands:
 - name: new
   alias: ['n', init]
   help: Create a new configuration file from a tmeplate
+  filters: [templates_dir_exists]
 
   args:
   - name: search
@@ -136,9 +137,37 @@ commands:
   - name: list
     alias: [ls]
     help: Show list of templates
+    filters: [templates_dir_exists]
     args:
     - name: search
       help: Template search string
+
+  - name: show
+    alias: s
+    help: Show template
+    filters: [templates_dir_exists]
+    args:
+    - &template
+      name: template
+      help: Template name
+      required: true
+      validate: template_exists
+
+  - name: edit
+    alias: e
+    help: Open template in editor
+    filters: [templates_dir_exists]
+    args: [*template]
+    environment_variables:
+    - name: editor
+      help: Editor to use
+      default: vi
+
+  - name: delete
+    alias: [d, del, rm]
+    help: Delete template file
+    filters: [templates_dir_exists]
+    args: [*template]
 
 - name: files
   alias: f

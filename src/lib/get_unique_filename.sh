@@ -6,11 +6,11 @@ get_unique_filename() {
   local n
 
   for f in "${base}-"*; do
-    [[ -e "$f" ]] || continue   # skip if no match
+    [[ -e "$f" ]] || continue # skip if no match
 
     if [[ $f =~ ${base}-([0-9]+) ]]; then
       n="${BASH_REMATCH[1]}"
-      (( n > max )) && max="$n"
+      ((n > max)) && max="$n"
     fi
   done
 

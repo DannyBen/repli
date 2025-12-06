@@ -14,6 +14,9 @@ Alias: n, init
   [32m--force, -f[0m
     Overwrite target file
 
+  [32m--exact, -e[0m
+    Forces exact search only (disables interactive menu)
+
   [32m--help, -h[0m
     Show this help
 
@@ -23,3 +26,4 @@ Alias: n, init
 
 [1mExamples:[0m
   repli new flux
+  repli new flux-schnell -e

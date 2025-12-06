@@ -50,9 +50,13 @@ commands:
   - long: --force
     short: -f
     help: Overwrite target file
+  - long: --exact
+    short: -e
+    help: Forces exact search only (disables interactive menu)
 
   examples:
   - repli new flux
+  - repli new flux-schnell -e
 
 - name: get
   alias: g

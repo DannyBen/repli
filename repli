@@ -110,6 +110,11 @@ repli_new_usage() {
     printf "    Overwrite target file\n"
     echo
 
+    # :flag.usage
+    printf "  %s\n" "$(green "--exact, -e")"
+    printf "    Forces exact search only (disables interactive menu)\n"
+    echo
+
     # :command.usage_fixed_flags
     printf "  %s\n" "$(green "--help, -h")"
     printf "    Show this help\n"
@@ -126,6 +131,7 @@ repli_new_usage() {
     # :command.usage_examples
     printf "%s\n" "$(bold "Examples:")"
     printf "  repli new flux\n"
+    printf "  repli new flux-schnell -e\n"
     echo
 
   fi
@@ -683,11 +689,11 @@ get_unique_filename() {
   local n
 
   for f in "${base}-"*; do
-    [[ -e "$f" ]] || continue   # skip if no match
+    [[ -e "$f" ]] || continue # skip if no match
 
     if [[ $f =~ ${base}-([0-9]+) ]]; then
       n="${BASH_REMATCH[1]}"
-      (( n > max )) && max="$n"
+      ((n > max)) && max="$n"
     fi
   done
 
@@ -771,7 +777,7 @@ show_templates_list() {
 
   mapfile -d '' templates < <(get_templates_list "$search")
 
-  if (( ${#templates[@]} == 0 )); then
+  if ((${#templates[@]} == 0)); then
     echo "  No templates found."
     echo
     return
@@ -877,6 +883,7 @@ repli_new_command() {
   search="${args[search]}"
   outfile="${args[--output]}"
   force="${args[--force]}"
+  exact="${args[--exact]}"
 
   if [[ ! -d "$templates_dir" ]]; then
     log error "no templates in $(blue "$templates_dir")"
@@ -906,6 +913,12 @@ repli_new_command() {
   else
     # Show interactive menu
     show_templates_list "$search"
+
+    if [[ "$exact" ]]; then
+      log error "no exact match"
+      return 1
+    fi
+
     read -rp "Choose a template (1-${#templates[@]}): " choice
 
     # Validate selection
@@ -999,7 +1012,7 @@ repli_templates_new_command() {
   template="$(get_example_from_replicate "$model")"
 
   log info "saving to $(blue "$outpath")"
-  [[ -n "$template" ]] && printf "%s\n" "$template" > "$outpath"
+  [[ -n "$template" ]] && printf "%s\n" "$template" >"$outpath"
 
 }
 
@@ -1276,6 +1289,14 @@ repli_new_parse_requirements() {
 
         # :flag.case_no_arg
         args['--force']=1
+        shift
+        ;;
+
+      # :flag.case
+      --exact | -e)
+
+        # :flag.case_no_arg
+        args['--exact']=1
         shift
         ;;
 

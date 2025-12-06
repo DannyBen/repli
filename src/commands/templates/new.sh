@@ -18,4 +18,4 @@ log debug "fetching example for $(blue "$model")"
 template="$(get_example_from_replicate "$model")"
 
 log info "saving to $(blue "$outpath")"
-[[ -n "$template" ]] && printf "%s\n" "$template" > "$outpath"
+[[ -n "$template" ]] && printf "%s\n" "$template" >"$outpath"

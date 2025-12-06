@@ -67,6 +67,9 @@ describe "new"
   approve "repli new model1 --output tmp/renamed.yaml"
   approve "cat repli.yaml"
   rm repli.yaml
+  approve "repli new model --exact"
+  approve "repli new model2 --exact"
+  rm repli.yaml
 
   context "with interactive menu"
     reset_state

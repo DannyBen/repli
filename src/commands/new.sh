@@ -1,5 +1,5 @@
 search="${args[search]}"
-outfile="${args[--output]}"
+outfile="${args[--use]}"
 force="${args[--force]}"
 exact="${args[--exact]}"
 

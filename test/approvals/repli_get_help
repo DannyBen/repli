@@ -7,7 +7,7 @@ Alias: g
   repli get --help | -h
 
 [1mOptions:[0m
-  [32m--config, -c PATH[0m
+  [32m--use, -u PATH[0m
     Path to repli file
     Default: repli.yaml
 

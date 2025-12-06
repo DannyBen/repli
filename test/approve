@@ -5,7 +5,7 @@ source test/helper.bash
 
 # ----------
 
-describe "help"
+describe "help and usage"
   allow_diff "\/home\/[^\/]*"
   approve "repli --help"
   approve "repli"
@@ -17,6 +17,52 @@ describe "info"
   approve "repli info google/nano-banana --json"
   approve "repli info google/nano-banana --schema"
   approve "repli info google/nano-banana --example"
+
+describe "new"
+  reset_state
+  add_templates
+  approve "repli new --help"
+  approve "repli new model1"
+  approve "repli new model1" "repli_new_model1@again"
+  approve "repli new model1 --force"
+  approve "repli new model1 --use tmp/renamed.yaml"
+  approve "cat repli.yaml"
+  rm repli.yaml
+  approve "repli new model --exact"
+  approve "repli new model2 --exact"
+  rm repli.yaml
+
+  context "with interactive menu"
+    reset_state
+    add_templates
+    approve "echo 2 | repli new"
+    reset_state
+    add_templates
+    approve "echo 2 | repli new model"
+
+describe "get"
+  reset_state
+  approve "repli get --help"
+  approve "repli get" "repli get@no_repli_yaml"
+  add_repli_yaml
+  approve "repli get tmp/get"
+
+  # ensure the downloaded file matches the source file
+  [[ "$(stat -c%s tmp/get_out-0.jpg)" -eq "$(stat -c%s mockserver/mocks/assets/out-0.jpg)" ]] ||
+    fail "downloaded file does not match the source file"
+  
+  approve "repli get tmp/get" "repli_get_tmp_get@again"
+
+describe "edit"
+  reset_state
+  approve "repli edit --help"
+  approve "repli edit" "repli_edit@empty"
+  add_repli_yaml
+  approve "repli edit"
+  mv repli.yaml custom.yaml
+  approve "repli edit -u custom.yaml"
+
+# === Deep Commands ===
 
 describe "templates"
   approve "repli templates --help"
@@ -82,38 +128,3 @@ describe "files upload"
   approve "repli files upload fixtures/sample.jpg"
   approve "repli files upload fixtures/sample.jpg" "repli_files_upload_fixtures_sample_jpg@again"
   rm files.ini
-
-describe "new"
-  reset_state
-  add_templates
-  approve "repli new --help"
-  approve "repli new model1"
-  approve "repli new model1" "repli_new_model1@again"
-  approve "repli new model1 --force"
-  approve "repli new model1 --output tmp/renamed.yaml"
-  approve "cat repli.yaml"
-  rm repli.yaml
-  approve "repli new model --exact"
-  approve "repli new model2 --exact"
-  rm repli.yaml
-
-  context "with interactive menu"
-    reset_state
-    add_templates
-    approve "echo 2 | repli new"
-    reset_state
-    add_templates
-    approve "echo 2 | repli new model"
-
-describe "get"
-  reset_state
-  approve "repli get --help"
-  approve "repli get" "repli get@no_repli_yaml"
-  add_repli_yaml
-  approve "repli get tmp/get"
-
-  # ensure the downloaded file matches the source file
-  [[ "$(stat -c%s tmp/get_out-0.jpg)" -eq "$(stat -c%s mockserver/mocks/assets/out-0.jpg)" ]] ||
-    fail "downloaded file does not match the source file"
-  
-  approve "repli get tmp/get" "repli_get_tmp_get@again"

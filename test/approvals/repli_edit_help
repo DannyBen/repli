@@ -1,0 +1,15 @@
+repli edit - Edit the repli file
+
+Alias: e
+
+[1mUsage:[0m
+  repli edit [OPTIONS]
+  repli edit --help | -h
+
+[1mOptions:[0m
+  [32m--use, -u PATH[0m
+    Path to repli file
+    Default: repli.yaml
+
+  [32m--help, -h[0m
+    Show this help

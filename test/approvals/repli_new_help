@@ -7,7 +7,7 @@ Alias: n, init
   repli new --help | -h
 
 [1mOptions:[0m
-  [32m--output, -o PATH[0m
+  [32m--use, -u PATH[0m
     Path to target repli file
     Default: repli.yaml
 

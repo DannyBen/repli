@@ -28,13 +28,20 @@ repli was developed using the [Bashly Command Line Framework][bashly].
 
 repli simplifies working with Replicate into three steps:
 
-1. Generate a YAML template for any Replicate model:  
-   ```
+1. Generate a YAML template for any Replicate model (once per model):  
+   ```console
    repli templates new google/nano-banana
    ```
-2. Edit the template to configure the model’s inputs.
-3. Run the model with:
+2. Copy the template to the working directory:  
+   ```console
+   repli new nano-banana
    ```
+3. Edit the template to configure the model’s inputs:  
+   ```console
+   repli edit
+   ```
+4. Run the model with:  
+   ```console
    repli get
    ```
 

@@ -10,6 +10,7 @@ reset_state() {
   mkdir tmp
   rm -f files.ini
   rm -f repli.yaml
+  rm -f *.json
 }
 
 # add dummy templates to the templates dir

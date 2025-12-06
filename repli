@@ -993,6 +993,24 @@ validate_template_exists() {
   fi
 }
 
+# src/lib/verify_success_json.sh
+verify_success_json() {
+  local json_file="$1"
+  local status detail title invalid_fields
+
+  if [[ ! -f "$json_file" ]]; then
+    log error "file not found: $(blue "$json_file")"
+    return 1
+  fi
+
+  status=$(jq -r '.status // empty' "$json_file")
+
+  [[ "$status" == "succeeded" ]] && return 0
+  log error "received invalid response:"
+  yq -P -oy "$json_file"
+  return 1
+}
+
 # src/lib/yurl.sh
 yurl() {
   local yaml_file="$1"
@@ -1106,7 +1124,9 @@ repli_get_command() {
   fi
 
   # download outputs
-  download_outputs "$prefix" "$outfile"
+  if verify_success_json "$outfile"; then
+    download_outputs "$prefix" "$outfile"
+  fi
 
 }
 

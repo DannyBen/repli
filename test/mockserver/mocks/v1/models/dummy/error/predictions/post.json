@@ -1,0 +1,13 @@
+{
+    "detail": "- input.image_input.0: Invalid type. Expected: string, given: object\n",
+    "status": 422,
+    "title": "Input validation failed",
+    "invalid_fields":
+    [
+        {
+            "type": "invalid_type",
+            "field": "input.image_input.0",
+            "description": "Invalid type. Expected: string, given: object"
+        }
+    ]
+}

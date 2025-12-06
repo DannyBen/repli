@@ -53,6 +53,10 @@ describe "get"
   
   approve "repli get tmp/get" "repli_get_tmp_get@again"
 
+  # error condition
+  cp 'fixtures/error_template.yaml' repli.yaml
+  approve "repli get" "repli_get_error"
+
 describe "edit"
   reset_state
   approve "repli edit --help"

@@ -32,7 +32,7 @@ jobs:
     - name: Start mock server
       run: |
         ruby test/mockserver/mockserver.rb &
-        sleep 5
+        sleep 3
 
     # DEBUG
     # - name: Setup tmate session

@@ -23,8 +23,6 @@ environment_variables:
   default: https://api.replicate.com
 
 variables:
-- name: repli_file
-  value: $REPLI_FILE
 - name: templates_dir
   value: $REPLI_TEMPLATES_DIR
 - name: log_level
@@ -43,8 +41,8 @@ commands:
     help: Template search string or an exact name
 
   flags:
-  - long: --output
-    short: -o
+  - long: --use
+    short: -u
     arg: path
     help: Path to target repli file
     default: $REPLI_FILE
@@ -68,8 +66,20 @@ commands:
     help: Prefix for saved JSON file and output files
 
   flags:
-  - long: --config
-    short: -c
+  - long: --use
+    short: -u
+    arg: path
+    help: Path to repli file
+    default: $REPLI_FILE
+    validate: file_exists
+
+- name: edit
+  alias: e
+  help: Edit the repli file
+
+  flags:
+  - long: --use
+    short: -u
     arg: path
     help: Path to repli file
     default: $REPLI_FILE

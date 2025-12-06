@@ -1,5 +1,6 @@
-config="${args[--config]}"
-prefix="${args[prefix]:-$(get_unique_filename "$(basename "$repli_file" ".yaml")")}"
+config="${args[--use]}"
+prefix="${args[prefix]:-$(get_unique_filename "$(basename "$config" ".yaml")")}"
+
 outfile="${prefix}.json"
 log debug config: "$(blue "$config")"
 log debug prefix: "$(blue "$prefix")"

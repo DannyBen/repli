@@ -8,4 +8,4 @@ input:
   
   # ADDITRIONAL OPTIONS
   # image_input:
-  # - value: <sample.png>   # path to local image (in <>) or URL
+  # - <sample.png>   # path to local image (in <>) or URL

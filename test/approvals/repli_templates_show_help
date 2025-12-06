@@ -1,0 +1,15 @@
+repli templates show - Show template
+
+Alias: s
+
+[1mUsage:[0m
+  repli templates show TEMPLATE
+  repli templates show --help | -h
+
+[1mOptions:[0m
+  [32m--help, -h[0m
+    Show this help
+
+[1mArguments:[0m
+  [32mTEMPLATE[0m
+    Template name

@@ -3,6 +3,8 @@
 source test/helper.bash
 # From this point the working dir is 'test'
 
+# ----------
+
 describe "help"
   allow_diff "\/home\/[^\/]*"
   approve "repli --help"
@@ -40,6 +42,30 @@ describe "templates list"
   approve "repli templates list"
   approve "repli templates list model"
   approve "repli templates list nosuchmodel"
+
+describe "templates show"
+  reset_state
+  approve "repli templates show --help"
+  approve "repli templates show"
+  approve "repli templates show missing-template"
+  add_templates
+  approve "repli templates show model1"
+
+describe "templates delete"
+  reset_state
+  approve "repli templates delete --help"
+  approve "repli templates delete"
+  approve "repli templates delete missing-template"
+  add_templates
+  approve "repli templates delete model1"
+
+describe "templates edit"
+  reset_state
+  approve "repli templates edit --help"
+  approve "repli templates edit"
+  approve "repli templates edit missing-template"
+  add_templates
+  approve "repli templates edit model1"
 
 describe "files"
   approve "repli files --help"

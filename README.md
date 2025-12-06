@@ -24,17 +24,6 @@ repli was developed using the [Bashly Command Line Framework][bashly].
 
 ---
 
-## Development Status
-
-- [x] Prototype v0.1.0  
-- [x] Tests  
-- [x] Documentation  
-- [x] CI
-- [x] Setup + installation instructions  
-- [ ] Alpha v0.2.0  
-
----
-
 ## Concept
 
 repli simplifies working with Replicate into three steps:

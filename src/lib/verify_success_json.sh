@@ -1,6 +1,6 @@
 verify_success_json() {
   local json_file="$1"
-  local status detail title invalid_fields
+  local status
 
   if [[ ! -f "$json_file" ]]; then
     log error "file not found: $(blue "$json_file")"

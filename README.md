@@ -40,7 +40,7 @@ repli simplifies working with Replicate into three steps:
    ```console
    repli edit
    ```
-4. Run the model with:  
+4. Run the model:  
    ```console
    repli get
    ```

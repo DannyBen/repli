@@ -3,7 +3,7 @@
 model: black-forest-labs/flux-2-pro
 input:
   prompt: abstract art depicting boredom
-  aspect_ratio: '1:1'     # 1:! 2:3 3:4 4:5 16:9 + portraits
+  aspect_ratio: '1:1'     # 1:1 2:3 3:4 4:5 16:9 + portraits
   output_format: png      # png jpg webp
   resolution: 0.5 MP      # 0.5 MP -2 MP
   safety_tolerance: 5     # 1-5

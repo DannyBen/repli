@@ -29,6 +29,7 @@ repli_usage() {
   printf "  %s   Create a new configuration file from a tmeplate\n" "$(green "new")      "
   printf "  %s   Call Replicate using a configuration file and save the result\n" "$(green "get")      "
   printf "  %s   Edit the repli file\n" "$(green "edit")     "
+  printf "  %s   Show the repli file\n" "$(green "show")     "
   printf "  %s   Get information on a model\n" "$(green "info")     "
   printf "  %s   Manage templates\n" "$(green "templates")"
   printf "  %s   Manage uploaded files\n" "$(green "files")    "
@@ -102,7 +103,7 @@ repli_new_usage() {
     # :command.usage_flags
     # :flag.usage
     printf "  %s\n" "$(green "--use, -u PATH")"
-    printf "    Path to target repli file\n"
+    printf "    Path to repli file\n"
     printf "    %s\n" "Default: $REPLI_FILE"
     echo
 
@@ -186,6 +187,37 @@ repli_edit_usage() {
   printf "%s\n" "$(bold "Usage:")"
   printf "  repli edit [OPTIONS]\n"
   printf "  repli edit --help | -h\n"
+  echo
+
+  # :command.long_usage
+  if [[ -n "$long_usage" ]]; then
+    # :command.usage_options
+    printf "%s\n" "$(bold "Options:")"
+
+    # :command.usage_flags
+    # :flag.usage
+    printf "  %s\n" "$(green "--use, -u PATH")"
+    printf "    Path to repli file\n"
+    printf "    %s\n" "Default: $REPLI_FILE"
+    echo
+
+    # :command.usage_fixed_flags
+    printf "  %s\n" "$(green "--help, -h")"
+    printf "    Show this help\n"
+    echo
+
+  fi
+}
+
+# :command.usage
+repli_show_usage() {
+  printf "repli show - Show the repli file\n\n"
+  printf "Alias: s\n"
+  echo
+
+  printf "%s\n" "$(bold "Usage:")"
+  printf "  repli show [OPTIONS]\n"
+  printf "  repli show --help | -h\n"
   echo
 
   # :command.long_usage
@@ -1140,6 +1172,15 @@ repli_edit_command() {
 }
 
 # :command.function
+repli_show_command() {
+
+  # src/commands/show.sh
+  file="${args[--use]}"
+  yq -P -oy "$file"
+
+}
+
+# :command.function
 repli_info_command() {
 
   # src/commands/info.sh
@@ -1394,6 +1435,13 @@ parse_requirements() {
       shift $#
       ;;
 
+    show | s)
+      action="show"
+      shift
+      repli_show_parse_requirements "$@"
+      shift $#
+      ;;
+
     info | i)
       action="info"
       shift
@@ -1645,6 +1693,79 @@ repli_edit_parse_requirements() {
 
   # :command.command_filter
   action="edit"
+
+  # :command.parse_requirements_while
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case "$key" in
+      # :flag.case
+      --use | -u)
+
+        # :flag.case_arg
+        if [[ -n ${2+x} ]]; then
+          args['--use']="$2"
+          shift
+          shift
+        else
+          printf "%s\n" "--use requires an argument: --use, -u PATH" >&2
+          exit 1
+        fi
+        ;;
+
+      -?*)
+        printf "invalid option: %s\n" "$key" >&2
+        exit 1
+        ;;
+
+      *)
+        # :command.parse_requirements_case
+        # :command.parse_requirements_case_simple
+        printf "invalid argument: %s\n" "$key" >&2
+        exit 1
+
+        ;;
+
+    esac
+  done
+
+  # :command.default_assignments
+  [[ -n ${args['--use']:-} ]] || args['--use']="$REPLI_FILE"
+
+  # :command.validations
+  # :flag.validations
+  if [[ -v args['--use'] ]]; then
+    validation_output="$(validate_file_exists "${args['--use']:-}")"
+    if [[ -n "${validation_output}" ]]; then
+      printf "validation error in %s:\n%s\n" "--use, -u PATH" "$validation_output" >&2
+      exit 1
+    fi
+  fi
+
+}
+
+# :command.parse_requirements
+repli_show_parse_requirements() {
+  local key
+
+  # :command.fixed_flags_filter
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case "$key" in
+      --help | -h)
+        long_usage=yes
+        repli_show_usage
+        exit
+        ;;
+
+      *)
+        break
+        ;;
+
+    esac
+  done
+
+  # :command.command_filter
+  action="show"
 
   # :command.parse_requirements_while
   while [[ $# -gt 0 ]]; do
@@ -2550,6 +2671,7 @@ run() {
     "new") repli_new_command ;;
     "get") repli_get_command ;;
     "edit") repli_edit_command ;;
+    "show") repli_show_command ;;
     "info") repli_info_command ;;
     "templates") repli_templates_command ;;
     "templates new") repli_templates_new_command ;;

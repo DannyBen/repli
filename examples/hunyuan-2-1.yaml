@@ -3,9 +3,8 @@ input:
   prompt: abstract art depicting boredom
   aspect_ratio: '1:1' # 1:1 2:3 3:4 4:5 16:9 + portraits
   output_format: png  # png jpg webp
-  go_fast: true
 
   # ADDITIONAL OPTIONS:
   # seed: 123
   # go_fast: true
-  # output_quality: 95        # 0-100 (not relevant to PNG)
+  # output_quality: 95  # 0-100 (not relevant to PNG)

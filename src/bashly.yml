@@ -44,7 +44,7 @@ commands:
   - long: --use
     short: -u
     arg: path
-    help: Path to target repli file
+    help: Path to repli file
     default: $REPLI_FILE
   - long: --force
     short: -f
@@ -76,6 +76,18 @@ commands:
 - name: edit
   alias: e
   help: Edit the repli file
+
+  flags:
+  - long: --use
+    short: -u
+    arg: path
+    help: Path to repli file
+    default: $REPLI_FILE
+    validate: file_exists
+
+- name: show
+  alias: s
+  help: Show the repli file
 
   flags:
   - long: --use

@@ -9,6 +9,7 @@ repli - Replicate AI Workspace Tool
   [32mnew[0m         Create a new configuration file from a tmeplate
   [32mget[0m         Call Replicate using a configuration file and save the result
   [32medit[0m        Edit the repli file
+  [32mshow[0m        Show the repli file
   [32minfo[0m        Get information on a model
   [32mtemplates[0m   Manage templates
   [32mfiles[0m       Manage uploaded files

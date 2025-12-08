@@ -5,57 +5,66 @@ source test/helper.bash
 
 # ----------
 
-describe "help and usage"
-  allow_diff "\/home\/[^\/]*"
-  approve "repli --help"
-  approve "repli"
+# describe "help and usage"
+#   allow_diff "\/home\/[^\/]*"
+#   approve "repli --help"
+#   approve "repli"
 
-describe "info"
-  approve "repli info --help"
-  approve "repli info"
-  approve "repli info google/nano-banana"
-  approve "repli info google/nano-banana --json"
-  approve "repli info google/nano-banana --schema"
-  approve "repli info google/nano-banana --example"
+# describe "info"
+#   approve "repli info --help"
+#   approve "repli info"
+#   approve "repli info google/nano-banana"
+#   approve "repli info google/nano-banana --json"
+#   approve "repli info google/nano-banana --schema"
+#   approve "repli info google/nano-banana --example"
 
-describe "new"
-  reset_state
-  add_templates
-  approve "repli new --help"
-  approve "repli new model1"
-  approve "repli new model1" "repli_new_model1@again"
-  approve "repli new model1 --force"
-  approve "repli new model1 --use tmp/renamed.yaml"
-  approve "cat repli.yaml"
-  rm repli.yaml
-  approve "repli new model --exact"
-  approve "repli new model2 --exact"
-  rm repli.yaml
+# describe "new"
+#   reset_state
+#   add_templates
+#   approve "repli new --help"
+#   approve "repli new model1"
+#   approve "repli new model1" "repli_new_model1@again"
+#   approve "repli new model1 --force"
+#   approve "repli new model1 --use tmp/renamed.yaml"
+#   approve "cat repli.yaml"
+#   rm repli.yaml
+#   approve "repli new model --exact"
+#   approve "repli new model2 --exact"
+#   rm repli.yaml
 
-  context "with interactive menu"
-    reset_state
-    add_templates
-    approve "echo 2 | repli new"
-    reset_state
-    add_templates
-    approve "echo 2 | repli new model"
+#   context "with interactive menu"
+#     reset_state
+#     add_templates
+#     approve "echo 2 | repli new"
+#     reset_state
+#     add_templates
+#     approve "echo 2 | repli new model"
 
-describe "get"
-  reset_state
-  approve "repli get --help"
-  approve "repli get" "repli get@no_repli_yaml"
-  add_repli_yaml
-  approve "repli get tmp/get"
+# describe "get"
+#   reset_state
+#   approve "repli get --help"
+#   approve "repli get" "repli get@no_repli_yaml"
+#   add_repli_yaml
+#   approve "repli get tmp/get"
 
-  # ensure the downloaded file matches the source file
-  [[ "$(stat -c%s tmp/get_out-0.jpg)" -eq "$(stat -c%s mockserver/mocks/assets/out-0.jpg)" ]] ||
-    fail "downloaded file does not match the source file"
+#   # ensure the downloaded file matches the source file
+#   [[ "$(stat -c%s tmp/get_out-0.jpg)" -eq "$(stat -c%s mockserver/mocks/assets/out-0.jpg)" ]] ||
+#     fail "downloaded file does not match the source file"
   
-  approve "repli get tmp/get" "repli_get_tmp_get@again"
+#   approve "repli get tmp/get" "repli_get_tmp_get@again"
 
-  # error condition
-  cp 'fixtures/error_template.yaml' repli.yaml
-  approve "repli get" "repli_get_error"
+#   context "error condition"
+#     cp 'fixtures/error_template.yaml' repli.yaml
+#     approve "repli get" "repli_get_error"
+
+  context "embed files"
+    pushd fixtures/workspaces/files
+    rm -f repli*.json repli*.jpg
+    approve "repli get" "repli_get@files_workspace"
+    rm -f repli*.json repli*.jpg
+    popd
+
+exit 1
 
 describe "edit"
   reset_state

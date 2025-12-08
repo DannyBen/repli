@@ -86,7 +86,7 @@ curl -Ls get.dannyb.co/repli/setup | bash
 repli templates new black-forest-labs/flux-schnell
 ```
 
-### 2. Create `repli.yml` in your working directory
+### 2. Use the template to create `repli.yaml` in your working directory
 
 ```
 repli new flux-schnell
@@ -94,7 +94,9 @@ repli new flux-schnell
 
 ### 3. Edit the YAML file  
 
-Change the input parameters to your needs.
+```
+repli edit
+```
 
 ### 4. Run the model
 
@@ -103,6 +105,7 @@ repli get
 ```
 
 ### 5. Check your working directory  
+
 You'll find:
 
 - A JSON response file  
@@ -134,13 +137,34 @@ See more examples in the [examples folder][examples].
 
 ## File Uploads
 
-Any value wrapped in angle brackets - such as `<sample.png>` - is treated as a
-local file path.  
+Any YAML value written in the form:
+
+```
+<sample.png>
+```
+
+is treated as a local file path that is expected to be uploaded to Replicate.
+
 repli will automatically:
 
 1. Upload the file to Replicate  
 2. Store the resulting URL in `files.ini`  
 3. Reuse that URL on future runs to avoid unnecessary uploads  
+
+## File Embeds
+
+Any YAML value written in the form:
+
+```
+$(file.txt)
+```
+
+will be replaced with the contents of that file before repli continues
+processing the configuration.
+
+This allows you to keep longer text - like prompts - outside of your
+`repli.yaml` file while still embedding their contents directly
+into the final request.
 
 ---
 

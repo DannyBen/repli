@@ -8,9 +8,7 @@ reset_state() {
   blue_bold "  resetting state"
   rm -rf tmp
   mkdir tmp
-  rm -f files.ini
-  rm -f repli.yaml
-  rm -f *.json
+  rm -f files.ini repli.yaml *.json *.jpg *.png
 }
 
 # add dummy templates to the templates dir

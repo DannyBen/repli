@@ -16,6 +16,7 @@ replace_embed_markers() {
     fi
 
     # Read raw file contents (preserve newlines)
+    log debug "embedding $(blue "$file")"
     content=$(<"$file")
 
     # Use jq to replace the placeholder with file contents

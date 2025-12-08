@@ -85,28 +85,6 @@ repli_usage() {
 }
 
 # :command.usage
-repli_debug_usage() {
-  printf "repli debug - Debug command\n\n"
-
-  printf "%s\n" "$(bold "Usage:")"
-  printf "  repli debug\n"
-  printf "  repli debug --help | -h\n"
-  echo
-
-  # :command.long_usage
-  if [[ -n "$long_usage" ]]; then
-    # :command.usage_options
-    printf "%s\n" "$(bold "Options:")"
-
-    # :command.usage_fixed_flags
-    printf "  %s\n" "$(green "--help, -h")"
-    printf "    Show this help\n"
-    echo
-
-  fi
-}
-
-# :command.usage
 repli_new_usage() {
   printf "repli new - Create a new configuration file from a tmeplate\n\n"
   printf "Alias: n, init\n"
@@ -965,6 +943,7 @@ replace_embed_markers() {
     fi
 
     # Read raw file contents (preserve newlines)
+    log debug "embedding $(blue "$file")"
     content=$(<"$file")
 
     # Use jq to replace the placeholder with file contents
@@ -992,6 +971,12 @@ replace_file_placeholders() {
 
   # Replace each placeholder with uploaded file URL
   for file in "${files[@]}"; do
+    if [[ ! -f "$file" ]]; then
+      log error "upload file not found: $(blue "$file")"
+      return 1
+    fi
+
+    log debug "replacing upload file marker $(blue "$file")"
     url=$(get_file_url "$file")
     json=$(echo "$json" | jq --arg f "<$file>" --arg u "$url" '
       (.. | select(type=="string" and .==$f)) |= $u
@@ -1137,17 +1122,6 @@ yurl() {
 }
 
 # :command.command_functions
-# :command.function
-repli_debug_command() {
-
-  # src/commands/debug.sh
-
-  json=$(yq -o=json '.input' "repli.yaml")
-  json=$(replace_embed_markers "$json")
-  echo "$json"
-
-}
-
 # :command.function
 repli_new_command() {
 
@@ -1482,13 +1456,6 @@ parse_requirements() {
   case $action in
     -*) ;;
 
-    debug)
-      action="debug"
-      shift
-      repli_debug_parse_requirements "$@"
-      shift $#
-      ;;
-
     new | n | init)
       action="new"
       shift
@@ -1550,53 +1517,6 @@ parse_requirements() {
       ;;
 
   esac
-
-  # :command.parse_requirements_while
-  while [[ $# -gt 0 ]]; do
-    key="$1"
-    case "$key" in
-
-      -?*)
-        printf "invalid option: %s\n" "$key" >&2
-        exit 1
-        ;;
-
-      *)
-        # :command.parse_requirements_case
-        # :command.parse_requirements_case_simple
-        printf "invalid argument: %s\n" "$key" >&2
-        exit 1
-
-        ;;
-
-    esac
-  done
-
-}
-
-# :command.parse_requirements
-repli_debug_parse_requirements() {
-  local key
-
-  # :command.fixed_flags_filter
-  while [[ $# -gt 0 ]]; do
-    key="$1"
-    case "$key" in
-      --help | -h)
-        long_usage=yes
-        repli_debug_usage
-        exit
-        ;;
-
-      *)
-        break
-        ;;
-
-    esac
-  done
-
-  # :command.command_filter
-  action="debug"
 
   # :command.parse_requirements_while
   while [[ $# -gt 0 ]]; do
@@ -2790,7 +2710,6 @@ run() {
   parse_requirements "${input[@]}"
 
   case "$action" in
-    "debug") repli_debug_command ;;
     "new") repli_new_command ;;
     "get") repli_get_command ;;
     "edit") repli_edit_command ;;

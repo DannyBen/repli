@@ -1,143 +1,25 @@
 #!/usr/bin/env bash
-# Run this from the root directory
+# === NOTE: Run this script from the project root directory
 source test/helper.bash
-# From this point the working dir is 'test'
+# === From this point the working dir is 'test'
 
-# ----------
+# USAGE:
+#   test/approve              # run all tests
+#   test/approve get usage    # run only spec/get and spec/usage
 
-# describe "help and usage"
-#   allow_diff "\/home\/[^\/]*"
-#   approve "repli --help"
-#   approve "repli"
+if [[ $# -gt 0 ]]; then
+  # Run only the tests specified as arguments
+  for arg in "$@"; do
+    file="spec/${arg}.sh"
+    [[ -f "$file" ]] || fail "test file not found: $file"
 
-# describe "info"
-#   approve "repli info --help"
-#   approve "repli info"
-#   approve "repli info google/nano-banana"
-#   approve "repli info google/nano-banana --json"
-#   approve "repli info google/nano-banana --schema"
-#   approve "repli info google/nano-banana --example"
-
-# describe "new"
-#   reset_state
-#   add_templates
-#   approve "repli new --help"
-#   approve "repli new model1"
-#   approve "repli new model1" "repli_new_model1@again"
-#   approve "repli new model1 --force"
-#   approve "repli new model1 --use tmp/renamed.yaml"
-#   approve "cat repli.yaml"
-#   rm repli.yaml
-#   approve "repli new model --exact"
-#   approve "repli new model2 --exact"
-#   rm repli.yaml
-
-#   context "with interactive menu"
-#     reset_state
-#     add_templates
-#     approve "echo 2 | repli new"
-#     reset_state
-#     add_templates
-#     approve "echo 2 | repli new model"
-
-# describe "get"
-#   reset_state
-#   approve "repli get --help"
-#   approve "repli get" "repli get@no_repli_yaml"
-#   add_repli_yaml
-#   approve "repli get tmp/get"
-
-#   # ensure the downloaded file matches the source file
-#   [[ "$(stat -c%s tmp/get_out-0.jpg)" -eq "$(stat -c%s mockserver/mocks/assets/out-0.jpg)" ]] ||
-#     fail "downloaded file does not match the source file"
-  
-#   approve "repli get tmp/get" "repli_get_tmp_get@again"
-
-#   context "error condition"
-#     cp 'fixtures/error_template.yaml' repli.yaml
-#     approve "repli get" "repli_get_error"
-
-  context "embed files"
-    pushd fixtures/workspaces/files
-    rm -f repli*.json repli*.jpg
-    approve "repli get" "repli_get@files_workspace"
-    rm -f repli*.json repli*.jpg
-    popd
-
-exit 1
-
-describe "edit"
-  reset_state
-  approve "repli edit --help"
-  approve "repli edit" "repli_edit@empty"
-  add_repli_yaml
-  approve "repli edit"
-  mv repli.yaml custom.yaml
-  approve "repli edit -u custom.yaml"
-
-# === Deep Commands ===
-
-describe "templates"
-  approve "repli templates --help"
-  approve "repli templates"
-
-describe "templates new"
-  reset_state
-  approve "repli templates new --help"
-  approve "repli templates new"
-  approve "repli templates new google/nano-banana"
-  approve "repli templates new google/nano-banana" "repli_templates_new_google_nano_banana@exist"
-  approve "repli templates new google/nano-banana --force"
-  approve "repli templates new google/nano-banana --name banana"
-  approve "repli templates new not/found"
-  approve "cat $REPLI_TEMPLATES_DIR/banana.yaml" "cat_banana_yaml"
-  approve "ls $REPLI_TEMPLATES_DIR"
-
-describe "templates list"
-  reset_state
-  approve "repli templates list --help"
-  approve "repli templates list" "repli_templates_list@empty"
-  add_templates
-  approve "repli templates list"
-  approve "repli templates list model"
-  approve "repli templates list nosuchmodel"
-
-describe "templates show"
-  reset_state
-  approve "repli templates show --help"
-  approve "repli templates show"
-  approve "repli templates show missing-template"
-  add_templates
-  approve "repli templates show model1"
-
-describe "templates delete"
-  reset_state
-  approve "repli templates delete --help"
-  approve "repli templates delete"
-  approve "repli templates delete missing-template"
-  add_templates
-  approve "repli templates delete model1"
-
-describe "templates edit"
-  reset_state
-  approve "repli templates edit --help"
-  approve "repli templates edit"
-  approve "repli templates edit missing-template"
-  add_templates
-  approve "repli templates edit model1"
-
-describe "files"
-  approve "repli files --help"
-  approve "repli files"
-
-describe "files list"
-  approve "repli files list --help"
-  approve "repli files list"
-
-describe "files upload"
-  reset_state
-  approve "repli files upload --help"
-  approve "repli files upload --help"
-  approve "repli files upload fixtures/sample.jpg"
-  approve "repli files upload fixtures/sample.jpg" "repli_files_upload_fixtures_sample_jpg@again"
-  rm files.ini
+    context "$file"
+    source "$file"
+  done
+else
+  # No args → run all tests
+  while IFS= read -r file; do
+    context "$file"
+    source "$file"
+  done < <(find spec -type f -name '*.sh' | sort)
+fi

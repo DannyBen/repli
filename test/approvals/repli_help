@@ -38,6 +38,10 @@ repli - Replicate AI Workspace Tool
     Name of the repli file
     Default: repli.yaml
 
+  [32mREPLI_OUTPUT_DIR[0m
+    Output directory for all files
+    Default: .
+
   [32mREPLICATE_HOST[0m
     Replicate host
     Default: https://api.replicate.com

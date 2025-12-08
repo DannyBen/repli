@@ -76,6 +76,12 @@ repli_usage() {
     echo
 
     # :environment_variable.usage
+    printf "  %s\n" "$(green "REPLI_OUTPUT_DIR")"
+    printf "    Output directory for all files\n"
+    printf "    %s\n" "Default: ."
+    echo
+
+    # :environment_variable.usage
     printf "  %s\n" "$(green "REPLICATE_HOST")"
     printf "    Replicate host\n"
     printf "    %s\n" "Default: https://api.replicate.com"
@@ -759,7 +765,7 @@ download_outputs() {
   fi
 
   for url in "${urls[@]}"; do
-    filename="${prefix}_$(basename "$url")"
+    filename="${output_dir}/${prefix}_$(basename "$url")"
 
     if [[ -f "$filename" ]]; then
       log info "skipping download, file exists: $(blue "$filename")"
@@ -795,7 +801,7 @@ get_example_from_replicate() {
 # src/lib/get_file_url.sh
 get_file_url() {
   local file="$1"
-  local files_list="files.ini"
+  local files_list="$output_dir/files.ini"
 
   if [[ -f "$files_list" ]]; then
     log debug reading files list: "$(blue "$files_list")"
@@ -1039,7 +1045,7 @@ validate_dir_exists() {
 # src/lib/validations/file_exists.sh
 validate_file_exists() {
   if [[ ! -f "$1" ]]; then
-    echo "must be an existing file"
+    echo "must be an existing file ($1)"
   fi
 }
 
@@ -1184,7 +1190,7 @@ repli_get_command() {
   config="${args[--use]}"
   prefix="${args[prefix]:-$(get_unique_filename "$(basename "$config" ".yaml")")}"
 
-  outfile="${prefix}.json"
+  outfile="${output_dir}/${prefix}.json"
   log debug config: "$(blue "$config")"
   log debug prefix: "$(blue "$prefix")"
   log debug outfile: "$(blue "$outfile")"
@@ -1342,7 +1348,7 @@ repli_files_upload_command() {
 
   # src/commands/files/upload.sh
   file="${args[file]}"
-  files_list="files.ini"
+  files_list="$output_dir/files.ini"
 
   if [[ -f "$files_list" ]]; then
     log debug reading files list: "$(blue "$files_list")"
@@ -1396,12 +1402,14 @@ parse_requirements() {
   export REPLI_LOG_LEVEL="${REPLI_LOG_LEVEL:-info}"
   export REPLI_TEMPLATES_DIR="${REPLI_TEMPLATES_DIR:-$HOME/repli}"
   export REPLI_FILE="${REPLI_FILE:-repli.yaml}"
+  export REPLI_OUTPUT_DIR="${REPLI_OUTPUT_DIR:-.}"
   export REPLICATE_HOST="${REPLICATE_HOST:-https://api.replicate.com}"
 
   env_var_names+=("REPLICATE_API_TOKEN")
   env_var_names+=("REPLI_LOG_LEVEL")
   env_var_names+=("REPLI_TEMPLATES_DIR")
   env_var_names+=("REPLI_FILE")
+  env_var_names+=("REPLI_OUTPUT_DIR")
   env_var_names+=("REPLICATE_HOST")
   if [[ -z "${REPLICATE_API_TOKEN:-}" ]]; then
     printf "missing required environment variable: REPLICATE_API_TOKEN\n" >&2
@@ -2683,9 +2691,13 @@ initialize() {
   export REPLI_LOG_LEVEL="${REPLI_LOG_LEVEL:-info}"
   export REPLI_TEMPLATES_DIR="${REPLI_TEMPLATES_DIR:-$HOME/repli}"
   export REPLI_FILE="${REPLI_FILE:-repli.yaml}"
+  export REPLI_OUTPUT_DIR="${REPLI_OUTPUT_DIR:-.}"
   export REPLICATE_HOST="${REPLICATE_HOST:-https://api.replicate.com}"
 
   # :command.variables
+  # :variable.definition
+  declare -g output_dir="$REPLI_OUTPUT_DIR"
+
   # :variable.definition
   declare -g templates_dir="$REPLI_TEMPLATES_DIR"
 

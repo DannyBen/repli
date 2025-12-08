@@ -1,6 +1,6 @@
 get_file_url() {
   local file="$1"
-  local files_list="files.ini"
+  local files_list="$output_dir/files.ini"
 
   if [[ -f "$files_list" ]]; then
     log debug reading files list: "$(blue "$files_list")"

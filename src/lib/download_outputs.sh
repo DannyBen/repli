@@ -23,7 +23,7 @@ download_outputs() {
   fi
 
   for url in "${urls[@]}"; do
-    filename="${prefix}_$(basename "$url")"
+    filename="${output_dir}/${prefix}_$(basename "$url")"
 
     if [[ -f "$filename" ]]; then
       log info "skipping download, file exists: $(blue "$filename")"

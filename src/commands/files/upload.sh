@@ -1,5 +1,5 @@
 file="${args[file]}"
-files_list="files.ini"
+files_list="$output_dir/files.ini"
 
 if [[ -f "$files_list" ]]; then
   log debug reading files list: "$(blue "$files_list")"

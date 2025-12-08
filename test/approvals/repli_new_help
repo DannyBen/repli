@@ -9,7 +9,7 @@ Alias: n, init
 [1mOptions:[0m
   [32m--use, -u PATH[0m
     Path to repli file
-    Default: repli.yaml
+    Default: tmp/repli.yaml
 
   [32m--force, -f[0m
     Overwrite target file

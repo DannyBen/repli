@@ -156,7 +156,7 @@ repli will automatically:
 Any YAML value written in the form:
 
 ```
-$(file.txt)
+~file.txt
 ```
 
 will be replaced with the contents of that file before repli continues

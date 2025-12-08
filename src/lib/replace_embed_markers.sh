@@ -6,7 +6,7 @@ replace_embed_markers() {
   # Find all "$(filename)" placeholders in JSON string values
   mapfile -t files < <(echo "$json" | jq -r '
     .. | select(type == "string") |
-    match("^\\$\\((.+)\\)$")? | .captures[0].string
+    match("^~(.+)$")? | .captures[0].string
   ')
 
   for file in "${files[@]}"; do
@@ -21,7 +21,7 @@ replace_embed_markers() {
 
     # Use jq to replace the placeholder with file contents
     json=$(echo "$json" | jq \
-      --arg placeholder "\$($file)" \
+      --arg placeholder "~$file" \
       --arg content "$content" \
       '(.. | select(type=="string" and .==$placeholder)) |= $content')
 

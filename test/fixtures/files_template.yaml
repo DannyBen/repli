@@ -1,7 +1,0 @@
-model: google/nano-banana
-input:
-  prompt: $(fixtures/prompt.txt)
-  output_format: jpg
-  input_images:
-  - <fixtures/sample.jpg>
-  - <fixtures/sample2.jpg>

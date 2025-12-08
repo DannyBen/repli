@@ -16,14 +16,14 @@ add_templates() {
   blue_bold "  adding dummy templates"
   mkdir -p tmp/templates
 
-  cp fixtures/template.yaml "tmp/templates/model1.yaml"
-  cp fixtures/template.yaml "tmp/templates/model2.yaml"
-  cp fixtures/template.yaml "tmp/templates/another.yaml"
+  cp fixtures/templates/basic.yaml "tmp/templates/model1.yaml"
+  cp fixtures/templates/basic.yaml "tmp/templates/model2.yaml"
+  cp fixtures/templates/basic.yaml "tmp/templates/another.yaml"
 }
 
 add_repli_yaml() {
   blue_bold "  adding repli.yaml"
-  cp fixtures/template.yaml repli.yaml
+  cp fixtures/templates/basic.yaml repli.yaml
 }
 
 editstub() {

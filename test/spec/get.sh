@@ -13,10 +13,10 @@ describe "get"
   approve "repli get tmp/get" "repli_get_tmp_get@again"
 
   context "error condition"
-    cp 'fixtures/error_template.yaml' repli.yaml
+    cp 'fixtures/templates/error.yaml' repli.yaml
     approve "repli get" "repli_get_error"
 
   context "embed files"
     reset_state
-    approve "repli get -u fixtures/files_template.yaml"
+    approve "repli get -u fixtures/templates/files.yaml"
 

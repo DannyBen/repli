@@ -1,6 +1,6 @@
 name: repli
 help: Replicate AI Workspace Tool
-version: 0.1.2
+version: 0.1.3
 
 dependencies: [yq, jq, curl, wget]
 

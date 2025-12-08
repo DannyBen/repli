@@ -4,4 +4,4 @@ describe "files upload"
   approve "repli files upload --help"
   approve "repli files upload fixtures/images/sample.jpg"
   approve "repli files upload fixtures/images/sample.jpg" "repli_files_upload_fixtures_sample_jpg@again"
-  rm files.ini
+  rm "$output_dir/files.ini"

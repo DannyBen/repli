@@ -4,6 +4,7 @@ describe "edit"
   approve "repli edit" "repli_edit@empty"
   add_repli_yaml
   approve "repli edit"
-  mv repli.yaml custom.yaml
-  approve "repli edit -u custom.yaml"
+  mv "$output_dir/repli.yaml" "$output_dir/custom.yaml"
+  approve "repli edit -u $output_dir/custom.yaml"
+  rm "$output_dir/custom.yaml"
 

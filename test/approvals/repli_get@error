@@ -1,0 +1,13 @@
+[1;32m•[0m [35mdebug[0m • [36mrepli_get_command[0m [1;32m→[0m config: [34mtmp/repli.yaml[0m
+[1;32m•[0m [35mdebug[0m • [36mrepli_get_command[0m [1;32m→[0m prefix: [34mrepli-1[0m
+[1;32m•[0m [35mdebug[0m • [36mrepli_get_command[0m [1;32m→[0m outfile: [34mtmp/repli-1.json[0m
+[1;32m•[0m [32minfo[0m • [36mrepli_get_command[0m [1;32m→[0m calling API and saving [34mtmp/repli-1.json[0m
+[1;32m•[0m [1;31merror[0m • [36mverify_success_json[0m [1;32m→[0m received invalid response:
+detail: |
+  - input.image_input.0: Invalid type. Expected: string, given: object
+status: 422
+title: Input validation failed
+invalid_fields:
+  - type: invalid_type
+    field: input.image_input.0
+    description: 'Invalid type. Expected: string, given: object'

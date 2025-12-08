@@ -1,4 +1,4 @@
-[1;32m•[0m [35mdebug[0m • [36mrepli_get_command[0m [1;32m→[0m config: [34mrepli.yaml[0m
+[1;32m•[0m [35mdebug[0m • [36mrepli_get_command[0m [1;32m→[0m config: [34mtmp/repli.yaml[0m
 [1;32m•[0m [35mdebug[0m • [36mrepli_get_command[0m [1;32m→[0m prefix: [34mtmp/get[0m
 [1;32m•[0m [35mdebug[0m • [36mrepli_get_command[0m [1;32m→[0m outfile: [34mtmp/get.json[0m
 [1;32m•[0m [32minfo[0m • [36mrepli_get_command[0m [1;32m→[0m skipping API call, file exists: [34mtmp/get.json[0m

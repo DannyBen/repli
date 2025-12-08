@@ -18,11 +18,16 @@ environment_variables:
 - name: repli_file
   help: Name of the repli file
   default: repli.yaml
+- name: repli_output_dir
+  help: Output directory for all files
+  default: .
 - name: replicate_host
   help: Replicate host
   default: https://api.replicate.com
 
 variables:
+- name: output_dir
+  value: $REPLI_OUTPUT_DIR
 - name: templates_dir
   value: $REPLI_TEMPLATES_DIR
 - name: log_level

@@ -1,7 +1,7 @@
 config="${args[--use]}"
 prefix="${args[prefix]:-$(get_unique_filename "$(basename "$config" ".yaml")")}"
 
-outfile="${prefix}.json"
+outfile="${output_dir}/${prefix}.json"
 log debug config: "$(blue "$config")"
 log debug prefix: "$(blue "$prefix")"
 log debug outfile: "$(blue "$outfile")"

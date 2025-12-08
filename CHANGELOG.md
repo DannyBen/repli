@@ -1,6 +1,20 @@
 Changelog
 ========================================
 
+v0.1.3 - 2025-12-08
+----------------------------------------
+
+- Add edit command + refactor repli file arg [`71f7908`](https://github.com/DannyBen/repli/commit/71f7908)
+- Improve error handling on a failed API response [`ce8d4e9`](https://github.com/DannyBen/repli/commit/ce8d4e9)
+- Add repli file management commands [`a383289`](https://github.com/DannyBen/repli/commit/a383289)
+- Add support for embedding text files [`58b15ad`](https://github.com/DannyBen/repli/commit/58b15ad)
+- Refactor tests to separate files [`9fcc3a1`](https://github.com/DannyBen/repli/commit/9fcc3a1)
+- Refactor test fixtures [`a3b729a`](https://github.com/DannyBen/repli/commit/a3b729a)
+- Add REPLI_OUTPUT_DIR [`429175c`](https://github.com/DannyBen/repli/commit/429175c)
+- Add env command [`c4f51b3`](https://github.com/DannyBen/repli/commit/c4f51b3)
+- Compare [`v0.1.2..v0.1.3`](https://github.com/dannyben/repli/compare/v0.1.2..v0.1.3)
+
+
 v0.1.2 - 2025-12-06
 ----------------------------------------
 

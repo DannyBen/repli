@@ -924,6 +924,39 @@ log() {
   fi
 }
 
+# src/lib/replace_embed_markers.sh
+replace_embed_markers() {
+  local json="$1"
+  local files=()
+  local content
+
+  # Find all "$(filename)" placeholders in JSON string values
+  mapfile -t files < <(echo "$json" | jq -r '
+    .. | select(type == "string") |
+    match("^\\$\\((.+)\\)$")? | .captures[0].string
+  ')
+
+  for file in "${files[@]}"; do
+    if [[ ! -f "$file" ]]; then
+      log error "embeded file not found: $(blue "$file")"
+      return 1
+    fi
+
+    # Read raw file contents (preserve newlines)
+    log debug "embedding $(blue "$file")"
+    content=$(<"$file")
+
+    # Use jq to replace the placeholder with file contents
+    json=$(echo "$json" | jq \
+      --arg placeholder "\$($file)" \
+      --arg content "$content" \
+      '(.. | select(type=="string" and .==$placeholder)) |= $content')
+
+  done
+
+  echo "$json"
+}
+
 # src/lib/replace_file_placeholders.sh
 replace_file_placeholders() {
   local json="$1"
@@ -938,6 +971,12 @@ replace_file_placeholders() {
 
   # Replace each placeholder with uploaded file URL
   for file in "${files[@]}"; do
+    if [[ ! -f "$file" ]]; then
+      log error "upload file not found: $(blue "$file")"
+      return 1
+    fi
+
+    log debug "replacing upload file marker $(blue "$file")"
     url=$(get_file_url "$file")
     json=$(echo "$json" | jq --arg f "<$file>" --arg u "$url" '
       (.. | select(type=="string" and .==$f)) |= $u
@@ -1046,7 +1085,7 @@ verify_success_json() {
 # src/lib/yurl.sh
 yurl() {
   local yaml_file="$1"
-  local model input_json final_json
+  local model json
 
   # YAML validation
   if ! yq -e '.model' "$yaml_file" >/dev/null 2>&1; then
@@ -1063,13 +1102,16 @@ yurl() {
   model=$(yq -r '.model' "$yaml_file")
 
   # Convert .input YAML → JSON
-  input_json=$(yq -o=json '.input' "$yaml_file")
+  json=$(yq -o=json '.input' "$yaml_file")
 
   # Replace any "<filename>" placeholders
-  final_json=$(replace_file_placeholders "$input_json")
+  json=$(replace_file_placeholders "$json")
+
+  # Replace any embedded "@filename" markers
+  json=$(replace_embed_markers "$json")
 
   # Pipe the evaluated JSON to curl which uses it (@-) as its data.
-  echo "$final_json" |
+  echo "$json" |
     jq '{input: .}' |
     curl -sS -X POST \
       -H "Authorization: Bearer $REPLICATE_API_TOKEN" \

@@ -8,9 +8,7 @@ reset_state() {
   blue_bold "  resetting state"
   rm -rf tmp
   mkdir tmp
-  rm -f files.ini
-  rm -f repli.yaml
-  rm -f *.json
+  rm -f files.ini repli.yaml *.json *.jpg *.png
 }
 
 # add dummy templates to the templates dir
@@ -18,14 +16,14 @@ add_templates() {
   blue_bold "  adding dummy templates"
   mkdir -p tmp/templates
 
-  cp fixtures/template.yaml "tmp/templates/model1.yaml"
-  cp fixtures/template.yaml "tmp/templates/model2.yaml"
-  cp fixtures/template.yaml "tmp/templates/another.yaml"
+  cp fixtures/templates/basic.yaml "tmp/templates/model1.yaml"
+  cp fixtures/templates/basic.yaml "tmp/templates/model2.yaml"
+  cp fixtures/templates/basic.yaml "tmp/templates/another.yaml"
 }
 
 add_repli_yaml() {
   blue_bold "  adding repli.yaml"
-  cp fixtures/template.yaml repli.yaml
+  cp fixtures/templates/basic.yaml repli.yaml
 }
 
 editstub() {

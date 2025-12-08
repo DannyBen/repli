@@ -1,0 +1,7 @@
+REPLI_FILE:           [33mtmp/repli.yaml[0m
+REPLI_FILE status:    [31mNOT FOUND[0m
+REPLI_OUTPUT_DIR:     [33mtmp[0m
+REPLI_TEMPLATES_DIR:  [33mtmp/templates[0m
+REPLI_LOG_LEVEL:      [33mdebug[0m
+REPLICATE_HOST:       [33mhttp://localhost:3000[0m
+REPLICATE_API_TOKEN:  [33mno-...ded[0m

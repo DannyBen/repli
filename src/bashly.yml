@@ -102,6 +102,9 @@ commands:
     default: $REPLI_FILE
     validate: file_exists
 
+- name: env
+  help: Show repli environment information
+
 - name: info
   alias: i
   help: Get information on a model

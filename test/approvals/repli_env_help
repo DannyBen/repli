@@ -1,0 +1,9 @@
+repli env - Show repli environment information
+
+[1mUsage:[0m
+  repli env
+  repli env --help | -h
+
+[1mOptions:[0m
+  [32m--help, -h[0m
+    Show this help

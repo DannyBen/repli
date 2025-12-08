@@ -11,7 +11,7 @@ replace_embed_markers() {
 
   for file in "${files[@]}"; do
     if [[ ! -f "$file" ]]; then
-      log error "embeded file not found: $(blue "$file")"
+      log error "embedded file not found: $(blue "$file")"
       return 1
     fi
 

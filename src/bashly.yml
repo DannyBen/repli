@@ -138,7 +138,7 @@ commands:
   - repli info google/nano-banana
   - repli info google/nano-banana --example --plain --json
 
-- name: templates
+- name: template
   alias: t
   help: Manage templates
   commands:
@@ -200,7 +200,7 @@ commands:
     filters: [templates_dir_exists]
     args: [*template]
 
-- name: files
+- name: file
   alias: f
   help: Manage uploaded files
 

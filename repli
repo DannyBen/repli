@@ -879,15 +879,27 @@ get_model_info() {
 
 # src/lib/get_templates_list.sh
 get_templates_list() {
-  local search="${1:-.}" # optional search term
+  local search="${1:-}"
 
-  while IFS= read -r -d '' file; do
-    basename -s .yaml "$file"
+  while IFS= read -r -d '' rel; do
+    # Strip .yaml
+    local name="${rel%.yaml}"
+
+    # If not nested, show only the basename
+    if [[ "$rel" != */* ]]; then
+      printf '%s\0' "$name"
+    else
+      # Keep the relative directory path
+      printf '%s\0' "$name"
+    fi
+
   done < <(
-    find "$templates_dir" -maxdepth 1 -type f -name '*.yaml' -print0 |
+    find "$templates_dir" \
+      -type f -name '*.yaml' \
+      -printf '%P\0' | # <-- %P = path relative to $templates_dir
       grep -iz "$search" |
       sort -zV
-  ) | tr '\n' '\0'
+  )
 }
 
 # src/lib/get_unique_filename.sh
@@ -1013,6 +1025,45 @@ replace_file_placeholders() {
   done
 
   echo "$json"
+}
+
+# src/lib/select_template.sh
+select_template() {
+  local search="$1"
+  local exact="$2"
+
+  # Get templates list matching the search
+  mapfile -d '' templates < <(get_templates_list "$search")
+
+  # No matches
+  if [[ ${#templates[@]} -eq 0 ]]; then
+    log error "no matching templates"
+    return 1
+  fi
+
+  if [[ ${#templates[@]} -eq 1 ]]; then
+    # Exactly one match → auto-select
+    echo "${templates[0]}"
+    return
+  else
+    # Show interactive menu
+    show_templates_list "$search" >&2
+
+    if [[ "$exact" ]]; then
+      log error "no exact match"
+      return 1
+    fi
+
+    read -rp "Choose a template (1-${#templates[@]}): " choice
+
+    # Validate selection
+    if ! [[ "$choice" =~ ^[0-9]+$ ]] || ((choice < 1 || choice > ${#templates[@]})); then
+      log error "invalid selection"
+      return 1
+    fi
+
+    echo "${templates[choice - 1]}"
+  fi
 }
 
 # src/lib/show_templates_list.sh
@@ -1155,10 +1206,10 @@ yurl() {
 repli_new_command() {
 
   # src/commands/new.sh
-  search="${args[search]}"
-  outfile="${args[--use]}"
-  force="${args[--force]}"
-  exact="${args[--exact]}"
+  local search="${args[search]}"
+  local outfile="${args[--use]}"
+  local force="${args[--force]}"
+  local exact="${args[--exact]}"
 
   # Do not overwrite unless --force is used
   if [[ -e "$outfile" && -z "$force" ]]; then
@@ -1167,37 +1218,7 @@ repli_new_command() {
     return 1
   fi
 
-  # Get templates list matching the search
-  mapfile -d '' templates < <(get_templates_list "$search")
-
-  # No matches
-  if [[ ${#templates[@]} -eq 0 ]]; then
-    log error "no matching templates"
-    return 1
-  fi
-
-  if [[ ${#templates[@]} -eq 1 ]]; then
-    # Exactly one match → auto-select
-    selected="${templates[0]}"
-  else
-    # Show interactive menu
-    show_templates_list "$search"
-
-    if [[ "$exact" ]]; then
-      log error "no exact match"
-      return 1
-    fi
-
-    read -rp "Choose a template (1-${#templates[@]}): " choice
-
-    # Validate selection
-    if ! [[ "$choice" =~ ^[0-9]+$ ]] || ((choice < 1 || choice > ${#templates[@]})); then
-      log error "invalid selection"
-      return 1
-    fi
-
-    selected="${templates[choice - 1]}"
-  fi
+  selected="$(select_template "$search" "$exact")"
 
   # Copy file
   infile="${templates_dir}/${selected}.yaml"

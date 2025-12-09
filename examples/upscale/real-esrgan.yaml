@@ -1,0 +1,7 @@
+# https://replicate.com/nightmareai/real-esrgan
+
+model: nightmareai/real-esrgan
+input:
+  image: <source.jpg>
+  scale: 2  # 0 - 10
+  face_enhance: false

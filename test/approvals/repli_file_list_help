@@ -1,0 +1,17 @@
+repli file list - Show list of uploaded files
+
+Alias: ls
+
+[1mUsage:[0m
+  repli file list [OPTIONS]
+  repli file list --help | -h
+
+[1mOptions:[0m
+  [32m--plain, -p[0m
+    Disable output colors
+
+  [32m--json, -j[0m
+    Output JSON instead of YAML
+
+  [32m--help, -h[0m
+    Show this help

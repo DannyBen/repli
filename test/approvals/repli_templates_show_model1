@@ -1,4 +1,0 @@
-model: google/nano-banana
-input:
-  prompt: an image of a JSON file
-  output_format: jpg

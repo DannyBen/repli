@@ -1,0 +1,4 @@
+[1;32m•[0m [35mdebug[0m • [36mrepli_template_new_command[0m [1;32m→[0m fetching example for [34mnot/found[0m
+[1;32m•[0m [35mdebug[0m • [36mget_model_info[0m [1;32m→[0m calling replicate API
+[1;32m•[0m [1;31merror[0m • [36mget_model_info[0m [1;32m→[0m failed getting model info for [34mnot/found[0m
+[1;32m•[0m [1;31merror[0m • [36mget_model_info[0m [1;32m→[0m (404) 

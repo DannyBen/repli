@@ -43,7 +43,8 @@ commands:
   filters: [templates_dir_exists]
 
   args:
-  - name: search
+  - &template_search
+    name: search
     help: Template search string or an exact name
 
   flags:
@@ -138,7 +139,7 @@ commands:
   - repli info google/nano-banana
   - repli info google/nano-banana --example --plain --json
 
-- name: templates
+- name: template
   alias: t
   help: Manage templates
   commands:
@@ -163,7 +164,7 @@ commands:
       default: auto
 
     examples:
-    - repli add google/nano-banana banana
+    - repli add google/nano-banana --name banana
 
   - name: list
     alias: [ls]
@@ -177,18 +178,13 @@ commands:
     alias: s
     help: Show template
     filters: [templates_dir_exists]
-    args:
-    - &template
-      name: template
-      help: Template name
-      required: true
-      validate: template_exists
+    args: [*template_search]
 
   - name: edit
     alias: e
     help: Open template in editor
     filters: [templates_dir_exists]
-    args: [*template]
+    args: [*template_search]
     environment_variables:
     - name: editor
       help: Editor to use
@@ -198,9 +194,9 @@ commands:
     alias: [d, del, rm]
     help: Delete template file
     filters: [templates_dir_exists]
-    args: [*template]
+    args: [*template_search]
 
-- name: files
+- name: file
   alias: f
   help: Manage uploaded files
 

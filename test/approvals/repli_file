@@ -1,0 +1,11 @@
+repli file - Manage uploaded files
+
+Alias: f
+
+[1mUsage:[0m
+  repli file COMMAND
+  repli file [COMMAND] --help | -h
+
+[1mCommands:[0m
+  [32mlist[0m     Show list of uploaded files
+  [32mupload[0m   Upload a file to Replicate

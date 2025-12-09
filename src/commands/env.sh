@@ -1,8 +1,3 @@
-
-
-
-
-
 printf "REPLI_FILE:           %s\n" "$(yellow "$REPLI_FILE")"
 [[ -f "$REPLI_FILE" ]] && msg=$(green found) || msg=$(red "NOT FOUND")
 printf "REPLI_FILE status:    %s\n" "$msg"

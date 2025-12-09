@@ -1,0 +1,25 @@
+repli template new - Add a new template from a remote Replicate model example
+
+Alias: n, add
+
+[1mUsage:[0m
+  repli template new MODEL [OPTIONS]
+  repli template new --help | -h
+
+[1mOptions:[0m
+  [32m--force, -f[0m
+    Overwrite target file
+
+  [32m--name, -n NAME[0m
+    Template name to save
+    Default: auto
+
+  [32m--help, -h[0m
+    Show this help
+
+[1mArguments:[0m
+  [32mMODEL[0m
+    Replicate model (author/model)
+
+[1mExamples:[0m
+  repli add google/nano-banana --name banana

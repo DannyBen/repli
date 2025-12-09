@@ -22,4 +22,4 @@ Alias: n, add
     Replicate model (author/model)
 
 [1mExamples:[0m
-  repli add google/nano-banana banana
+  repli add google/nano-banana --name banana

@@ -1,2 +1,2 @@
-config="${args[--use]}"
+local config="${args[--use]}"
 "${EDITOR}" "$config"

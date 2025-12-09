@@ -6,3 +6,7 @@ describe "templates edit"
   add_templates
   approve "repli template edit model1"
 
+  context "interactive template select"
+    add_templates
+    approve "echo 1 | repli template edit mod"
+

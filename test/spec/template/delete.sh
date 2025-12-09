@@ -6,3 +6,6 @@ describe "templates delete"
   add_templates
   approve "repli template delete model1"
 
+  context "interactive template select"
+    add_templates
+    approve "echo 1 | repli template delete mod"

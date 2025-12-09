@@ -30,7 +30,7 @@ repli simplifies working with Replicate into three steps:
 
 1. Generate a YAML template for any Replicate model (once per model):  
    ```console
-   repli templates new google/nano-banana
+   repli template new google/nano-banana
    ```
 2. Copy the template to the working directory:  
    ```console

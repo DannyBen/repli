@@ -3,7 +3,7 @@ repli template edit - Open template in editor
 Alias: e
 
 [1mUsage:[0m
-  repli template edit TEMPLATE
+  repli template edit [SEARCH]
   repli template edit --help | -h
 
 [1mOptions:[0m
@@ -11,8 +11,8 @@ Alias: e
     Show this help
 
 [1mArguments:[0m
-  [32mTEMPLATE[0m
-    Template name
+  [32mSEARCH[0m
+    Template search string or an exact name
 
 [1mEnvironment Variables:[0m
   [32mEDITOR[0m

@@ -3,7 +3,7 @@ repli template show - Show template
 Alias: s
 
 [1mUsage:[0m
-  repli template show TEMPLATE
+  repli template show [SEARCH]
   repli template show --help | -h
 
 [1mOptions:[0m
@@ -11,5 +11,5 @@ Alias: s
     Show this help
 
 [1mArguments:[0m
-  [32mTEMPLATE[0m
-    Template name
+  [32mSEARCH[0m
+    Template search string or an exact name

@@ -1,2 +1,1 @@
-missing required argument: TEMPLATE
-usage: repli template edit TEMPLATE
+Templates dir not found (tmp/templates), set using REPLI_TEMPLATES_DIR

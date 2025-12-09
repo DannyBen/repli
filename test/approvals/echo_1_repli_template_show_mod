@@ -1,0 +1,9 @@
+Templates in [34mtmp/templates[0m:
+
+ 1. model1
+ 2. model2
+
+model: google/nano-banana
+input:
+  prompt: an image of a JSON file
+  output_format: jpg

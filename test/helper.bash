@@ -14,11 +14,12 @@ reset_state() {
 # add dummy templates to the templates dir
 add_templates() {
   blue_bold "  adding dummy templates"
-  mkdir -p "$REPLI_TEMPLATES_DIR"
+  mkdir -p "$REPLI_TEMPLATES_DIR/nested"
 
   cp fixtures/templates/basic.yaml "$REPLI_TEMPLATES_DIR/model1.yaml"
   cp fixtures/templates/basic.yaml "$REPLI_TEMPLATES_DIR/model2.yaml"
   cp fixtures/templates/basic.yaml "$REPLI_TEMPLATES_DIR/another.yaml"
+  cp fixtures/templates/basic.yaml "$REPLI_TEMPLATES_DIR/nested/upscaler.yaml"
 }
 
 add_repli_yaml() {

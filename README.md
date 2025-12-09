@@ -115,15 +115,20 @@ You'll find:
 ## YAML Configuration
 
 repli expects a configuration file named `repli.yml` in the current directory.  
-It must include two keys:
+It must include an `input` dictionary:
+
+- `input`: a mapping of any valid model options  
+
+and either `model` (for official models) or `version` (for unofficial models)
+option:
 
 - `model`: the Replicate model name  
-- `input`: a mapping of any valid model options  
+- `version`: the Replicate model version in the form of `author/model:version`
 
 Example:
 
 ```yaml
-# repli.yml
+# repli.yml - official model
 model: google/nano-banana
 input:
   prompt: tuxedo cat standing on a black and white printer
@@ -131,6 +136,14 @@ input:
   output_format: png
   image_input:
     - value: <sample.png>
+```
+
+```yaml
+# repli.yml - unofficial model
+version: jingyunliang/swinir:660d...021a
+input:
+  image: <source.jpg>
+  task_type: Real-World Image Super-Resolution-Large
 ```
 
 See more examples in the [examples folder][examples].

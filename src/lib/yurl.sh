@@ -18,16 +18,18 @@ yurl() {
     return 1
   fi
 
-  if [[ -n "$model" ]]; then
-    url="$replicate_host/v1/models/${model}/predictions"
-  else
-    url="$replicate_host/v1/predictions"
-  fi
-
   # Convert .input YAML → JSON and replace <filename> and ~filename.txt
   payload=$(yq -o=json '.' "$yaml_file")
   payload=$(replace_file_placeholders "$payload")
   payload=$(replace_embed_markers "$payload")
+
+  # Set payload and URL for official/unofficial models
+  if [[ -n "$model" ]]; then
+    payload=$(echo "$payload" | jq 'del(.model)')
+    url="$replicate_host/v1/models/${model}/predictions"
+  else
+    url="$replicate_host/v1/predictions"
+  fi
 
   # Pipe the evaluated JSON to curl which uses it (@-) as its data.
   echo "$payload" |

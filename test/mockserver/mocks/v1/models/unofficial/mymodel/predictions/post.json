@@ -1,6 +1,6 @@
 {
     "id": "123",
-    "model": "unofficial/mymodel",
+    "model": "google/nano-banana",
     "input":
     {
         "output_format": "jpg",

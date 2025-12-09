@@ -1,6 +1,6 @@
-model="${args[model]}"
-name="${args[--name]}"
-force="${args[--force]}"
+local model="${args[model]}"
+local name="${args[--name]}"
+local force="${args[--force]}"
 
 [[ "$name" == "auto" ]] && name="${model#*/}"
 

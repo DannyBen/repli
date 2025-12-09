@@ -10,3 +10,5 @@ describe "templates new"
   approve "cat $REPLI_TEMPLATES_DIR/banana.yaml" "cat_banana_yaml"
   approve "ls $REPLI_TEMPLATES_DIR"
 
+  context "when adding unofficial models"
+    approve "repli template new unofficial/mymodel"

@@ -6,6 +6,7 @@
       "output_format": "jpg"
     }
   },
+  "is_official": true,
   "latest_version": {
     "openapi_schema": {
       "components": {

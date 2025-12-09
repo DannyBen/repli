@@ -18,8 +18,8 @@ if [[ $# -gt 0 ]]; then
   done
 else
   # No args → run all tests
-  while IFS= read -r file; do
+  for file in $(find spec -type f -name '*.sh' | sort); do
     context "$file"
     source "$file"
-  done < <(find spec -type f -name '*.sh' | sort)
+  done
 fi

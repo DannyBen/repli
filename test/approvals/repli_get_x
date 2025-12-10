@@ -1,6 +1,0 @@
-[1;32m•[0m [35mdebug[0m • [36mrepli_get_command[0m [1;32m→[0m config: [34mtmp/repli.yaml[0m
-[1;32m•[0m [35mdebug[0m • [36mrepli_get_command[0m [1;32m→[0m prefix: [34mx[0m
-[1;32m•[0m [35mdebug[0m • [36mrepli_get_command[0m [1;32m→[0m outfile: [34mtmp/x.json[0m
-[1;32m•[0m [32minfo[0m • [36mrepli_get_command[0m [1;32m→[0m calling API and saving [34mtmp/x.json[0m
-[1;32m•[0m [35mdebug[0m • [36mdownload_outputs[0m [1;32m→[0m downloading from: [4mhttp://localhost:3000/assets/out-0.jpg[0m
-[1;32m•[0m [32minfo[0m • [36mdownload_outputs[0m [1;32m→[0m downloading to [34mtmp/x_out-0.jpg[0m

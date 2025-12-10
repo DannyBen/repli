@@ -1,22 +1,22 @@
 #!/usr/bin/env bash
-describe "get"
+describe "go"
   reset_state
-  approve "repli get --help"
-  approve "repli get" "repli get@no_repli_yaml"
+  approve "repli go --help"
+  approve "repli go" "repli go@no_repli_yaml"
   add_repli_yaml
-  approve "repli get x"
+  approve "repli go x"
 
   # ensure the downloaded file matches the source file
   [[ "$(stat -c%s $output_dir/x_out-0.jpg)" -eq "$(stat -c%s mockserver/mocks/assets/out-0.jpg)" ]] ||
     fail "downloaded file does not match the source file"
   
-  approve "repli get x" "repli_get_x@again"
+  approve "repli go x" "repli_go_x@again"
 
   context "error condition"
     cp 'fixtures/templates/error.yaml' "$output_dir/repli.yaml"
-    approve "repli get" "repli_get@error"
+    approve "repli go" "repli_go@error"
 
   context "embed and upload files"
     reset_state
-    approve "repli get -u fixtures/templates/files.yaml"
+    approve "repli go -u fixtures/templates/files.yaml"
 

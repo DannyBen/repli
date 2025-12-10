@@ -64,7 +64,7 @@ commands:
   - repli new flux
   - repli new flux-schnell -e
 
-- name: get
+- name: go
   alias: g
   help: Call Replicate using a configuration file and save the result
 

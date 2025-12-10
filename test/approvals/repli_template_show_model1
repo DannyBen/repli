@@ -2,3 +2,5 @@ model: google/nano-banana
 input:
   prompt: an image of a JSON file
   output_format: jpg
+  aspect: 2:3
+# aspects: 2:3 16:9

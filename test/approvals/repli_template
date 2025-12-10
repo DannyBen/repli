@@ -9,6 +9,7 @@ Alias: t
 [1mCommands:[0m
   [32mnew[0m      Add a new template from a remote Replicate model example
   [32mlist[0m     Show list of templates
+  [32mgrep[0m     Find templates that contain a string in their YAML
   [32mshow[0m     Show template
   [32medit[0m     Open template in editor
   [32mdelete[0m   Delete template file

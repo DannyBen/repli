@@ -27,7 +27,7 @@ repli_usage() {
   # :command.usage_commands
   printf "%s\n" "$(bold "Commands:")"
   printf "  %s   Create a new configuration file from a tmeplate\n" "$(green "new")     "
-  printf "  %s   Call Replicate using a configuration file and save the result\n" "$(green "get")     "
+  printf "  %s   Call Replicate using a configuration file and save the result\n" "$(green "go")      "
   printf "  %s   Edit the repli file\n" "$(green "edit")    "
   printf "  %s   Show the repli file\n" "$(green "show")    "
   printf "  %s   Show repli environment information\n" "$(green "env")     "
@@ -147,14 +147,14 @@ repli_new_usage() {
 }
 
 # :command.usage
-repli_get_usage() {
-  printf "repli get - Call Replicate using a configuration file and save the result\n\n"
+repli_go_usage() {
+  printf "repli go - Call Replicate using a configuration file and save the result\n\n"
   printf "Alias: g\n"
   echo
 
   printf "%s\n" "$(bold "Usage:")"
-  printf "  repli get [PREFIX] [OPTIONS]\n"
-  printf "  repli get --help | -h\n"
+  printf "  repli go [PREFIX] [OPTIONS]\n"
+  printf "  repli go --help | -h\n"
   echo
 
   # :command.long_usage
@@ -1320,9 +1320,9 @@ repli_new_command() {
 }
 
 # :command.function
-repli_get_command() {
+repli_go_command() {
 
-  # src/commands/get.sh
+  # src/commands/go.sh
   config="${args[--use]}"
   prefix="${args[prefix]:-$(get_unique_filename "$(basename "$config" ".yaml")")}"
 
@@ -1661,10 +1661,10 @@ parse_requirements() {
       shift $#
       ;;
 
-    get | g)
-      action="get"
+    go | g)
+      action="go"
       shift
-      repli_get_parse_requirements "$@"
+      repli_go_parse_requirements "$@"
       shift $#
       ;;
 
@@ -1839,7 +1839,7 @@ repli_new_parse_requirements() {
 }
 
 # :command.parse_requirements
-repli_get_parse_requirements() {
+repli_go_parse_requirements() {
   local key
 
   # :command.fixed_flags_filter
@@ -1848,7 +1848,7 @@ repli_get_parse_requirements() {
     case "$key" in
       --help | -h)
         long_usage=yes
-        repli_get_usage
+        repli_go_usage
         exit
         ;;
 
@@ -1860,7 +1860,7 @@ repli_get_parse_requirements() {
   done
 
   # :command.command_filter
-  action="get"
+  action="go"
 
   # :command.parse_requirements_while
   while [[ $# -gt 0 ]]; do
@@ -2990,7 +2990,7 @@ run() {
 
   case "$action" in
     "new") repli_new_command ;;
-    "get") repli_get_command ;;
+    "go") repli_go_command ;;
     "edit") repli_edit_command ;;
     "show") repli_show_command ;;
     "env") repli_env_command ;;

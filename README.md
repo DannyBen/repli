@@ -42,7 +42,7 @@ repli simplifies working with Replicate into three steps:
    ```
 4. Run the model:  
    ```console
-   repli get
+   repli go
    ```
 
 Local file references are handled automatically, and all output files are saved
@@ -51,7 +51,7 @@ directly to your working directory.
 Process overview:
 
 ```
-template → edit YAML → repli get → output files
+template → edit YAML → repli go → output files
 ```
 
 ## Installation
@@ -101,7 +101,7 @@ repli edit
 ### 4. Run the model
 
 ```
-repli get
+repli go
 ```
 
 ### 5. Check your working directory  

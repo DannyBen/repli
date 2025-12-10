@@ -1,10 +1,10 @@
-repli get - Call Replicate using a configuration file and save the result
+repli go - Call Replicate using a configuration file and save the result
 
 Alias: g
 
 [1mUsage:[0m
-  repli get [PREFIX] [OPTIONS]
-  repli get --help | -h
+  repli go [PREFIX] [OPTIONS]
+  repli go --help | -h
 
 [1mOptions:[0m
   [32m--use, -u PATH[0m

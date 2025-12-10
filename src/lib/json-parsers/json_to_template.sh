@@ -1,8 +1,13 @@
-get_example_from_replicate() {
-  json=$(get_model_info "$model") || return 1
+## generates a template YAML from model info
+## input: model info JSON
+json_to_template() {
+  json="$1"
 
   # Determine whether the model is official
   is_official=$(jq -r '.is_official // false' <<<"$json")
+
+  echo "# https://replicate.com/$model"
+  echo
 
   if [[ "$is_official" == "true" ]]; then
     log debug "model status: $(blue official)"
@@ -19,4 +24,11 @@ get_example_from_replicate() {
       '{version: ($model + ":" + $version), input: .default_example.input}' \
       <<<"$json" | yq -P -
   fi
+
+  echo
+  echo "# PROPERTIES"
+  mapfile -t props < <(json_get_model_properties "$json")
+  for propline in "${props[@]}"; do
+    echo "# $propline"
+  done
 }

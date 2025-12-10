@@ -15,6 +15,6 @@ else
 fi
 
 # download outputs
-if verify_success_json "$outfile"; then
+if json_verify_success_file "$outfile"; then
   download_outputs "$prefix" "$outfile"
 fi

@@ -1,4 +1,4 @@
-verify_success_json() {
+json_verify_success_file() {
   local json_file="$1"
   local status
 

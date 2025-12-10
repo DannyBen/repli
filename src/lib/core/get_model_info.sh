@@ -1,3 +1,6 @@
+## Call replicate and get the JSON for the model
+## usage: json=$(get_model_info "$model") || return 1
+## input: model name
 get_model_info() {
   local model="$1"
   local body status

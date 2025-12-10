@@ -36,7 +36,7 @@ variables:
   value: $REPLICATE_HOST
 
 commands:
-# - { name: debug, help: Debug, private: true }
+- { name: debug, help: Debug, private: true }
 - name: new
   alias: ['n', init]
   help: Create a new configuration file from a tmeplate

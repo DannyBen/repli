@@ -1,6 +1,20 @@
 Changelog
 ========================================
 
+v0.1.4 - 2025-12-10
+----------------------------------------
+
+- Replace embed marker from $(...) to ~... [`b6231b8`](https://github.com/DannyBen/repli/commit/b6231b8)
+- Refactor templates list to allow templates in sub folders [`ec1d2e8`](https://github.com/DannyBen/repli/commit/ec1d2e8)
+- Rename commands: templates > template, files > file [`dc15d84`](https://github.com/DannyBen/repli/commit/dc15d84)
+- Add interactive template select to all template commands [`3d447aa`](https://github.com/DannyBen/repli/commit/3d447aa)
+- Add support for unofficial models [`b74d6e6`](https://github.com/DannyBen/repli/commit/b74d6e6)
+- Fix official model calls [`95e8eb3`](https://github.com/DannyBen/repli/commit/95e8eb3)
+- Refactor all functions and add model properties to templates [`fd11fac`](https://github.com/DannyBen/repli/commit/fd11fac)
+- Add template grep command [`051048a`](https://github.com/DannyBen/repli/commit/051048a)
+- Compare [`v0.1.3..v0.1.4`](https://github.com/dannyben/repli/compare/v0.1.3..v0.1.4)
+
+
 v0.1.3 - 2025-12-08
 ----------------------------------------
 

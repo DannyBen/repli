@@ -344,6 +344,7 @@ repli_template_usage() {
   printf "%s\n" "$(bold "Commands:")"
   printf "  %s   Add a new template from a remote Replicate model example\n" "$(green "new")   "
   printf "  %s   Show list of templates\n" "$(green "list")  "
+  printf "  %s   Find templates that contain a string in their YAML\n" "$(green "grep")  "
   printf "  %s   Show template\n" "$(green "show")  "
   printf "  %s   Open template in editor\n" "$(green "edit")  "
   printf "  %s   Delete template file\n" "$(green "delete")"
@@ -438,6 +439,36 @@ repli_template_list_usage() {
     # :argument.usage
     printf "  %s\n" "$(green "SEARCH")"
     printf "    Template search string\n"
+    echo
+
+  fi
+}
+
+# :command.usage
+repli_template_grep_usage() {
+  printf "repli template grep - Find templates that contain a string in their YAML\n\n"
+
+  printf "%s\n" "$(bold "Usage:")"
+  printf "  repli template grep SEARCH\n"
+  printf "  repli template grep --help | -h\n"
+  echo
+
+  # :command.long_usage
+  if [[ -n "$long_usage" ]]; then
+    # :command.usage_options
+    printf "%s\n" "$(bold "Options:")"
+
+    # :command.usage_fixed_flags
+    printf "  %s\n" "$(green "--help, -h")"
+    printf "    Show this help\n"
+    echo
+
+    # :command.usage_args
+    printf "%s\n" "$(bold "Arguments:")"
+
+    # :argument.usage
+    printf "  %s\n" "$(green "SEARCH")"
+    printf "    Search string\n"
     echo
 
   fi
@@ -1425,6 +1456,21 @@ repli_template_list_command() {
 }
 
 # :command.function
+repli_template_grep_command() {
+
+  # src/commands/template/grep.sh
+  local search="${args[search]}"
+
+  echo "Templates: $(blue "$templates_dir")"
+  echo "Search:    $(green "$search")"
+  echo
+
+  grep -Ril --include="*.yaml" "$search" "$templates_dir" |
+    sed -e "s|^$templates_dir/||" -e 's/\.yaml$//'
+
+}
+
+# :command.function
 repli_template_show_command() {
 
   # src/commands/template/show.sh
@@ -2211,6 +2257,13 @@ repli_template_parse_requirements() {
       shift $#
       ;;
 
+    grep)
+      action="grep"
+      shift
+      repli_template_grep_parse_requirements "$@"
+      shift $#
+      ;;
+
     show | s)
       action="show"
       shift
@@ -2415,6 +2468,73 @@ repli_template_list_parse_requirements() {
 
     esac
   done
+
+  # :command.user_filter
+  filter_error=$(filter_templates_dir_exists)
+  if [[ -n $filter_error ]]; then
+    echo "$filter_error" >&2
+    exit 1
+  fi
+
+}
+
+# :command.parse_requirements
+repli_template_grep_parse_requirements() {
+  local key
+
+  # :command.fixed_flags_filter
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case "$key" in
+      --help | -h)
+        long_usage=yes
+        repli_template_grep_usage
+        exit
+        ;;
+
+      *)
+        break
+        ;;
+
+    esac
+  done
+
+  # :command.command_filter
+  action="template grep"
+
+  # :command.parse_requirements_while
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case "$key" in
+
+      -?*)
+        printf "invalid option: %s\n" "$key" >&2
+        exit 1
+        ;;
+
+      *)
+        # :command.parse_requirements_case
+        # :command.parse_requirements_case_simple
+        # :argument.case
+        if [[ -z ${args['search']+x} ]]; then
+          args['search']=$1
+          shift
+        else
+          printf "invalid argument: %s\n" "$key" >&2
+          exit 1
+        fi
+
+        ;;
+
+    esac
+  done
+
+  # :command.required_args_filter
+  if [[ -z ${args['search']+x} ]]; then
+    printf "missing required argument: SEARCH\nusage: repli template grep SEARCH\n" >&2
+
+    exit 1
+  fi
 
   # :command.user_filter
   filter_error=$(filter_templates_dir_exists)
@@ -2869,6 +2989,7 @@ run() {
     "template") repli_template_command ;;
     "template new") repli_template_new_command ;;
     "template list") repli_template_list_command ;;
+    "template grep") repli_template_grep_command ;;
     "template show") repli_template_show_command ;;
     "template edit") repli_template_edit_command ;;
     "template delete") repli_template_delete_command ;;

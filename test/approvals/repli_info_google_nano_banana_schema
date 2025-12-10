@@ -3,4 +3,8 @@ type: object
 title: Input
 required:
   - prompt
-properties: '... trimmed ...'
+properties:
+  prompt: '... trimmed... '
+  image_input: '... trimmed... '
+  aspect_ratio: '... trimmed... '
+  output_format: '... trimmed... '

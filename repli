@@ -715,7 +715,427 @@ inspect_args() {
 }
 
 # :command.user_lib
-# src/lib/colors.sh
+# src/lib/core/get_files_list.sh
+get_files_list() {
+  curl -s -H "Authorization: Token $REPLICATE_API_TOKEN" "$replicate_host/v1/files"
+}
+
+# src/lib/core/get_model_info.sh
+get_model_info() {
+  local model="$1"
+  local body status
+
+  # Capture body AND HTTP status code
+  log debug calling replicate API
+  body=$(curl -s -w "\n%{http_code}" \
+    -H "Authorization: Bearer $REPLICATE_API_TOKEN" \
+    "$replicate_host/v1/models/$model")
+
+  # Split last line as status code, everything above is the JSON body
+  status=$(tail -n1 <<<"$body")
+  body=$(sed '$d' <<<"$body")
+
+  # Any 4xx or 5xx status means error
+  if [[ "$status" -ge 400 ]]; then
+    log error "failed getting model info for $(blue "$model")"
+    log error "($status) $(jq -r '.detail // empty' <<<"$body")"
+    return 1
+  fi
+
+  printf '%s\n' "$body"
+}
+
+# src/lib/core/yurl.sh
+yurl() {
+  local yaml_file="$1"
+  local model version json payload url
+
+  # YAML validation
+  if ! yq -e '.input' "$yaml_file" >/dev/null 2>&1; then
+    log error "no input field in $(blue "$yaml_file")"
+    return 1
+  fi
+
+  model=$(yq -r '.model // ""' "$yaml_file")
+  version=$(yq -r '.version // ""' "$yaml_file")
+
+  if [[ -z "$model" && -z "$version" ]]; then
+    log error "no model or version field in $(blue "$yaml_file")"
+    return 1
+  fi
+
+  # Convert .input YAML → JSON and replace <filename> and ~filename.txt
+  payload=$(yq -o=json '.' "$yaml_file")
+  payload=$(replace_file_placeholders "$payload")
+  payload=$(replace_embed_markers "$payload")
+
+  # Set payload and URL for official/unofficial models
+  if [[ -n "$model" ]]; then
+    payload=$(echo "$payload" | jq 'del(.model)')
+    url="$replicate_host/v1/models/${model}/predictions"
+  else
+    url="$replicate_host/v1/predictions"
+  fi
+
+  # Pipe the evaluated JSON to curl which uses it (@-) as its data.
+  echo "$payload" |
+    curl -sS -X POST \
+      -H "Authorization: Bearer $REPLICATE_API_TOKEN" \
+      -H "Content-Type: application/json" \
+      -H "Prefer: wait" \
+      -d @- \
+      "$url"
+}
+
+# src/lib/file/download_outputs.sh
+# usage: download_outputs PREFIX json_file
+download_outputs() {
+  local prefix="$1"
+  local json_file="$2"
+  local filename
+
+  if [[ ! -f "$json_file" ]]; then
+    log error file not found: "$(blue "$json_file")"
+    return 1
+  fi
+
+  # Extract URLs (string → array, array → array)
+  readarray -t urls < <(
+    jq -r '
+      (.output | if type=="string" then [.] else . end)
+      | .[]
+    ' "$json_file"
+  )
+
+  if [[ ${#urls[@]} -eq 0 || "${urls[0]}" == "null" ]]; then
+    log warn no outputs found in "$(blue "$json_file")"
+    return 0
+  fi
+
+  for url in "${urls[@]}"; do
+    filename="${output_dir}/${prefix}_$(basename "$url")"
+
+    if [[ -f "$filename" ]]; then
+      log info "skipping download, file exists: $(blue "$filename")"
+      continue
+    fi
+
+    log debug "downloading from: $(underlined "$url")"
+    log info "downloading to $(blue "$filename")"
+
+    wget -q -O "$filename" "$url" ||
+      log error "failed to download: $(underlined "$url")"
+
+  done
+}
+
+# src/lib/file/get_file_url.sh
+get_file_url() {
+  local file="$1"
+  local files_list="$output_dir/files.ini"
+
+  if [[ -f "$files_list" ]]; then
+    log debug reading files list: "$(blue "$files_list")"
+
+    while IFS='=' read -r path url; do
+      if [[ "$path" == "$file" ]]; then
+        log debug file already registered in "$(blue "$files_list")"
+        log debug "$file → $url"
+        echo "$url"
+        return 0
+      fi
+    done <"$files_list"
+  fi
+
+  log info uploading file: "$(blue "$file")"
+  url="$(upload_to_replicate "$file")"
+  log debug file url: "$(underlined "$url")"
+  log debug saving URL to "$(blue "$files_list")"
+  echo "$file=$url" >>"$files_list"
+  echo "$url"
+}
+
+# src/lib/file/get_unique_filename.sh
+get_unique_filename() {
+  local base="$1"
+  local max=0
+  local n
+
+  for f in "${base}-"*; do
+    [[ -e "$f" ]] || continue # skip if no match
+
+    if [[ $f =~ ${base}-([0-9]+) ]]; then
+      n="${BASH_REMATCH[1]}"
+      ((n > max)) && max="$n"
+    fi
+  done
+
+  echo "${base}-$((max + 1))"
+}
+
+# src/lib/file/replace_embed_markers.sh
+replace_embed_markers() {
+  local json="$1"
+  local files=()
+  local content
+
+  # Find all "$(filename)" placeholders in JSON string values
+  mapfile -t files < <(echo "$json" | jq -r '
+    .. | select(type == "string") |
+    match("^~(.+)$")? | .captures[0].string
+  ')
+
+  for file in "${files[@]}"; do
+    if [[ ! -f "$file" ]]; then
+      log error "embedded file not found: $(blue "$file")"
+      return 1
+    fi
+
+    # Read raw file contents (preserve newlines)
+    log debug "embedding $(blue "$file")"
+    content=$(<"$file")
+
+    # Use jq to replace the placeholder with file contents
+    json=$(echo "$json" | jq \
+      --arg placeholder "~$file" \
+      --arg content "$content" \
+      '(.. | select(type=="string" and .==$placeholder)) |= $content')
+
+  done
+
+  echo "$json"
+}
+
+# src/lib/file/replace_file_placeholders.sh
+replace_file_placeholders() {
+  local json="$1"
+  local url
+  local files=()
+
+  # Find all "<filename>" occurrences in JSON values
+  mapfile -t files < <(echo "$json" | jq -r '
+    .. | select(type == "string") |
+    match("^<(.+)>$")? | .captures[0].string
+  ')
+
+  # Replace each placeholder with uploaded file URL
+  for file in "${files[@]}"; do
+    if [[ ! -f "$file" ]]; then
+      log error "upload file not found: $(blue "$file")"
+      return 1
+    fi
+
+    log debug "replacing upload file marker $(blue "$file")"
+    url=$(get_file_url "$file")
+    json=$(echo "$json" | jq --arg f "<$file>" --arg u "$url" '
+      (.. | select(type=="string" and .==$f)) |= $u
+    ')
+  done
+
+  echo "$json"
+}
+
+# src/lib/file/upload_to_replicate.sh
+upload_to_replicate() {
+  local input_file="$1"
+
+  file=$(curl -s -X POST "$replicate_host/v1/files" \
+    -H "Authorization: Bearer $REPLICATE_API_TOKEN" \
+    -H "Content-Type: multipart/form-data" \
+    -F "content=@$input_file;type=application/octet-stream;title=$(basename "$input_file")")
+
+  input_file_url=$(echo "$file" | jq -r '.urls.get')
+  if [[ -z "$input_file_url" ]]; then
+    log error "could not get file URL"
+    log debug "$file"
+    return 1
+  fi
+
+  echo "$input_file_url"
+}
+
+# src/lib/filters/templates_dir_exist.sh
+filter_templates_dir_exists() {
+  if [[ ! -d "$templates_dir" ]]; then
+    echo "Templates dir not found ($templates_dir), set using REPLI_TEMPLATES_DIR"
+  fi
+}
+
+# src/lib/json-parsers/json_get_model_properties.sh
+json_get_model_properties() {
+  local json="$1"
+
+  # iterate over properties
+  while read -r prop; do
+    enums=$(json_get_prop_enums "$json" "$prop")
+    [[ -n "$enums" ]] || enums='*'
+    echo "$prop: $enums"
+  done < <(json_get_model_properties_list "$json")
+}
+
+# src/lib/json-parsers/json_get_model_properties_list.sh
+json_get_model_properties_list() {
+  local json="$1"
+
+  echo "$json" | jq -r '
+    .latest_version.openapi_schema.components.schemas.Input.properties
+    | keys[]
+  '
+}
+
+# src/lib/json-parsers/json_get_prop_enums.sh
+json_get_prop_enums() {
+  local json="$1"
+  local prop="$2"
+
+  echo "$json" | jq -r --arg prop "$prop" '
+    .latest_version.openapi_schema.components.schemas[$prop]
+    | .. | objects | select(has("enum")) | .enum? // empty
+    | join(", ")
+  '
+}
+
+# src/lib/json-parsers/json_to_template.sh
+json_to_template() {
+  json="$1"
+
+  # Determine whether the model is official
+  is_official=$(jq -r '.is_official // false' <<<"$json")
+
+  echo "# https://replicate.com/$model"
+  echo
+
+  if [[ "$is_official" == "true" ]]; then
+    log debug "model status: $(blue official)"
+    # Official image
+    jq --arg model "$model" \
+      '{model: $model, input: .default_example.input}' \
+      <<<"$json" | yq -P -
+  else
+    # Non-official image: use version instead of model
+    log debug "model status: $(blue unofficial)"
+    version=$(jq -r '.latest_version.id' <<<"$json")
+
+    jq --arg model "$model" --arg version "$version" \
+      '{version: ($model + ":" + $version), input: .default_example.input}' \
+      <<<"$json" | yq -P -
+  fi
+
+  echo
+  echo "# PROPERTIES"
+  mapfile -t props < <(json_get_model_properties "$json")
+  for propline in "${props[@]}"; do
+    echo "# $propline"
+  done
+}
+
+# src/lib/json-parsers/json_verify_success_file.sh
+json_verify_success_file() {
+  local json_file="$1"
+  local status
+
+  if [[ ! -f "$json_file" ]]; then
+    log error "file not found: $(blue "$json_file")"
+    return 1
+  fi
+
+  status=$(jq -r '.status // empty' "$json_file")
+
+  [[ "$status" == "succeeded" ]] && return 0
+  log error "received invalid response:"
+  yq -P -oy "$json_file"
+  return 1
+}
+
+# src/lib/template/get_templates_list.sh
+get_templates_list() {
+  local search="${1:-}"
+
+  while IFS= read -r -d '' rel; do
+    # Strip .yaml
+    local name="${rel%.yaml}"
+
+    # If not nested, show only the basename
+    if [[ "$rel" != */* ]]; then
+      printf '%s\0' "$name"
+    else
+      # Keep the relative directory path
+      printf '%s\0' "$name"
+    fi
+
+  done < <(
+    find "$templates_dir" \
+      -type f -name '*.yaml' \
+      -printf '%P\0' | # <-- %P = path relative to $templates_dir
+      grep -iz "$search" |
+      sort -zV
+  )
+}
+
+# src/lib/template/select_template.sh
+select_template() {
+  local search="$1"
+  local exact="$2"
+
+  # Get templates list matching the search
+  mapfile -d '' templates < <(get_templates_list "$search")
+
+  # No matches
+  if [[ ${#templates[@]} -eq 0 ]]; then
+    log error "no matching templates"
+    return 1
+  fi
+
+  if [[ ${#templates[@]} -eq 1 ]]; then
+    # Exactly one match → auto-select
+    echo "${templates[0]}"
+    return
+  else
+    # Show interactive menu
+    show_templates_list "$search" >&2
+
+    if [[ "$exact" ]]; then
+      log error "no exact match"
+      return 1
+    fi
+
+    read -rp "Choose a template (1-${#templates[@]}): " choice
+
+    # Validate selection
+    if ! [[ "$choice" =~ ^[0-9]+$ ]] || ((choice < 1 || choice > ${#templates[@]})); then
+      log error "invalid selection"
+      return 1
+    fi
+
+    echo "${templates[choice - 1]}"
+  fi
+}
+
+# src/lib/template/show_templates_list.sh
+show_templates_list() {
+  local search="${1:-.}" # optional search term
+
+  echo "Templates in $(blue "$templates_dir"):"
+  echo
+
+  mapfile -d '' templates < <(get_templates_list "$search")
+
+  if ((${#templates[@]} == 0)); then
+    echo "  No templates found."
+    echo
+    return
+  fi
+
+  i=1
+  for f in "${templates[@]}"; do
+    echo " $i. $f"
+    ((i++))
+  done
+
+  echo
+}
+
+# src/lib/utils/colors.sh
 enable_auto_colors() {
   if [[ -z ${NO_COLOR+x} && ! -t 1 ]]; then
     NO_COLOR=1
@@ -762,179 +1182,7 @@ cyan_underlined() { print_in_color "\e[4;36m" "$*"; }
 black_underlined() { print_in_color "\e[4;30m" "$*"; }
 white_underlined() { print_in_color "\e[4;37m" "$*"; }
 
-# src/lib/download_outputs.sh
-# usage: download_outputs PREFIX json_file
-download_outputs() {
-  local prefix="$1"
-  local json_file="$2"
-  local filename
-
-  if [[ ! -f "$json_file" ]]; then
-    log error file not found: "$(blue "$json_file")"
-    return 1
-  fi
-
-  # Extract URLs (string → array, array → array)
-  readarray -t urls < <(
-    jq -r '
-      (.output | if type=="string" then [.] else . end)
-      | .[]
-    ' "$json_file"
-  )
-
-  if [[ ${#urls[@]} -eq 0 || "${urls[0]}" == "null" ]]; then
-    log warn no outputs found in "$(blue "$json_file")"
-    return 0
-  fi
-
-  for url in "${urls[@]}"; do
-    filename="${output_dir}/${prefix}_$(basename "$url")"
-
-    if [[ -f "$filename" ]]; then
-      log info "skipping download, file exists: $(blue "$filename")"
-      continue
-    fi
-
-    log debug "downloading from: $(underlined "$url")"
-    log info "downloading to $(blue "$filename")"
-
-    wget -q -O "$filename" "$url" ||
-      log error "failed to download: $(underlined "$url")"
-
-  done
-}
-
-# src/lib/filters/templates_dir_exist.sh
-filter_templates_dir_exists() {
-  if [[ ! -d "$templates_dir" ]]; then
-    echo "Templates dir not found ($templates_dir), set using REPLI_TEMPLATES_DIR"
-  fi
-}
-
-# src/lib/get_example_from_replicate.sh
-get_example_from_replicate() {
-  json=$(get_model_info "$model") || return 1
-
-  # Determine whether the model is official
-  is_official=$(jq -r '.is_official // false' <<<"$json")
-
-  if [[ "$is_official" == "true" ]]; then
-    log debug "model status: $(blue official)"
-    # Official image
-    jq --arg model "$model" \
-      '{model: $model, input: .default_example.input}' \
-      <<<"$json" | yq -P -
-  else
-    # Non-official image: use version instead of model
-    log debug "model status: $(blue unofficial)"
-    version=$(jq -r '.latest_version.id' <<<"$json")
-
-    jq --arg model "$model" --arg version "$version" \
-      '{version: ($model + ":" + $version), input: .default_example.input}' \
-      <<<"$json" | yq -P -
-  fi
-}
-
-# src/lib/get_file_url.sh
-get_file_url() {
-  local file="$1"
-  local files_list="$output_dir/files.ini"
-
-  if [[ -f "$files_list" ]]; then
-    log debug reading files list: "$(blue "$files_list")"
-
-    while IFS='=' read -r path url; do
-      if [[ "$path" == "$file" ]]; then
-        log debug file already registered in "$(blue "$files_list")"
-        log debug "$file → $url"
-        echo "$url"
-        return 0
-      fi
-    done <"$files_list"
-  fi
-
-  log info uploading file: "$(blue "$file")"
-  url="$(upload_to_replicate "$file")"
-  log debug file url: "$(underlined "$url")"
-  log debug saving URL to "$(blue "$files_list")"
-  echo "$file=$url" >>"$files_list"
-  echo "$url"
-}
-
-# src/lib/get_files_list.sh
-get_files_list() {
-  curl -s -H "Authorization: Token $REPLICATE_API_TOKEN" "$replicate_host/v1/files"
-}
-
-# src/lib/get_model_info.sh
-get_model_info() {
-  local model="$1"
-  local body status
-
-  # Capture body AND HTTP status code
-  log debug calling replicate API
-  body=$(curl -s -w "\n%{http_code}" \
-    -H "Authorization: Bearer $REPLICATE_API_TOKEN" \
-    "$replicate_host/v1/models/$model")
-
-  # Split last line as status code, everything above is the JSON body
-  status=$(tail -n1 <<<"$body")
-  body=$(sed '$d' <<<"$body")
-
-  # Any 4xx or 5xx status means error
-  if [[ "$status" -ge 400 ]]; then
-    log error "failed getting model info for $(blue "$model")"
-    log error "($status) $(jq -r '.detail // empty' <<<"$body")"
-    return 1
-  fi
-
-  printf '%s\n' "$body"
-}
-
-# src/lib/get_templates_list.sh
-get_templates_list() {
-  local search="${1:-}"
-
-  while IFS= read -r -d '' rel; do
-    # Strip .yaml
-    local name="${rel%.yaml}"
-
-    # If not nested, show only the basename
-    if [[ "$rel" != */* ]]; then
-      printf '%s\0' "$name"
-    else
-      # Keep the relative directory path
-      printf '%s\0' "$name"
-    fi
-
-  done < <(
-    find "$templates_dir" \
-      -type f -name '*.yaml' \
-      -printf '%P\0' | # <-- %P = path relative to $templates_dir
-      grep -iz "$search" |
-      sort -zV
-  )
-}
-
-# src/lib/get_unique_filename.sh
-get_unique_filename() {
-  local base="$1"
-  local max=0
-  local n
-
-  for f in "${base}-"*; do
-    [[ -e "$f" ]] || continue # skip if no match
-
-    if [[ $f =~ ${base}-([0-9]+) ]]; then
-      n="${BASH_REMATCH[1]}"
-      ((n > max)) && max="$n"
-    fi
-  done
-
-  echo "${base}-$((max + 1))"
-}
-
-# src/lib/log.sh
+# src/lib/utils/log.sh
 log() {
   local level="$1"
   shift
@@ -979,150 +1227,6 @@ log() {
   fi
 }
 
-# src/lib/replace_embed_markers.sh
-replace_embed_markers() {
-  local json="$1"
-  local files=()
-  local content
-
-  # Find all "$(filename)" placeholders in JSON string values
-  mapfile -t files < <(echo "$json" | jq -r '
-    .. | select(type == "string") |
-    match("^~(.+)$")? | .captures[0].string
-  ')
-
-  for file in "${files[@]}"; do
-    if [[ ! -f "$file" ]]; then
-      log error "embedded file not found: $(blue "$file")"
-      return 1
-    fi
-
-    # Read raw file contents (preserve newlines)
-    log debug "embedding $(blue "$file")"
-    content=$(<"$file")
-
-    # Use jq to replace the placeholder with file contents
-    json=$(echo "$json" | jq \
-      --arg placeholder "~$file" \
-      --arg content "$content" \
-      '(.. | select(type=="string" and .==$placeholder)) |= $content')
-
-  done
-
-  echo "$json"
-}
-
-# src/lib/replace_file_placeholders.sh
-replace_file_placeholders() {
-  local json="$1"
-  local url
-  local files=()
-
-  # Find all "<filename>" occurrences in JSON values
-  mapfile -t files < <(echo "$json" | jq -r '
-    .. | select(type == "string") |
-    match("^<(.+)>$")? | .captures[0].string
-  ')
-
-  # Replace each placeholder with uploaded file URL
-  for file in "${files[@]}"; do
-    if [[ ! -f "$file" ]]; then
-      log error "upload file not found: $(blue "$file")"
-      return 1
-    fi
-
-    log debug "replacing upload file marker $(blue "$file")"
-    url=$(get_file_url "$file")
-    json=$(echo "$json" | jq --arg f "<$file>" --arg u "$url" '
-      (.. | select(type=="string" and .==$f)) |= $u
-    ')
-  done
-
-  echo "$json"
-}
-
-# src/lib/select_template.sh
-select_template() {
-  local search="$1"
-  local exact="$2"
-
-  # Get templates list matching the search
-  mapfile -d '' templates < <(get_templates_list "$search")
-
-  # No matches
-  if [[ ${#templates[@]} -eq 0 ]]; then
-    log error "no matching templates"
-    return 1
-  fi
-
-  if [[ ${#templates[@]} -eq 1 ]]; then
-    # Exactly one match → auto-select
-    echo "${templates[0]}"
-    return
-  else
-    # Show interactive menu
-    show_templates_list "$search" >&2
-
-    if [[ "$exact" ]]; then
-      log error "no exact match"
-      return 1
-    fi
-
-    read -rp "Choose a template (1-${#templates[@]}): " choice
-
-    # Validate selection
-    if ! [[ "$choice" =~ ^[0-9]+$ ]] || ((choice < 1 || choice > ${#templates[@]})); then
-      log error "invalid selection"
-      return 1
-    fi
-
-    echo "${templates[choice - 1]}"
-  fi
-}
-
-# src/lib/show_templates_list.sh
-show_templates_list() {
-  local search="${1:-.}" # optional search term
-
-  echo "Templates in $(blue "$templates_dir"):"
-  echo
-
-  mapfile -d '' templates < <(get_templates_list "$search")
-
-  if ((${#templates[@]} == 0)); then
-    echo "  No templates found."
-    echo
-    return
-  fi
-
-  i=1
-  for f in "${templates[@]}"; do
-    echo " $i. $f"
-    ((i++))
-  done
-
-  echo
-}
-
-# src/lib/upload_to_replicate.sh
-upload_to_replicate() {
-  local input_file="$1"
-
-  file=$(curl -s -X POST "$replicate_host/v1/files" \
-    -H "Authorization: Bearer $REPLICATE_API_TOKEN" \
-    -H "Content-Type: multipart/form-data" \
-    -F "content=@$input_file;type=application/octet-stream;title=$(basename "$input_file")")
-
-  input_file_url=$(echo "$file" | jq -r '.urls.get')
-  if [[ -z "$input_file_url" ]]; then
-    log error "could not get file URL"
-    log debug "$file"
-    return 1
-  fi
-
-  echo "$input_file_url"
-}
-
 # src/lib/validations/dir_exists.sh
 validate_dir_exists() {
   if [[ ! -d "$1" ]]; then
@@ -1156,66 +1260,6 @@ validate_template_exists() {
   if [[ ! -f "$templates_dir/$1.yaml" ]]; then
     echo "must be an existing template"
   fi
-}
-
-# src/lib/verify_success_json.sh
-verify_success_json() {
-  local json_file="$1"
-  local status
-
-  if [[ ! -f "$json_file" ]]; then
-    log error "file not found: $(blue "$json_file")"
-    return 1
-  fi
-
-  status=$(jq -r '.status // empty' "$json_file")
-
-  [[ "$status" == "succeeded" ]] && return 0
-  log error "received invalid response:"
-  yq -P -oy "$json_file"
-  return 1
-}
-
-# src/lib/yurl.sh
-yurl() {
-  local yaml_file="$1"
-  local model version json payload url
-
-  # YAML validation
-  if ! yq -e '.input' "$yaml_file" >/dev/null 2>&1; then
-    log error "no input field in $(blue "$yaml_file")"
-    return 1
-  fi
-
-  model=$(yq -r '.model // ""' "$yaml_file")
-  version=$(yq -r '.version // ""' "$yaml_file")
-
-  if [[ -z "$model" && -z "$version" ]]; then
-    log error "no model or version field in $(blue "$yaml_file")"
-    return 1
-  fi
-
-  # Convert .input YAML → JSON and replace <filename> and ~filename.txt
-  payload=$(yq -o=json '.' "$yaml_file")
-  payload=$(replace_file_placeholders "$payload")
-  payload=$(replace_embed_markers "$payload")
-
-  # Set payload and URL for official/unofficial models
-  if [[ -n "$model" ]]; then
-    payload=$(echo "$payload" | jq 'del(.model)')
-    url="$replicate_host/v1/models/${model}/predictions"
-  else
-    url="$replicate_host/v1/predictions"
-  fi
-
-  # Pipe the evaluated JSON to curl which uses it (@-) as its data.
-  echo "$payload" |
-    curl -sS -X POST \
-      -H "Authorization: Bearer $REPLICATE_API_TOKEN" \
-      -H "Content-Type: application/json" \
-      -H "Prefer: wait" \
-      -d @- \
-      "$url"
 }
 
 # :command.command_functions
@@ -1265,7 +1309,7 @@ repli_get_command() {
   fi
 
   # download outputs
-  if verify_success_json "$outfile"; then
+  if json_verify_success_file "$outfile"; then
     download_outputs "$prefix" "$outfile"
   fi
 
@@ -1359,11 +1403,15 @@ repli_template_new_command() {
   fi
 
   mkdir -p "$templates_dir"
-  log debug "fetching example for $(blue "$model")"
-  template="$(get_example_from_replicate "$model")"
-
-  log info "saving to $(blue "$outpath")"
-  [[ -n "$template" ]] && printf "%s\n" "$template" >"$outpath"
+  log info "building template for $(blue "$model")"
+  json=$(get_model_info "$model") || return 1
+  template="$(json_to_template "$json")"
+  if [[ -n "$template" ]]; then
+    log info "saving to $(blue "$outpath")"
+    printf "%s\n" "$template" >"$outpath"
+  else
+    log error "received an empty template"
+  fi
 
 }
 

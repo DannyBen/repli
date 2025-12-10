@@ -14,8 +14,13 @@ if [[ -f "$outpath" && ! "$force" ]]; then
 fi
 
 mkdir -p "$templates_dir"
-log debug "fetching example for $(blue "$model")"
-template="$(get_example_from_replicate "$model")"
+log info "building template for $(blue "$model")"
+json=$(get_model_info "$model") || return 1
+template="$(json_to_template "$json")"
+if [[ -n "$template" ]]; then
+  log info "saving to $(blue "$outpath")"
+  printf "%s\n" "$template" >"$outpath"
+else
+  log error "received an empty template"
+fi
 
-log info "saving to $(blue "$outpath")"
-[[ -n "$template" ]] && printf "%s\n" "$template" >"$outpath"

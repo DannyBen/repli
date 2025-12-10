@@ -1,4 +1,4 @@
-## Color functions [@bashly-upgrade colors]
+## Color functions
 ## This file is a part of Bashly standard library
 ##
 ## Usage:

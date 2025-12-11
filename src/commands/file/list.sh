@@ -1,5 +1,5 @@
-plain="${args[--plain]}"
-json="${args[--json]}"
+local plain="${args[--plain]}"
+local json="${args[--json]}"
 
 if [[ -n "$json" ]]; then
   parser="jq"

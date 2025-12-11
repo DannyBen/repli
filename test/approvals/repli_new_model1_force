@@ -1,1 +1,2 @@
+fzf stub: selected=model1 args=--select-1 --exit-0
 [1;32m•[0m [32minfo[0m • [36mrepli_new_command[0m [1;32m→[0m copying [34mtmp/templates/model1.yaml[0m → [34mtmp/repli.yaml[0m

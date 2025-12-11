@@ -1082,86 +1082,40 @@ json_verify_success_file() {
 get_templates_list() {
   local search="${1:-}"
 
-  while IFS= read -r -d '' rel; do
-    # Strip .yaml
-    local name="${rel%.yaml}"
-
-    # If not nested, show only the basename
-    if [[ "$rel" != */* ]]; then
-      printf '%s\0' "$name"
-    else
-      # Keep the relative directory path
-      printf '%s\0' "$name"
-    fi
-
-  done < <(
-    find "$templates_dir" \
-      -type f -name '*.yaml' \
-      -printf '%P\0' | # <-- %P = path relative to $templates_dir
-      grep -iz "$search" |
-      sort -zV
-  )
+  find "$templates_dir" \
+    -type f -name '*.yaml' \
+    -printf '%P\n' \
+    | { grep -i "$search" || true; } \
+    | sort -V \
+    | sed 's/\.yaml$//'
 }
 
 # src/lib/template/select_template.sh
 select_template() {
   local search="$1"
-  local exact="$2"
 
-  # Get templates list matching the search
-  mapfile -d '' templates < <(get_templates_list "$search")
-
-  # No matches
-  if [[ ${#templates[@]} -eq 0 ]]; then
-    log error "no matching templates"
-    return 1
-  fi
-
-  if [[ ${#templates[@]} -eq 1 ]]; then
-    # Exactly one match → auto-select
-    echo "${templates[0]}"
-    return
-  else
-    # Show interactive menu
-    show_templates_list "$search" >&2
-
-    if [[ "$exact" ]]; then
-      log error "no exact match"
-      return 1
-    fi
-
-    read -rp "Choose a template (1-${#templates[@]}): " choice
-
-    # Validate selection
-    if ! [[ "$choice" =~ ^[0-9]+$ ]] || ((choice < 1 || choice > ${#templates[@]})); then
-      log error "invalid selection"
-      return 1
-    fi
-
-    echo "${templates[choice - 1]}"
-  fi
+  get_templates_list "$search" | fzf --select-1 --exit-0
 }
 
 # src/lib/template/show_templates_list.sh
 show_templates_list() {
-  local search="${1:-.}" # optional search term
+  local search="${1:-.}"
 
   echo "Templates in $(blue "$templates_dir"):"
   echo
 
-  mapfile -d '' templates < <(get_templates_list "$search")
+  # Capture the list (newline-delimited)
+  local list
+  list=$(get_templates_list "$search")
 
-  if ((${#templates[@]} == 0)); then
+  if [[ -z "$list" ]]; then
     echo "  No templates found."
     echo
     return
   fi
 
-  i=1
-  for f in "${templates[@]}"; do
-    echo " $i. $f"
-    ((i++))
-  done
+  # Print numbered list
+  printf '%s\n' "$list" | nl -w3 -s'. '
 
   echo
 }
@@ -1310,7 +1264,22 @@ repli_new_command() {
     return 1
   fi
 
-  selected="$(select_template "$search" "$exact")"
+  if [[ "$exact" ]]; then
+    file="$templates_dir/$search.yaml"
+    if [[ -f "$file" ]]; then
+      selected="$search"
+    else
+      log error "template not found"
+      return 1
+    fi
+  else
+    selected="$(select_template "$search")"
+  fi
+
+  if [[ -z "$selected" ]]; then
+    log error "no template selected"
+    return 1
+  fi
 
   # Copy file
   infile="${templates_dir}/${selected}.yaml"
@@ -1486,7 +1455,11 @@ repli_template_show_command() {
   local search="${args[search]}"
   template="$(select_template "$search")"
   file="$templates_dir/$template.yaml"
-  yq -P -oy "$file"
+  if [[ -f "$file" ]]; then
+    yq -P -oy "$file"
+  else
+    log error "file not found $(blue "$file")"
+  fi
 
 }
 
@@ -1517,8 +1490,8 @@ repli_template_delete_command() {
 repli_file_list_command() {
 
   # src/commands/file/list.sh
-  plain="${args[--plain]}"
-  json="${args[--json]}"
+  local plain="${args[--plain]}"
+  local json="${args[--json]}"
 
   if [[ -n "$json" ]]; then
     parser="jq"
@@ -1642,6 +1615,14 @@ parse_requirements() {
     missing_deps=1
   else
     deps['wget']="$(command -v wget | head -n1)"
+  fi
+
+  # :dependency.filter
+  if ! command -v fzf >/dev/null 2>&1; then
+    printf "missing dependency: fzf\n" >&2
+    missing_deps=1
+  else
+    deps['fzf']="$(command -v fzf | head -n1)"
   fi
 
   if [[ -n $missing_deps ]]; then

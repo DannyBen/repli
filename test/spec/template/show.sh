@@ -4,9 +4,4 @@ describe "templates show"
   approve "repli template show"
   approve "repli template show missing-template"
   add_templates
-  approve "repli template show model1"
-
-  context "interactive template select"
-    add_templates
-    approve "echo 1 | repli template show mod"
-
+  approve "repli template show mod"

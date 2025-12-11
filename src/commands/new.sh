@@ -10,7 +10,22 @@ if [[ -e "$outfile" && -z "$force" ]]; then
   return 1
 fi
 
-selected="$(select_template "$search" "$exact")"
+if [[ "$exact" ]]; then
+  file="$templates_dir/$search.yaml"
+  if [[ -f "$file" ]]; then
+    selected="$search"
+  else
+    log error "template not found"
+    return 1
+  fi
+else
+  selected="$(select_template "$search")"
+fi
+
+if [[ -z "$selected" ]]; then
+  log error "no template selected"
+  return 1
+fi
 
 # Copy file
 infile="${templates_dir}/${selected}.yaml"

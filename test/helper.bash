@@ -31,6 +31,18 @@ editstub() {
   echo "editstub $*"
 }
 
+fzf() {
+  # 1. Consume all input (the template list being piped in)
+  cat >/dev/null
+
+  # 2. Show debug info (stderr, does not affect stdout)
+  : "${FZF_SELECT:=model1}"
+  echo "fzf stub: selected=$FZF_SELECT args=$*" >&2
+
+  # 3. Output the simulated selection (this becomes $template)
+  printf '%s\n' "$FZF_SELECT"
+}
+
 initialize() {
   export REPLI_OUTPUT_DIR=tmp
   export REPLI_FILE=tmp/repli.yaml
@@ -40,6 +52,7 @@ initialize() {
   export REPLICATE_API_TOKEN=no-token-needed
   export EDITOR=editstub
   export -f editstub
+  export -f fzf
 
   declare -g output_dir="$REPLI_OUTPUT_DIR"
 

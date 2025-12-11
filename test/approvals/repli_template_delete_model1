@@ -1,1 +1,2 @@
+fzf stub: selected=model1 args=--select-1 --exit-0
 [1;32m•[0m [32minfo[0m • [36mrepli_template_delete_command[0m [1;32m→[0m deleting tmp/templates/model1.yaml

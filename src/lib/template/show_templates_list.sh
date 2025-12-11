@@ -1,22 +1,21 @@
 show_templates_list() {
-  local search="${1:-.}" # optional search term
+  local search="${1:-.}"
 
   echo "Templates in $(blue "$templates_dir"):"
   echo
 
-  mapfile -d '' templates < <(get_templates_list "$search")
+  # Capture the list (newline-delimited)
+  local list
+  list=$(get_templates_list "$search")
 
-  if ((${#templates[@]} == 0)); then
+  if [[ -z "$list" ]]; then
     echo "  No templates found."
     echo
     return
   fi
 
-  i=1
-  for f in "${templates[@]}"; do
-    echo " $i. $f"
-    ((i++))
-  done
+  # Print numbered list
+  printf '%s\n' "$list" | nl -w3 -s'. '
 
   echo
 }

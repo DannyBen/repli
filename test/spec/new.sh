@@ -15,8 +15,8 @@ describe "new"
   context "with interactive menu"
     reset_state
     add_templates
-    approve "echo 2 | repli new"
+    approve "repli new"
     reset_state
     add_templates
-    approve "echo 2 | repli new model"
+    approve "repli new model"
 

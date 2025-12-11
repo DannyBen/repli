@@ -2,7 +2,7 @@ name: repli
 help: Replicate AI Workspace Tool
 version: 0.1.4
 
-dependencies: [yq, jq, curl, wget]
+dependencies: [yq, jq, curl, wget, fzf]
 
 environment_variables:
 - name: replicate_api_token

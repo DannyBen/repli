@@ -114,7 +114,7 @@ You'll find:
 
 ## YAML Configuration
 
-repli expects a configuration file named `repli.yml` in the current directory.  
+repli expects a configuration file named `repli.yaml` in the current directory.  
 It must include an `input` dictionary:
 
 - `input`: a mapping of any valid model options  
@@ -128,7 +128,7 @@ option:
 Example:
 
 ```yaml
-# repli.yml - official model
+# repli.yaml - official model
 model: google/nano-banana
 input:
   prompt: tuxedo cat standing on a black and white printer
@@ -139,7 +139,7 @@ input:
 ```
 
 ```yaml
-# repli.yml - unofficial model
+# repli.yaml - unofficial model
 version: jingyunliang/swinir:660d...021a
 input:
   image: <source.jpg>

@@ -27,6 +27,7 @@ if [[ -z "$selected" ]]; then
   return 1
 fi
 
+
 # Copy file
 infile="${templates_dir}/${selected}.yaml"
 log info "copying $(blue "$infile") → $(blue "$outfile")"

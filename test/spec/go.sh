@@ -7,7 +7,7 @@ describe "go"
   approve "repli go x"
 
   # ensure the downloaded file matches the source file
-  [[ "$(stat -c%s $output_dir/x_out-0.jpg)" -eq "$(stat -c%s mockserver/mocks/assets/out-0.jpg)" ]] ||
+  [[ "$(stat -c%s $output_dir/x_out-0.jpg)" -eq "$(stat -c%s mockly/assets/out-0.jpg)" ]] ||
     fail "downloaded file does not match the source file"
   
   approve "repli go x" "repli_go_x@again"

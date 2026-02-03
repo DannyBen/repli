@@ -7,6 +7,8 @@
 
 ---
 
+![repocard](repocard.svg)
+
 **repli** is a command-line tool that turns Replicate API calls into a clean,
 reproducible, YAML-driven workflow.  
 Generate templates, edit your configuration, run a single command, and let

@@ -79,6 +79,14 @@ sudo install -m 0755 repli /usr/local/bin/
 curl -Ls get.dannyb.co/repli/setup | bash
 ```
 
+## Uninstall
+
+Remove the file from your path, or run this script:
+
+```console
+curl -Ls get.dannyb.co/repli/uninstall | bash
+```
+
 
 ## Quick Start
 

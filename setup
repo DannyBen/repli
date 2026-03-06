@@ -7,5 +7,6 @@ cd "$tmpdir"
 wget -q https://github.com/DannyBen/ssi/releases/latest/download/ssi
 chmod +x ssi
 
+./ssi log info Downloading latest executable
 ./ssi bin https://github.com/DannyBen/repli/releases/latest/download/repli
-repli --version
+./ssi log info "repli --version : $(repli --version)"

@@ -4,7 +4,7 @@ set -euo pipefail
 tmpdir="$(mktemp -d)"
 trap 'rm -rf "$tmpdir"' EXIT
 cd "$tmpdir"
-wget https://github.com/DannyBen/ssi/blob/master/ssi
+wget -q https://github.com/DannyBen/ssi/releases/latest/download/ssi
 chmod +x ssi
 
 ./ssi bin https://github.com/DannyBen/repli/releases/latest/download/repli

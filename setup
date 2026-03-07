@@ -20,6 +20,6 @@ chmod +x ssi
 
 # === Install ===
 
-ssi log info Downloading latest executable
+ssi log info Installing repli
 ssi install bin https://github.com/DannyBen/repli/releases/latest/download/repli
 ssi log info "repli --version : $(repli --version)"

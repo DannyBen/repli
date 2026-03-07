@@ -28,3 +28,9 @@ jobs:
 
     - name: Run approval tests
       run: test/approve
+
+    - name: Test setup
+      run: ./setup
+
+    - name: Test uninstall
+      run: ./uninstall
